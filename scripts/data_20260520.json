@@ -1,0 +1,128 @@
+{
+  "csi300": {
+    "close": 4850.7,
+    "ret_30d": 8.3,
+    "ret_60d": 2.9,
+    "anchor_30d": "20260402",
+    "anchor_60d": "20260211"
+  },
+  "csi1000": {
+    "close": 8808.9095,
+    "ret_30d": 15.55,
+    "ret_60d": 6.91,
+    "anchor_30d": "20260402",
+    "anchor_60d": "20260211"
+  },
+  "semi_etf": {
+    "close": 2.227,
+    "ret_30d": 57.61,
+    "ret_60d": 37.72,
+    "anchor_30d": "20260402",
+    "anchor_60d": "20260211",
+    "name": "半导体ETF(512480)",
+    "note": "≈申万半导体, within 0.1ppt"
+  },
+  "auto_etf": {
+    "close": 1.277,
+    "ret_30d": -1.77,
+    "ret_60d": -7.73,
+    "anchor_30d": "20260402",
+    "anchor_60d": "20260211",
+    "name": "汽车ETF(516110)",
+    "note": "APPROXIMATE — differs from SW801880, use Wind for precision"
+  },
+  "stocks": {
+    "catl": {
+      "close": 414.75,
+      "ret_30d": 3.39,
+      "ret_60d": 12.7,
+      "anchor_30d": "20260402",
+      "anchor_60d": "20260211",
+      "ts_code": "300750.SZ"
+    },
+    "byd": {
+      "close": 93.36,
+      "ret_30d": -8.16,
+      "ret_60d": 1.17,
+      "anchor_30d": "20260402",
+      "anchor_60d": "20260211",
+      "ts_code": "002594.SZ"
+    },
+    "luxshare": {
+      "close": 70.07,
+      "ret_30d": 40.45,
+      "ret_60d": 36.99,
+      "anchor_30d": "20260402",
+      "anchor_60d": "20260211",
+      "ts_code": "002475.SZ"
+    },
+    "naura": {
+      "close": 656.0,
+      "ret_30d": 49.77,
+      "ret_60d": 38.11,
+      "anchor_30d": "20260402",
+      "anchor_60d": "20260211",
+      "ts_code": "002371.SZ"
+    },
+    "smic": {
+      "close": 133.81,
+      "ret_30d": 43.57,
+      "ret_60d": 16.35,
+      "anchor_30d": "20260402",
+      "anchor_60d": "20260211",
+      "ts_code": "688981.SH"
+    },
+    "weichai": {
+      "close": 35.42,
+      "ret_30d": 33.31,
+      "ret_60d": -2.5,
+      "anchor_30d": "20260402",
+      "anchor_60d": "20260211",
+      "ts_code": "000880.SZ"
+    }
+  },
+  "financials": {
+    "catl": {
+      "period": "20260331",
+      "revenue_yoy": 52.45,
+      "netprofit_yoy": 52.99,
+      "revenue_cur": 1291.31,
+      "netprofit_cur": 227.37
+    },
+    "byd": {
+      "period": "20260331",
+      "revenue_yoy": -11.82,
+      "netprofit_yoy": -57.53,
+      "revenue_cur": 1502.25,
+      "netprofit_cur": 40.11
+    },
+    "luxshare": {
+      "period": "20260331",
+      "revenue_yoy": 35.77,
+      "netprofit_yoy": 17.49,
+      "revenue_cur": 838.88,
+      "netprofit_cur": 39.68
+    },
+    "naura": {
+      "period": "20260331",
+      "revenue_yoy": 25.8,
+      "netprofit_yoy": 0.02,
+      "revenue_cur": 103.23,
+      "netprofit_cur": 15.68
+    },
+    "smic": {
+      "period": "20260331",
+      "revenue_yoy": 8.07,
+      "netprofit_yoy": -31.32,
+      "revenue_cur": 176.17,
+      "netprofit_cur": 15.94
+    },
+    "weichai": {
+      "period": "20260331",
+      "revenue_yoy": 93.76,
+      "netprofit_yoy": 71.66,
+      "revenue_cur": 20.67,
+      "netprofit_cur": 0.55
+    }
+  }
+}
