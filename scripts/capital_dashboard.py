@@ -233,147 +233,101 @@ def _compute_metrics(ts_code: str, trade_date: str) -> list[dict]:
     return metrics
 
 
-# ── 图表构建 ──────────────────────────────────────────────────────────────────
+# ── 图表构建（雷达图） ────────────────────────────────────────────────────────
 
 def _build_chart(metrics: list[dict], ts_code: str) -> str:
     n = len(metrics)
-    if n == 0:
+    if n < 3:
         return ''
 
     code = ts_code.split('.')[0]
 
-    # Layout constants
-    bar_h      = 0.52          # height of each gauge bar
-    row_gap    = 1.0           # vertical spacing between rows
-    fig_h      = max(3.0, n * row_gap + 1.2)
-    left_pad   = 0.22          # fraction for metric name
-    right_pad  = 0.18          # fraction for value/percentile text
-
-    fig_w = 8.0
-    fig, ax = plt.subplots(figsize=(fig_w, fig_h), facecolor='white')
-    ax.set_xlim(-0.05, 1.05)
-    ax.set_ylim(-0.6, n * row_gap)
-    ax.axis('off')
-
-    x0 = left_pad          # bar start (in ax coords)
-    x1 = 1.0 - right_pad   # bar end
-
-    # Composite score (average of bullish-direction percentiles)
-    bull_pcts = []
-    for m in metrics:
-        p = m['pct'] if m['direction'] == 'bull' else (100 - m['pct'])
-        if not np.isnan(p):
-            bull_pcts.append(p)
-    composite = float(np.mean(bull_pcts)) if bull_pcts else 50.0
-
-    for i, m in enumerate(metrics):
-        y = (n - 1 - i) * row_gap   # top metric = highest y
-
-        # ── 渐变 gauge bar via imshow ──────────────────────────────────────
-        cmap = _CMAP_BULL if m['direction'] == 'bull' else _CMAP_BEAR
-        ax.imshow(
-            _GRAD,
-            aspect='auto',
-            extent=[x0, x1, y - bar_h/2, y + bar_h/2],
-            cmap=cmap,
-            alpha=0.72,
-            zorder=1,
-            transform=ax.transData,
-        )
-        # border
-        ax.add_patch(plt.Rectangle(
-            (x0, y - bar_h/2), x1 - x0, bar_h,
-            fill=False, edgecolor='#bbb', linewidth=0.8, zorder=3,
-            transform=ax.transData
-        ))
-
-        # ── 当前百分位标记 (倒三角) ─────────────────────────────────────────
-        marker_x = x0 + (m['pct'] / 100) * (x1 - x0)
-        ax.plot([marker_x], [y],
-                marker='v', markersize=10, color='#111',
-                markeredgecolor='white', markeredgewidth=0.6,
-                zorder=5, transform=ax.transData)
-
-        # ── 左侧：指标名 ─────────────────────────────────────────────────────
-        ax.text(x0 - 0.015, y, m['name'],
-                ha='right', va='center', fontsize=8.5, color='#222',
-                transform=ax.transData)
-
-        # ── 右侧：当前值 + 百分位 ─────────────────────────────────────────────
-        pct_color = (_CMAP_BULL(m['pct'] / 100)
-                     if m['direction'] == 'bull'
-                     else _CMAP_BEAR(m['pct'] / 100))
-        ax.text(x1 + 0.015, y + 0.14,
-                m['value_str'],
-                ha='left', va='center', fontsize=7.5, color='#333',
-                transform=ax.transData)
-        ax.text(x1 + 0.015, y - 0.14,
-                f'{m["pct"]:.0f}%ile',
-                ha='left', va='center', fontsize=7,
-                color=pct_color, fontweight='bold',
-                transform=ax.transData)
-
-        # ── 零刻度线（百分位50处） ────────────────────────────────────────────
-        mid_x = x0 + 0.5 * (x1 - x0)
-        ax.plot([mid_x, mid_x], [y - bar_h/2, y + bar_h/2],
-                color='white', linewidth=1.0, alpha=0.7, zorder=4,
-                transform=ax.transData)
-
-    # ── 底部综合评分条 ───────────────────────────────────────────────────────────
-    y_comp = -0.48
-    ax.text(x0 - 0.015, y_comp, '综合资金',
-            ha='right', va='center', fontsize=8.5, color='#222',
-            fontweight='bold', transform=ax.transData)
-    ax.imshow(
-        _GRAD,
-        aspect='auto',
-        extent=[x0, x1, y_comp - bar_h/2 * 0.8, y_comp + bar_h/2 * 0.8],
-        cmap=_CMAP_BULL,
-        alpha=0.55,
-        zorder=1,
-        transform=ax.transData,
-    )
-    ax.add_patch(plt.Rectangle(
-        (x0, y_comp - bar_h/2 * 0.8), x1 - x0, bar_h * 0.8,
-        fill=False, edgecolor='#888', linewidth=1.2, zorder=3,
-        transform=ax.transData
-    ))
-    comp_marker_x = x0 + (composite / 100) * (x1 - x0)
-    ax.plot([comp_marker_x], [y_comp],
-            marker='D', markersize=9, color='#111',
-            markeredgecolor='white', markeredgewidth=0.7,
-            zorder=5, transform=ax.transData)
+    # Convert all to bull-direction percentile
+    bull_pcts = np.array([
+        m['pct'] if m['direction'] == 'bull' else (100 - m['pct'])
+        for m in metrics
+    ], dtype=float)
+    labels     = [m['name']      for m in metrics]
+    value_strs = [m['value_str'] for m in metrics]
+    raw_pcts   = [m['pct']       for m in metrics]
+    composite  = float(np.nanmean(bull_pcts))
 
     if composite >= 65:
-        comp_label = '资金偏多'
-        comp_color = '#2ca02c'
+        main_color, comp_label = '#2ca02c', '资金偏多'
     elif composite <= 35:
-        comp_label = '资金偏空'
-        comp_color = '#d62728'
+        main_color, comp_label = '#d62728', '资金偏空'
     else:
-        comp_label = '资金中性'
-        comp_color = '#8c6d31'
+        main_color, comp_label = '#e8a500', '资金中性'
 
-    ax.text(x1 + 0.015, y_comp,
-            f'{composite:.0f}%ile  {comp_label}',
-            ha='left', va='center', fontsize=8,
-            color=comp_color, fontweight='bold',
-            transform=ax.transData)
+    # Angles: evenly spaced, start from top (π/2), counterclockwise
+    angles = np.linspace(np.pi / 2, np.pi / 2 + 2 * np.pi, n, endpoint=False)
+    vals   = bull_pcts / 100.0
 
-    # ── 图例说明 ─────────────────────────────────────────────────────────────
-    ax.text(0.5, n * row_gap - 0.05,
-            f'{code} 资金博弈仪表盘（历史百分位）',
-            ha='center', va='bottom', fontsize=9, fontweight='bold',
-            color='#1a1a2e', transform=ax.transData)
-    ax.text(0.5, n * row_gap - 0.28,
-            '<< 历史偏空（0%ile）          中性（50%ile）          历史偏多（100%ile） >>',
-            ha='center', va='bottom', fontsize=6.5,
-            color='#666', transform=ax.transData)
+    # Close polygon
+    angles_c = np.append(angles, angles[0])
+    vals_c   = np.append(vals,   vals[0])
 
-    fig.subplots_adjust(left=0.02, right=0.98, top=0.96, bottom=0.04)
+    fig, ax = plt.subplots(figsize=(5.5, 5.0),
+                           subplot_kw={'projection': 'polar'},
+                           facecolor='white')
+    ax.set_facecolor('#fafafa')
+
+    # Reference rings
+    theta_ring = np.linspace(0, 2 * np.pi, 300)
+    for r, ls, alpha in [(0.25, ':', 0.4), (0.50, '--', 0.42),
+                         (0.75, ':', 0.4), (1.0, '-', 0.55)]:
+        ax.plot(theta_ring, [r] * 300, color='#ccc', lw=0.8,
+                ls=ls, alpha=alpha, zorder=1)
+
+    # Axis spokes
+    for angle in angles:
+        ax.plot([angle, angle], [0, 1.0], color='#ddd', lw=0.9, zorder=1)
+
+    # Filled polygon
+    ax.fill(angles_c, vals_c, alpha=0.20, color=main_color, zorder=2)
+    ax.plot(angles_c, vals_c, color=main_color, lw=2.2, zorder=3)
+    ax.scatter(angles, vals, s=65, color=main_color,
+               edgecolors='white', linewidths=1.5, zorder=4)
+
+    # Clean up ticks / spine
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.spines['polar'].set_visible(False)
+    ax.set_ylim(0, 1.6)
+
+    # Ring percentage labels near first spoke
+    ref_angle = angles[0] + 0.08
+    for r, lbl in [(0.25, '25%'), (0.5, '50%'), (0.75, '75%'), (1.0, '100%')]:
+        ax.text(ref_angle, r + 0.01, lbl, fontsize=6, color='#bbb',
+                ha='left', va='bottom', zorder=5)
+
+    # Metric labels at each vertex
+    for angle, label, val_str, pct, bp in zip(
+            angles, labels, value_strs, raw_pcts, bull_pcts):
+        r_lbl = 1.28
+        txt_color = ('#2ca02c' if bp >= 65
+                     else ('#d62728' if bp <= 35 else '#555'))
+        weight = 'bold' if abs(bp - 50) >= 25 else 'normal'
+        ax.text(angle, r_lbl,
+                f'{label}\n{val_str}  {pct:.0f}%ile',
+                ha='center', va='center', fontsize=8,
+                color=txt_color, fontweight=weight, zorder=6)
+
+    # Center composite badge
+    ax.text(0, 0,
+            f'{composite:.0f}%ile\n{comp_label}',
+            ha='center', va='center', fontsize=12, fontweight='bold',
+            color=main_color, zorder=7,
+            bbox=dict(boxstyle='round,pad=0.35', facecolor='white',
+                      edgecolor=main_color, alpha=0.95, linewidth=1.8))
+
+    ax.set_title(f'{code} 资金博弈雷达（历史百分位）',
+                 fontsize=10, fontweight='bold', color='#1a1a2e', pad=18)
+
+    fig.tight_layout()
 
     buf = io.BytesIO()
-    fig.savefig(buf, format='png', dpi=140, bbox_inches='tight', facecolor='white')
+    fig.savefig(buf, format='png', dpi=150, bbox_inches='tight', facecolor='white')
     plt.close(fig)
     buf.seek(0)
     return base64.b64encode(buf.read()).decode('utf-8')
