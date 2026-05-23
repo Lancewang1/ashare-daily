@@ -1,7 +1,7 @@
 """
 inject_signals.py
 =================
-Reusable module: inject 4 market micro-signal cards into a single-stock HTML report.
+Reusable module: inject market micro-signal cards into a single-stock HTML report.
 
 Public API
 ----------
@@ -9,6 +9,14 @@ Public API
 
 Called automatically by run_top1.py --publish for every generated report.
 Falls back gracefully if any signal fails (partial injection is OK).
+
+Sections injected:
+  § 市场微观信号     — 4 original: sentiment_thermometer, call_auction,
+                       sector_diffusion, margin_accel
+  § 内部人 & 资金博弈 — 4 new: block_trade_signal, slb_vs_margin,
+                       insider_trade, money_flow
+  § 事件风险 & 深度   — 4 new: share_unlock, equity_incentive,
+                       ah_premium, inst_survey
 """
 
 from __future__ import annotations
@@ -16,7 +24,6 @@ from __future__ import annotations
 import sys
 import os
 import re
-import importlib
 import time
 from pathlib import Path
 
@@ -25,7 +32,6 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-# Ensure tushare token is loaded if .env exists nearby
 try:
     from dotenv import load_dotenv
     for _env in (_SCRIPTS_DIR / ".env",
@@ -40,7 +46,6 @@ except ImportError:
 
 
 # ── Sector → SW Level-2 index mapping ────────────────────────────────────────
-# Maps sector labels (used in run_top1._SECTOR_OVERRIDES) → Shenwan L2 index codes
 _SECTOR_TO_SW = {
     '半导体':   '801081.SI',
     '电子':     '801080.SI',
@@ -72,13 +77,10 @@ _SECTOR_TO_SW = {
     '休闲服务': '801210.SI',
     '综合':     '801230.SI',
 }
-
-# Default fallback index (CSI 300 component)
-_DEFAULT_SW_INDEX = '801080.SI'  # 申万电子
+_DEFAULT_SW_INDEX = '801080.SI'
 
 
 def sector_to_sw_index(sector: str | None) -> str:
-    """Return the best SW index code for a given sector label."""
     if not sector:
         return _DEFAULT_SW_INDEX
     for key, code in _SECTOR_TO_SW.items():
@@ -97,17 +99,20 @@ def _make_section_html(title: str, icon: str, chart_b64: str, narrative: str,
                       f'padding:2px 8px;font-size:12px;margin-left:8px;font-weight:600;">'
                       f'{badge}</span>')
     narrative_html = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', narrative)
+    chart_block = ''
+    if chart_b64:
+        chart_block = f'''
+  <div style="text-align:center;margin:12px 0;">
+    <img src="data:image/png;base64,{chart_b64}"
+         style="max-width:100%;border-radius:6px;"
+         alt="{title}"/>
+  </div>'''
     return f'''
 <section class="section" style="margin:24px 0;padding:20px;background:#fff;border-radius:8px;border:1px solid #e8e8e8;">
   <h3 style="margin:0 0 12px 0;font-size:16px;color:#1a1a2e;display:flex;align-items:center;">
     <span style="font-size:20px;margin-right:8px;">{icon}</span>
     {title}{badge_html}
-  </h3>
-  <div style="text-align:center;margin:12px 0;">
-    <img src="data:image/png;base64,{chart_b64}"
-         style="max-width:100%;border-radius:6px;"
-         alt="{title}"/>
-  </div>
+  </h3>{chart_block}
   <p style="margin:12px 0 0;font-size:14px;line-height:1.7;color:#444;background:#f8f9fa;
             padding:12px 16px;border-radius:6px;border-left:3px solid {badge_color};">
     {narrative_html}
@@ -115,61 +120,101 @@ def _make_section_html(title: str, icon: str, chart_b64: str, narrative: str,
 </section>'''
 
 
-def _make_wrapper_section(title: str, content: str) -> str:
+def _make_wrapper_section(title: str, icon: str, content: str) -> str:
     return f'''
 <section class="section" style="margin:32px 0;">
   <h2 style="font-size:18px;color:#1a1a2e;border-bottom:2px solid #1a6fc4;
              padding-bottom:8px;margin-bottom:4px;">
-    🔬 {title}
+    {icon} {title}
   </h2>
   {content}
 </section>'''
 
 
-# ── Signal badge helpers ──────────────────────────────────────────────────────
+# ── Badge helpers ─────────────────────────────────────────────────────────────
 
 def _thermo_badge(pct: float) -> tuple[str, str]:
-    if pct >= 80:
-        return f'{pct:.0f}th百分位 · 极度亢奋', '#dc3545'
-    if pct >= 60:
-        return f'{pct:.0f}th百分位 · 情绪偏热', '#fd7e14'
-    if pct >= 30:
-        return f'{pct:.0f}th百分位 · 情绪正常', '#28a745'
+    if pct >= 80:   return f'{pct:.0f}th百分位 · 极度亢奋', '#dc3545'
+    if pct >= 60:   return f'{pct:.0f}th百分位 · 情绪偏热', '#fd7e14'
+    if pct >= 30:   return f'{pct:.0f}th百分位 · 情绪正常', '#28a745'
     return f'{pct:.0f}th百分位 · 极度悲观', '#4472C4'
 
-
 def _ca_badge(signal: str) -> tuple[str, str]:
-    if '强势' in signal:
-        return signal, '#dc3545'
-    if '正常' in signal:
-        return signal, '#fd7e14'
+    if '强势' in signal: return signal, '#dc3545'
+    if '正常' in signal: return signal, '#fd7e14'
     return signal, '#888'
 
-
 def _sd_badge(stage: str) -> tuple[str, str]:
-    if '过热' in stage:
-        return stage, '#dc3545'
-    if '后期' in stage:
-        return stage, '#fd7e14'
+    if '过热' in stage: return stage, '#dc3545'
+    if '后期' in stage: return stage, '#fd7e14'
     return stage, '#28a745'
 
-
 def _ma_badge(signal: str) -> tuple[str, str]:
-    if '快速' in signal:
-        return signal, '#dc3545'
-    if '加速' in signal:
-        return signal, '#fd7e14'
+    if '快速' in signal: return signal, '#dc3545'
+    if '加速' in signal: return signal, '#fd7e14'
     return signal, '#28a745'
+
+def _block_badge(signal: str) -> tuple[str, str]:
+    if '甩货' in signal: return signal, '#dc3545'
+    if '战略' in signal: return signal, '#28a745'
+    return signal, '#888'
+
+def _slb_badge(signal: str) -> tuple[str, str]:
+    if '纯多' in signal: return signal, '#28a745'
+    if '多强' in signal: return signal, '#52b788'
+    if '多占优' in signal: return signal, '#52b788'
+    if '空强' in signal: return signal, '#dc3545'
+    return signal, '#888'
+
+def _insider_badge(signal: str) -> tuple[str, str]:
+    if '增持' in signal: return signal, '#28a745'
+    if '净减持' in signal or '高管净减持' in signal: return signal, '#dc3545'
+    if '减持' in signal: return signal, '#fd7e14'
+    return signal, '#888'
+
+def _mf_badge(signal: str) -> tuple[str, str]:
+    if '持续净流入' in signal: return signal, '#28a745'
+    if '持续出逃' in signal: return signal, '#dc3545'
+    if '净流入' in signal: return signal, '#52b788'
+    return signal, '#fd7e14'
+
+def _unlock_badge(signal: str) -> tuple[str, str]:
+    if '重大' in signal: return signal, '#dc3545'
+    if '中等' in signal: return signal, '#fd7e14'
+    if '近期有' in signal: return signal, '#aaa'
+    return signal, '#28a745'
+
+def _eq_badge(signal: str) -> tuple[str, str]:
+    if '废弃' in signal: return signal, '#dc3545'
+    if '水下' in signal: return signal, '#fd7e14'
+    if '强激励' in signal: return signal, '#28a745'
+    if '有效' in signal: return signal, '#52b788'
+    if '充分' in signal: return signal, '#888'
+    return signal, '#888'
+
+def _ah_badge(signal: str) -> tuple[str, str]:
+    if '折价' in signal: return signal, '#28a745'
+    if '合理' in signal: return signal, '#52b788'
+    if '偏高' in signal: return signal, '#fd7e14'
+    if '严重' in signal: return signal, '#dc3545'
+    return signal, '#888'
+
+def _surv_badge(signal: str) -> tuple[str, str]:
+    if '密集' in signal: return signal, '#dc3545'
+    if '持续' in signal: return signal, '#52b788'
+    if '有机构' in signal: return signal, '#888'
+    return '近期无调研', '#aaa'
 
 
 # ── HTML injection ────────────────────────────────────────────────────────────
 
+_INJECT_GUARD = '<!-- inject_signals_v2 -->'
+
 def _do_inject(html_path: str, signals_html: str) -> bool:
-    """Insert signals_html after the last </section> in html_path. Returns True on success."""
     with open(html_path, encoding='utf-8') as f:
         content = f.read()
 
-    if '市场微观信号' in content:
+    if _INJECT_GUARD in content:
         print(f'  [inject_signals] already injected in {Path(html_path).name}, skipping')
         return True
 
@@ -179,10 +224,14 @@ def _do_inject(html_path: str, signals_html: str) -> bool:
         return False
 
     insert_pos = idx + len('</section>')
-    new_content = content[:insert_pos] + '\n' + signals_html + '\n' + content[insert_pos:]
+    new_content = (content[:insert_pos]
+                   + f'\n{_INJECT_GUARD}\n'
+                   + signals_html
+                   + '\n'
+                   + content[insert_pos:])
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(new_content)
-    print(f'  [inject_signals] +{len(signals_html):,} chars injected into {Path(html_path).name}')
+    print(f'  [inject_signals] +{len(signals_html):,} chars → {Path(html_path).name}')
     return True
 
 
@@ -195,37 +244,26 @@ def inject_signals_for_report(
     sector: str | None = None,
     sw_index_code: str | None = None,
 ) -> bool:
-    """
-    Run 4 market micro-signal modules and inject cards into an HTML report.
-
-    Parameters
-    ----------
-    html_path     : absolute path to the target HTML file
-    ts_code       : tushare code, e.g. '688981.SH'
-    trade_date    : 'YYYYMMDD', the anchor date of the report
-    sector        : sector label from run_top1 (e.g. '电子', '汽车')
-    sw_index_code : override SW index code (e.g. '801081.SI'); if None, derived from sector
-
-    Returns True if injection succeeded, False otherwise.
-    """
     if sw_index_code is None:
         sw_index_code = sector_to_sw_index(sector)
 
-    print(f'\n  [inject_signals] ts_code={ts_code} date={trade_date} index={sw_index_code}', flush=True)
+    print(f'\n  [inject_signals] ts_code={ts_code} date={trade_date} '
+          f'index={sw_index_code}', flush=True)
     t0 = time.time()
 
-    # ── 1. 情绪温度计（全市场共用）────────────────────────────────
-    thermo = None
+    # ════════════════════════════════════════════════════════════════
+    # § 1. 市场微观信号（4个原始模块）
+    # ════════════════════════════════════════════════════════════════
+    thermo = ca = sd = ma = None
+
     try:
         from sentiment_thermometer import sentiment_thermometer
         thermo = sentiment_thermometer(trade_date, lookback_days=250)
-        pct = thermo['percentile']
-        print(f'    [thermo] 涨停={thermo["limit_up_count"]}只 百分位={pct:.1f}%', flush=True)
+        print(f'    [thermo] 涨停={thermo["limit_up_count"]}只 '
+              f'百分位={thermo["percentile"]:.1f}%', flush=True)
     except Exception as e:
         print(f'    [thermo] FAILED: {e}', flush=True)
 
-    # ── 2. 集合竞价 ────────────────────────────────────────────────
-    ca = None
     try:
         from call_auction import call_auction_signal
         ca = call_auction_signal(ts_code, trade_date)
@@ -233,17 +271,14 @@ def inject_signals_for_report(
     except Exception as e:
         print(f'    [call_auction] FAILED: {e}', flush=True)
 
-    # ── 3. 板块扩散 ────────────────────────────────────────────────
-    sd = None
     try:
         from sector_diffusion import sector_diffusion
         sd = sector_diffusion(sw_index_code, trade_date)
-        print(f'    [sector_diffusion] {sd["diffusion_stage"]}  中位={sd["median_return_5d"]:+.2f}%', flush=True)
+        print(f'    [sector_diffusion] {sd["diffusion_stage"]}  '
+              f'中位={sd["median_return_5d"]:+.2f}%', flush=True)
     except Exception as e:
         print(f'    [sector_diffusion] FAILED: {e}', flush=True)
 
-    # ── 4. 融资加速度 ──────────────────────────────────────────────
-    ma = None
     try:
         from margin_accel import margin_acceleration
         ma = margin_acceleration(ts_code, trade_date)
@@ -251,49 +286,176 @@ def inject_signals_for_report(
     except Exception as e:
         print(f'    [margin_accel] FAILED: {e}', flush=True)
 
-    # ── Build HTML ─────────────────────────────────────────────────
-    cards_html = ''
-
+    sec1_html = ''
     if thermo and thermo.get('chart_b64'):
-        badge_txt, badge_col = _thermo_badge(thermo['percentile'])
-        cards_html += _make_section_html(
-            '全市场情绪温度计', '🌡️',
-            thermo['chart_b64'], thermo['narrative'],
-            badge=badge_txt, badge_color=badge_col,
-        )
-
+        b, c = _thermo_badge(thermo['percentile'])
+        sec1_html += _make_section_html('全市场情绪温度计', '🌡️',
+                                        thermo['chart_b64'], thermo['narrative'], b, c)
     if ca and ca.get('chart_b64') and ca['signal'] != '无数据':
-        badge_txt, badge_col = _ca_badge(ca['signal'])
-        cards_html += _make_section_html(
-            '集合竞价信号', '🕐',
-            ca['chart_b64'], ca['narrative'],
-            badge=badge_txt, badge_color=badge_col,
-        )
-
+        b, c = _ca_badge(ca['signal'])
+        sec1_html += _make_section_html('集合竞价信号', '🕐',
+                                        ca['chart_b64'], ca['narrative'], b, c)
     if sd and sd.get('chart_b64') and not sd.get('error'):
-        badge_txt, badge_col = _sd_badge(sd['diffusion_stage'])
-        index_name = sd.get('index_name', sw_index_code)
-        cards_html += _make_section_html(
-            f'{index_name}板块扩散进度', '📡',
-            sd['chart_b64'], sd['narrative'],
-            badge=badge_txt, badge_color=badge_col,
-        )
-
+        b, c = _sd_badge(sd['diffusion_stage'])
+        idx_name = sd.get('index_name', sw_index_code)
+        sec1_html += _make_section_html(f'{idx_name}板块扩散进度', '📡',
+                                        sd['chart_b64'], sd['narrative'], b, c)
     if ma and ma.get('chart_b64') and not ma.get('error'):
-        badge_txt, badge_col = _ma_badge(ma['signal'])
-        cards_html += _make_section_html(
-            '融资余额加速度', '⚡',
-            ma['chart_b64'], ma['narrative'],
-            badge=badge_txt, badge_color=badge_col,
-        )
+        b, c = _ma_badge(ma['signal'])
+        sec1_html += _make_section_html('融资余额加速度', '⚡',
+                                        ma['chart_b64'], ma['narrative'], b, c)
 
-    if not cards_html:
-        print(f'  [inject_signals] no signal cards generated, skipping injection', flush=True)
+    # ════════════════════════════════════════════════════════════════
+    # § 2. 内部人 & 资金博弈（4个新模块）
+    # ════════════════════════════════════════════════════════════════
+    bt = slb = it = mf = None
+
+    try:
+        from block_trade_signal import block_trade_signal
+        bt = block_trade_signal(ts_code, trade_date)
+        print(f'    [block_trade] {bt["signal"]}', flush=True)
+    except Exception as e:
+        print(f'    [block_trade] FAILED: {e}', flush=True)
+
+    try:
+        from slb_vs_margin import slb_vs_margin
+        slb = slb_vs_margin(ts_code, trade_date)
+        print(f'    [slb_vs_margin] {slb["signal"]}', flush=True)
+    except Exception as e:
+        print(f'    [slb_vs_margin] FAILED: {e}', flush=True)
+
+    try:
+        from insider_trade import insider_trade
+        it = insider_trade(ts_code, trade_date)
+        print(f'    [insider_trade] {it["signal"]}', flush=True)
+    except Exception as e:
+        print(f'    [insider_trade] FAILED: {e}', flush=True)
+
+    try:
+        from money_flow import money_flow
+        mf = money_flow(ts_code, trade_date)
+        print(f'    [money_flow] {mf["signal"]}', flush=True)
+    except Exception as e:
+        print(f'    [money_flow] FAILED: {e}', flush=True)
+
+    sec2_html = ''
+    if bt and bt.get('chart_b64') and bt['signal'] not in ('无数据', '无大宗交易'):
+        b, c = _block_badge(bt['signal'])
+        sec2_html += _make_section_html('大宗交易折溢价', '📦',
+                                        bt['chart_b64'], bt['narrative'], b, c)
+    elif bt and bt.get('narrative'):
+        # No chart but has narrative (e.g. no trades)
+        sec2_html += _make_section_html('大宗交易折溢价', '📦',
+                                        '', bt['narrative'], bt['signal'], '#888')
+
+    if slb and slb.get('chart_b64') and slb['signal'] != '无数据':
+        b, c = _slb_badge(slb['signal'])
+        sec2_html += _make_section_html('融资 vs 转融通空头', '⚖️',
+                                        slb['chart_b64'], slb['narrative'], b, c)
+    elif slb and slb.get('narrative'):
+        sec2_html += _make_section_html('融资 vs 转融通空头', '⚖️',
+                                        '', slb['narrative'], slb['signal'], '#888')
+
+    if it and it.get('chart_b64') and it['signal'] != '无数据':
+        b, c = _insider_badge(it['signal'])
+        sec2_html += _make_section_html('股东增减持追踪', '👤',
+                                        it['chart_b64'], it['narrative'], b, c)
+    elif it and it.get('narrative'):
+        sec2_html += _make_section_html('股东增减持追踪', '👤',
+                                        '', it['narrative'], it['signal'], '#888')
+
+    if mf and mf.get('chart_b64') and mf['signal'] != '无数据':
+        b, c = _mf_badge(mf['signal'])
+        sec2_html += _make_section_html('主力资金流向', '💰',
+                                        mf['chart_b64'], mf['narrative'], b, c)
+    elif mf and mf.get('narrative'):
+        sec2_html += _make_section_html('主力资金流向', '💰',
+                                        '', mf['narrative'], mf['signal'], '#888')
+
+    # ════════════════════════════════════════════════════════════════
+    # § 3. 事件风险 & 深度（4个新模块）
+    # ════════════════════════════════════════════════════════════════
+    su = ei = ah = sv = None
+
+    try:
+        from share_unlock import share_unlock
+        su = share_unlock(ts_code, trade_date)
+        print(f'    [share_unlock] {su["signal"]}', flush=True)
+    except Exception as e:
+        print(f'    [share_unlock] FAILED: {e}', flush=True)
+
+    try:
+        from equity_incentive import equity_incentive
+        ei = equity_incentive(ts_code, trade_date)
+        print(f'    [equity_incentive] {ei["signal"]}', flush=True)
+    except Exception as e:
+        print(f'    [equity_incentive] FAILED: {e}', flush=True)
+
+    try:
+        from ah_premium import ah_premium
+        ah = ah_premium(ts_code, trade_date)
+        print(f'    [ah_premium] {ah["signal"]}', flush=True)
+    except Exception as e:
+        print(f'    [ah_premium] FAILED: {e}', flush=True)
+
+    try:
+        from inst_survey import inst_survey
+        sv = inst_survey(ts_code, trade_date)
+        print(f'    [inst_survey] {sv["signal"]}', flush=True)
+    except Exception as e:
+        print(f'    [inst_survey] FAILED: {e}', flush=True)
+
+    sec3_html = ''
+    if su and su.get('chart_b64') and su['signal'] not in ('无数据', '无近期解禁'):
+        b, c = _unlock_badge(su['signal'])
+        sec3_html += _make_section_html('解禁倒计时日历', '📅',
+                                        su['chart_b64'], su['narrative'], b, c)
+    elif su and su.get('narrative'):
+        sec3_html += _make_section_html('解禁倒计时日历', '📅',
+                                        '', su['narrative'], su['signal'], '#28a745')
+
+    if ei and ei.get('chart_b64') and ei['signal'] not in ('无数据', '无有效激励'):
+        b, c = _eq_badge(ei['signal'])
+        sec3_html += _make_section_html('股权激励行权价锚定', '🎯',
+                                        ei['chart_b64'], ei['narrative'], b, c)
+    elif ei and ei.get('narrative'):
+        sec3_html += _make_section_html('股权激励行权价锚定', '🎯',
+                                        '', ei['narrative'], ei['signal'], '#888')
+
+    if ah and ah.get('chart_b64') and ah['signal'] not in ('无数据', '无H股对应'):
+        b, c = _ah_badge(ah['signal'])
+        sec3_html += _make_section_html('AH溢价实时跟踪', '🌐',
+                                        ah['chart_b64'], ah['narrative'], b, c)
+    elif ah and ah.get('narrative'):
+        sec3_html += _make_section_html('AH溢价实时跟踪', '🌐',
+                                        '', ah['narrative'], ah['signal'], '#888')
+
+    if sv and sv.get('chart_b64') and sv['signal'] != '无数据':
+        b, c = _surv_badge(sv['signal'])
+        sec3_html += _make_section_html('机构调研频次分析', '🔍',
+                                        sv['chart_b64'], sv['narrative'], b, c)
+    elif sv and sv.get('narrative'):
+        sec3_html += _make_section_html('机构调研频次分析', '🔍',
+                                        '', sv['narrative'], sv['signal'], '#888')
+
+    # ── Combine all sections ──────────────────────────────────────
+    date_label = f'{trade_date[:4]}-{trade_date[4:6]}-{trade_date[6:]}'
+
+    all_html = ''
+    if sec1_html:
+        all_html += _make_wrapper_section(
+            f'市场微观信号（{date_label}）', '🔬', sec1_html)
+    if sec2_html:
+        all_html += _make_wrapper_section(
+            '内部人 & 资金博弈', '💼', sec2_html)
+    if sec3_html:
+        all_html += _make_wrapper_section(
+            '事件风险 & 深度', '⚠️', sec3_html)
+
+    if not all_html:
+        print(f'  [inject_signals] no cards generated, skipping', flush=True)
         return False
 
-    date_label = f'{trade_date[:4]}-{trade_date[4:6]}-{trade_date[6:]}'
-    wrapper = _make_wrapper_section(f'市场微观信号（{date_label}）', cards_html)
-
-    ok = _do_inject(html_path, wrapper)
+    ok = _do_inject(html_path, all_html)
     print(f'  [inject_signals] done in {time.time()-t0:.1f}s  success={ok}', flush=True)
     return ok
