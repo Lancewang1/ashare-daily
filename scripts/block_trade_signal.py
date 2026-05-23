@@ -77,7 +77,7 @@ def _compute_metrics(bt: pd.DataFrame, close_map: dict) -> dict:
                 'price': r['price'],
                 'close': close,
                 'discount_pct': round(discount, 2),
-                'amount_yi': round(r['amount'] / 1e8, 4) if pd.notna(r.get('amount')) else 0.0,
+                'amount_yi': round(r['amount'] / 1e4, 4) if pd.notna(r.get('amount')) else 0.0,
                 'buyer': str(r.get('buyer', '') or ''),
                 'seller': str(r.get('seller', '') or ''),
             })
