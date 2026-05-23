@@ -205,6 +205,24 @@ def _surv_badge(signal: str) -> tuple[str, str]:
     if '有机构' in signal: return signal, '#888'
     return '近期无调研', '#aaa'
 
+def _model_badge(signal: str) -> tuple[str, str]:
+    if '第1名' in signal: return signal, '#dc3545'
+    if 'Top3' in signal:  return signal, '#fd7e14'
+    if 'Top10' in signal: return signal, '#52b788'
+    return signal, '#888'
+
+def _dashboard_badge(signal: str) -> tuple[str, str]:
+    if '偏多' in signal: return signal, '#28a745'
+    if '偏空' in signal: return signal, '#dc3545'
+    return signal, '#888'
+
+def _kl_badge(signal: str) -> tuple[str, str]:
+    if '支撑' in signal:  return signal, '#28a745'
+    if '压力' in signal:  return signal, '#dc3545'
+    if '行权' in signal:  return signal, '#fd7e14'
+    if '解禁' in signal:  return signal, '#dc3545'
+    return signal, '#888'
+
 
 # ── HTML injection ────────────────────────────────────────────────────────────
 
@@ -252,6 +270,17 @@ def inject_signals_for_report(
     t0 = time.time()
 
     # ════════════════════════════════════════════════════════════════
+    # § 0. 量化模型选股记录
+    # ════════════════════════════════════════════════════════════════
+    mtr = None
+    try:
+        from model_track_record import model_track_record
+        mtr = model_track_record(ts_code, trade_date)
+        print(f'    [model_track_record] {mtr["signal"]}  排名#{mtr["current_rank"]}', flush=True)
+    except Exception as e:
+        print(f'    [model_track_record] FAILED: {e}', flush=True)
+
+    # ════════════════════════════════════════════════════════════════
     # § 1. 市场微观信号（4个原始模块）
     # ════════════════════════════════════════════════════════════════
     thermo = ca = sd = ma = None
@@ -286,6 +315,15 @@ def inject_signals_for_report(
     except Exception as e:
         print(f'    [margin_accel] FAILED: {e}', flush=True)
 
+    sec0_html = ''
+    if mtr and mtr.get('chart_b64') and mtr.get('signal') not in ('无数据', '未纳入宇宙'):
+        b, c = _model_badge(mtr['signal'])
+        sec0_html += _make_section_html('量化模型选股记录（OOF真实回测）', '🤖',
+                                        mtr['chart_b64'], mtr['narrative'], b, c)
+    elif mtr and mtr.get('narrative'):
+        sec0_html += _make_section_html('量化模型选股记录', '🤖',
+                                        '', mtr['narrative'], mtr.get('signal', ''), '#888')
+
     sec1_html = ''
     if thermo and thermo.get('chart_b64'):
         b, c = _thermo_badge(thermo['percentile'])
@@ -306,8 +344,17 @@ def inject_signals_for_report(
                                         ma['chart_b64'], ma['narrative'], b, c)
 
     # ════════════════════════════════════════════════════════════════
-    # § 2. 内部人 & 资金博弈（4个新模块）
+    # § 2. 内部人 & 资金博弈（仪表盘 + 4个原始模块）
     # ════════════════════════════════════════════════════════════════
+    cd = bt = slb = it = mf = None
+
+    try:
+        from capital_dashboard import capital_dashboard
+        cd = capital_dashboard(ts_code, trade_date)
+        print(f'    [capital_dashboard] {cd["signal"]}  综合{cd["composite_pct"]}%ile', flush=True)
+    except Exception as e:
+        print(f'    [capital_dashboard] FAILED: {e}', flush=True)
+
     bt = slb = it = mf = None
 
     try:
@@ -339,6 +386,14 @@ def inject_signals_for_report(
         print(f'    [money_flow] FAILED: {e}', flush=True)
 
     sec2_html = ''
+    if cd and cd.get('chart_b64') and cd['signal'] != '无数据':
+        b, c = _dashboard_badge(cd['signal'])
+        sec2_html += _make_section_html('资金博弈仪表盘（历史百分位）', '📊',
+                                        cd['chart_b64'], cd['narrative'], b, c)
+    elif cd and cd.get('narrative'):
+        sec2_html += _make_section_html('资金博弈仪表盘', '📊',
+                                        '', cd['narrative'], cd.get('signal', ''), '#888')
+
     if bt and bt.get('chart_b64') and bt['signal'] not in ('无数据', '无大宗交易'):
         b, c = _block_badge(bt['signal'])
         sec2_html += _make_section_html('大宗交易折溢价', '📦',
@@ -373,8 +428,17 @@ def inject_signals_for_report(
                                         '', mf['narrative'], mf['signal'], '#888')
 
     # ════════════════════════════════════════════════════════════════
-    # § 3. 事件风险 & 深度（4个新模块）
+    # § 3. 事件风险 & 深度（关键价位图 + 4个原始模块）
     # ════════════════════════════════════════════════════════════════
+    kl = su = ei = ah = sv = None
+
+    try:
+        from key_levels import key_levels
+        kl = key_levels(ts_code, trade_date)
+        print(f'    [key_levels] {kl["signal"]}  当前{kl["current_price"]}', flush=True)
+    except Exception as e:
+        print(f'    [key_levels] FAILED: {e}', flush=True)
+
     su = ei = ah = sv = None
 
     try:
@@ -406,6 +470,14 @@ def inject_signals_for_report(
         print(f'    [inst_survey] FAILED: {e}', flush=True)
 
     sec3_html = ''
+    if kl and kl.get('chart_b64'):
+        b, c = _kl_badge(kl['signal'])
+        sec3_html += _make_section_html('关键价位（支撑/压力/行权价/解禁）', '📐',
+                                        kl['chart_b64'], kl['narrative'], b, c)
+    elif kl and kl.get('narrative'):
+        sec3_html += _make_section_html('关键价位', '📐',
+                                        '', kl['narrative'], kl.get('signal', ''), '#888')
+
     if su and su.get('chart_b64') and su['signal'] not in ('无数据', '无近期解禁'):
         b, c = _unlock_badge(su['signal'])
         sec3_html += _make_section_html('解禁倒计时日历', '📅',
@@ -442,6 +514,9 @@ def inject_signals_for_report(
     date_label = f'{trade_date[:4]}-{trade_date[4:6]}-{trade_date[6:]}'
 
     all_html = ''
+    if sec0_html:
+        all_html += _make_wrapper_section(
+            f'量化模型信号（{date_label}）', '🤖', sec0_html)
     if sec1_html:
         all_html += _make_wrapper_section(
             f'市场微观信号（{date_label}）', '🔬', sec1_html)
