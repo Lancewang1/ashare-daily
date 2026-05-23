@@ -11,7 +11,15 @@ Key findings vs Wind:
   (fina_indicator uses 归母净利润 which differs from total net income)
 - 申万半导体 proxy: 512480.SH ETF (~0.1ppt diff from Wind SW index)
 - 申万汽车: no good ETF proxy — use Wind or build from component stocks
+
+New modules (2026-05-23):
+- sector_breadth.py : % of sector constituents above 20dMA + 12-month percentile
+- billboard.py      : 龙虎榜 institutional vs retail seat breakdown
 """
+import sys, io
+if hasattr(sys.stdout, 'buffer'):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
 import tushare as ts
 import pandas as pd
 import time
@@ -19,6 +27,24 @@ import argparse
 import json
 
 pro = ts.pro_api()
+
+# Lazy imports to avoid slow startup when only partial fetch needed
+_sector_breadth_fn = None
+_billboard_fn = None
+
+def _get_sector_breadth():
+    global _sector_breadth_fn
+    if _sector_breadth_fn is None:
+        from sector_breadth import sector_breadth
+        _sector_breadth_fn = sector_breadth
+    return _sector_breadth_fn
+
+def _get_billboard():
+    global _billboard_fn
+    if _billboard_fn is None:
+        from billboard import get_billboard_summary
+        _billboard_fn = get_billboard_summary
+    return _billboard_fn
 
 
 def returns_td(df, d30=30, d60=60):
@@ -114,6 +140,30 @@ def fetch_all(report_date='20260520', q_period='20260331'):
         fi = income_yoy(code, q_period)
         result['financials'][key] = fi
 
+    # ── Sector breadth ───────────────────────────────────────────────────────
+    print('Fetching sector breadth (may take ~10s each)...')
+    sb = _get_sector_breadth()
+    result['sector_breadth'] = {}
+    for code, key in [('801081.SI', 'semi'), ('801880.SI', 'auto')]:
+        try:
+            result['sector_breadth'][key] = sb(code, report_date)
+        except Exception as e:
+            print(f'  sector_breadth {code} error: {e}')
+            result['sector_breadth'][key] = None
+        time.sleep(0.5)
+
+    # ── Billboard (龙虎榜) ───────────────────────────────────────────────────
+    print('Fetching billboard data...')
+    bb = _get_billboard()
+    result['billboard'] = {}
+    for key, code in [('smic', '688981.SH'), ('weichai', '000880.SZ')]:
+        try:
+            result['billboard'][key] = bb(code, report_date, lookback_days=10)
+        except Exception as e:
+            print(f'  billboard {code} error: {e}')
+            result['billboard'][key] = None
+        time.sleep(0.3)
+
     return result
 
 
@@ -147,6 +197,25 @@ if __name__ == '__main__':
         f = data['financials'].get(k)
         if f:
             print(f'  {n}: 营收YoY={f["revenue_yoy"]:+.2f}%, 净利YoY={f["netprofit_yoy"]:+.2f}%')
+
+    # ── Sector breadth summary ───────────────────────────────────────────────
+    print('\n板块广度:')
+    sb_names = {'semi': '申万半导体', 'auto': '申万汽车'}
+    for k, n in sb_names.items():
+        sb = data['sector_breadth'].get(k)
+        if sb:
+            print(f'  {n}: 广度{sb["pct_above_20ma"]:.1f}% (近12月{sb["historical_percentile"]:.0f}th分位)')
+
+    # ── Billboard summary ────────────────────────────────────────────────────
+    print('\n龙虎榜:')
+    bb_names = {'smic': '中芯国际', 'weichai': '潍柴重机'}
+    for k, n in bb_names.items():
+        bb = data['billboard'].get(k)
+        if bb:
+            if bb.get('on_billboard'):
+                print(f'  {n}: {bb["billboard_date"]} 上榜 | 机构净买入{bb["inst_net_buy"]:+,.0f}万')
+            else:
+                print(f'  {n}: 未上榜（近10日）')
 
     # Save JSON for downstream use
     out = f'scripts/data_{args.date}.json'
