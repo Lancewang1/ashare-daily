@@ -172,31 +172,50 @@ def make_card_html(icon: str, title: str, badge_txt: str, badge_col: str,
     )
 
 
+def _replace_chart_in_card(html: str, card_title: str, new_b64: str,
+                            search_from: int = 0) -> str:
+    """Replace base64 chart image inside an existing card identified by title text."""
+    title_pos = html.find(card_title, search_from)
+    if title_pos == -1:
+        return html
+    img_start = html.find('data:image/png;base64,', title_pos)
+    if img_start == -1:
+        return html
+    b64_start = img_start + len('data:image/png;base64,')
+    b64_end   = html.index('"', b64_start)
+    return html[:b64_start] + new_b64 + html[b64_end:]
+
+
 def inject_factor_percentile(html: str, fp_result: dict) -> str:
-    """Insert factor percentile card before the grid2 containing 集合竞价+关键价位."""
+    """Insert factor percentile card before the grid2 containing 集合竞价+关键价位.
+    Idempotent: if card already exists, replace chart only."""
     if not fp_result.get('chart_b64'):
         print('  [WARN] factor_percentile: no chart, skipping inject')
         return html
 
-    # Find the grid2 div that contains 集合竞价 and 关键价位
-    grid2_marker = '<div class="grid2">'
-    # Find the first grid2 in ch2 (ch2 starts around ch2Start)
     ch2_start = html.index('<section class="chapter" id="ch2"')
     ch3_start = html.index('<section class="chapter" id="ch3"')
+    card_title = '量化因子百分位（自身1年历史）'
 
+    # Idempotency: if card already exists in ch2, just replace the chart
+    if card_title in html[ch2_start:ch3_start]:
+        new_html = _replace_chart_in_card(html, card_title, fp_result['chart_b64'], ch2_start)
+        print(f'  [Ch2] factor_percentile chart refreshed (idempotent)')
+        return new_html
+
+    grid2_marker = '<div class="grid2">'
     grid2_pos = html.find(grid2_marker, ch2_start, ch3_start)
     if grid2_pos == -1:
         print('  [WARN] factor_percentile: grid2 not found in ch2')
         return html
 
-    # Badge color based on average pct
     factors = fp_result.get('factors', [])
     avg_pct = sum(f['pct'] for f in factors) / len(factors) if factors else 50
     badge_col = '#2ca02c' if avg_pct >= 65 else ('#d62728' if avg_pct <= 35 else '#888')
     badge_txt = f'{avg_pct:.0f}%ile 综合'
 
     card_html = make_card_html(
-        '📊', '量化因子百分位（自身1年历史）',
+        '📊', card_title,
         badge_txt, badge_col,
         fp_result['chart_b64'],
         fp_result['narrative'],
@@ -320,6 +339,49 @@ def replace_capital_dashboard_chart(html: str, cd_result: dict) -> str:
     return new_html
 
 
+# ── Ch4: Inject peer comparison chart ────────────────────────────────────────
+
+def inject_peer_comparison(html: str, pc_result: dict) -> str:
+    """Append peer comparison card at the end of Ch4 (before Ch5 section tag).
+    Idempotent: if card already exists, replace chart only."""
+    if not pc_result.get('chart_b64'):
+        print('  [WARN] peer_comparison: no chart, skipping Ch4 inject')
+        return html
+
+    ch5_marker = '<section class="chapter" id="ch5"'
+    if ch5_marker not in html:
+        print('  [WARN] peer_comparison: ch5 section not found')
+        return html
+
+    ch5_pos   = html.index(ch5_marker)
+    card_title = '半导体板块强弱对比（近30日）'
+
+    # Idempotency: if card already exists before ch5, just replace the chart
+    if card_title in html[:ch5_pos]:
+        new_html = _replace_chart_in_card(html, card_title, pc_result['chart_b64'])
+        print(f'  [Ch4] peer_comparison chart refreshed (idempotent)')
+        return new_html
+
+    signal  = pc_result.get('signal', '')
+    rank    = pc_result.get('rank', 0)
+    n_peers = pc_result.get('n_peers', 0)
+    badge_col = ('#2ca02c' if 'Alpha' in signal or '前列' in signal
+                 else ('#d62728' if '垫底' in signal or '弱势' in signal else '#888'))
+    badge_txt = f'{signal}  {rank}/{n_peers}' if rank else signal
+
+    card_html = make_card_html(
+        '📊', card_title,
+        badge_txt, badge_col,
+        pc_result['chart_b64'],
+        pc_result['narrative'],
+    )
+
+    result = html[:ch5_pos] + card_html + html[ch5_pos:]
+    print(f'  [Ch4] peer_comparison card injected ({len(card_html):,} chars)  '
+          f'rank={rank}/{n_peers} {signal}')
+    return result
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
@@ -367,6 +429,19 @@ def main():
         print(f'    → {cd_result["n_metrics"]} metrics  signal={cd_result["signal"]}  '
               f'chart={bool(cd_result.get("chart_b64"))}')
         html = replace_capital_dashboard_chart(html, cd_result)
+    except Exception as e:
+        print(f'    FAILED: {e}')
+        import traceback; traceback.print_exc()
+
+    # ── 6. Ch4: Inject peer comparison ───────────────────────────────────────
+    print('\n  [peer_comparison] generating sector chart...')
+    try:
+        from peer_comparison import peer_comparison
+        pc_result = peer_comparison(TS_CODE, TRADE_DATE, sector='半导体')
+        print(f'    → rank={pc_result["rank"]}/{pc_result["n_peers"]}  '
+              f'30d={pc_result["return_30d"]:+.1f}%  signal={pc_result["signal"]}  '
+              f'chart={bool(pc_result.get("chart_b64"))}')
+        html = inject_peer_comparison(html, pc_result)
     except Exception as e:
         print(f'    FAILED: {e}')
         import traceback; traceback.print_exc()

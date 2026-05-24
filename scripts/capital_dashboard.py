@@ -1,18 +1,16 @@
 """
 capital_dashboard.py
 ====================
-资金博弈仪表盘
+资金博弈仪表盘  — 7指标固定雷达版
 
-功能：
-拉取 5 类资金指标的近 1 年历史，用历史百分位将每个指标标准化后，
-在单张图内以渐变色 gauge 条可视化——左侧偏空、右侧偏多。
-
-指标清单（按历史百分位排列）：
+7个固定信号槽（无数据时用中性50%ile占位，保证雷达始终7点）：
 1. 换手率          daily_basic.turnover_rate_f     1-year
-2. 融资增速(5日)    margin_detail.rzye              1-year
+2. 融资余额增速     margin_detail.rzye 5d变化       1-year
 3. 主力净流入       moneyflow                       60-day
-4. 北向净买入       hk_hold ratio 5d change         60-day  （无数据则跳过）
-5. 融券/融资比      rqye / rzye                     1-year  （有数据则加入）
+4. 北向持股变化     hk_hold ratio 5d change         60-day
+5. 融券/融资比      rqye / rzye                     1-year（空头方向）
+6. 大宗成交         block_trade amount              40-day（规模评分）
+7. 机构调研强度     stk_surv 近30日 vs 前30日        60-day
 """
 
 from __future__ import annotations
@@ -169,6 +167,43 @@ def _fetch_insider(ts_code: str, trade_date: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
+def _fetch_inst_survey_score(ts_code: str, trade_date: str) -> dict:
+    """Fetch institution survey data; returns pct score + value_str."""
+    end_dt   = datetime.strptime(trade_date, '%Y%m%d')
+    start_dt = end_dt - timedelta(days=65)
+    cut30    = (end_dt - timedelta(days=30)).strftime('%Y%m%d')
+    try:
+        df = pro.stk_surv(
+            ts_code=ts_code,
+            start_date=start_dt.strftime('%Y%m%d'),
+            end_date=trade_date,
+        )
+        time.sleep(0.2)
+        if df is None or len(df) == 0:
+            return {}
+        date_col = next((c for c in ['surv_date', 'rece_date'] if c in df.columns), None)
+        if date_col is None:
+            return {}
+        df['_d'] = df[date_col].astype(str)
+        recent30 = int((df['_d'] >= cut30).sum())
+        prev30   = int((df['_d'] < cut30).sum())
+        accel    = recent30 / max(prev30, 1) if prev30 > 0 else (2.5 if recent30 > 0 else 1.0)
+        if recent30 >= 5 and accel >= 2:
+            pct = 80.0;  val = f'{recent30}次↑×{accel:.1f}'
+        elif recent30 >= 3 or (recent30 >= 1 and accel >= 1.5):
+            pct = 65.0;  val = f'{recent30}次'
+        elif recent30 >= 1:
+            pct = 52.0;  val = f'{recent30}次'
+        elif prev30 > 0:
+            pct = 32.0;  val = '近期减少'
+        else:
+            pct = 42.0;  val = '暂无'
+        return {'pct': pct, 'value_str': val, 'n_recent': recent30, 'n_prev': prev30}
+    except Exception as e:
+        print(f'  [WARN] capital inst_survey: {e}')
+        return {}
+
+
 # ── 计算各指标的历史百分位 ────────────────────────────────────────────────────
 
 def _pct_of(series: pd.Series, current_val: float) -> float:
@@ -180,19 +215,26 @@ def _pct_of(series: pd.Series, current_val: float) -> float:
 
 
 def _compute_metrics(ts_code: str, trade_date: str) -> list[dict]:
-    """Return list of metric dicts: {name, value_str, pct, direction, color}"""
-    metrics = []
+    """Return exactly 7 metric dicts (neutral 50%ile fallback for missing data)."""
+
+    # Pre-define 7 canonical slots — always returned in this order
+    slots = [
+        {'name': '换手率',      'value_str': 'N/A', 'pct': 50.0, 'direction': 'bull', 'raw': None},
+        {'name': '融资余额增速', 'value_str': 'N/A', 'pct': 50.0, 'direction': 'bull', 'raw': None},
+        {'name': '主力净流入',   'value_str': 'N/A', 'pct': 50.0, 'direction': 'bull', 'raw': None},
+        {'name': '北向持股变化', 'value_str': 'N/A', 'pct': 50.0, 'direction': 'bull', 'raw': None},
+        {'name': '融券/融资比',  'value_str': 'N/A', 'pct': 50.0, 'direction': 'bear', 'raw': None},
+        {'name': '大宗成交',     'value_str': 'N/A', 'pct': 50.0, 'direction': 'bull', 'raw': None},
+        {'name': '机构调研',     'value_str': 'N/A', 'pct': 50.0, 'direction': 'bull', 'raw': None},
+    ]
 
     # ── 1. 换手率 ─────────────────────────────────────────────────────────────
     db = _fetch_daily_basic(ts_code, trade_date)
     if len(db) >= 10:
         curr_tr = db['turnover_rate_f'].iloc[-1]
-        pct_tr  = _pct_of(db['turnover_rate_f'], curr_tr)
-        metrics.append({
-            'name': '换手率',
+        slots[0].update({
             'value_str': f'{curr_tr:.2f}%',
-            'pct': pct_tr,
-            'direction': 'bull',  # high turnover = active = mild bullish
+            'pct': _pct_of(db['turnover_rate_f'], curr_tr),
             'raw': curr_tr,
         })
 
@@ -202,27 +244,20 @@ def _compute_metrics(ts_code: str, trade_date: str) -> list[dict]:
     if len(mg) >= 10 and 'rzye' in mg.columns:
         mg_nonan = mg['rzye'].dropna()
         if len(mg_nonan) >= 5:
-            # 5日变化率
             rzye_vals = mg['rzye'].dropna().reset_index(drop=True)
             change5 = rzye_vals.diff(5)
             curr_chg = float(change5.iloc[-1]) if not pd.isna(change5.iloc[-1]) else 0.0
-            pct_mg   = _pct_of(change5.dropna(), curr_chg)
-            curr_val_yi = float(mg_nonan.iloc[-1]) / 1e8  # 元 → 亿
-            metrics.append({
-                'name': '融资余额增速',
+            slots[1].update({
                 'value_str': f'{curr_chg/1e8:+.1f}亿',
-                'pct': pct_mg,
-                'direction': 'bull',   # more margin debt = bullish sentiment
+                'pct': _pct_of(change5.dropna(), curr_chg),
                 'raw': curr_chg,
             })
-        # also store rqye series for metric 5
         if 'rqye' in mg.columns:
             rqye_series = mg['rqye'].dropna()
 
     # ── 3. 主力净流入 ─────────────────────────────────────────────────────────
     mf = _fetch_moneyflow(ts_code, trade_date)
     if len(mf) >= 5:
-        # prefer net_mf_amount; fallback to computing from buy/sell
         if 'net_mf_amount' in mf.columns:
             net_series = mf['net_mf_amount']
         else:
@@ -232,12 +267,9 @@ def _compute_metrics(ts_code: str, trade_date: str) -> list[dict]:
                  + mf.get('sell_lg_amount',  pd.Series(0, index=mf.index)).fillna(0)
             net_series = buy - sell
         curr_net = float(net_series.iloc[-1])
-        pct_net  = _pct_of(net_series, curr_net)
-        metrics.append({
-            'name': '主力净流入',
+        slots[2].update({
             'value_str': f'{curr_net/1e4:+.1f}亿',
-            'pct': pct_net,
-            'direction': 'bull',
+            'pct': _pct_of(net_series, curr_net),
             'raw': curr_net,
         })
 
@@ -248,82 +280,54 @@ def _compute_metrics(ts_code: str, trade_date: str) -> list[dict]:
         if len(ratio_nonan) >= 5:
             ratio_change = ratio_nonan.diff(5)
             curr_rc = float(ratio_change.iloc[-1]) if not pd.isna(ratio_change.iloc[-1]) else 0.0
-            pct_rc  = _pct_of(ratio_change.dropna(), curr_rc)
-            metrics.append({
-                'name': '北向持股变化',
+            slots[3].update({
                 'value_str': f'{curr_rc:+.2f}pp',
-                'pct': pct_rc,
-                'direction': 'bull',
+                'pct': _pct_of(ratio_change.dropna(), curr_rc),
                 'raw': curr_rc,
             })
 
-    # ── 5. 融券/融资比（空头压力） ─────────────────────────────────────────────
+    # ── 5. 融券/融资比（空头压力，无数据保留中性占位） ────────────────────────
     if rqye_series is not None and len(rqye_series) >= 5 and len(mg) >= 5:
         rzye_s = mg['rzye'].dropna()
         if len(rzye_s) >= 5:
             ratio_series = (rqye_series.reset_index(drop=True)
                             / rzye_s.reset_index(drop=True).clip(lower=1e6))
-            curr_ratio = float(ratio_series.iloc[-1]) if not ratio_series.empty else 0.0
-            pct_ratio  = _pct_of(ratio_series.dropna(), curr_ratio)
-            metrics.append({
-                'name': '融券/融资比',
-                'value_str': f'{curr_ratio*100:.1f}%',
-                'pct': pct_ratio,
-                'direction': 'bear',  # high short ratio = bearish pressure
-                'raw': curr_ratio,
-            })
+            curr_ratio = float(ratio_series.iloc[-1]) if not ratio_series.empty else float('nan')
+            if not np.isnan(curr_ratio):
+                slots[4].update({
+                    'value_str': f'{curr_ratio*100:.1f}%',
+                    'pct': _pct_of(ratio_series.dropna(), curr_ratio),
+                    'raw': curr_ratio,
+                })
 
-    # ── 6. 大宗交易（最近40日成交额 → 机构关注度信号） ─────────────────────
+    # ── 6. 大宗交易（最近40日，无大宗则用规模评分中性占位） ──────────────────
     try:
         bt_df = _fetch_block_trade(ts_code, trade_date)
-        if 'amount' in bt_df.columns and bt_df['amount'].dropna().shape[0] >= 1:
+        if not bt_df.empty and 'amount' in bt_df.columns:
             total_amt = float(bt_df['amount'].dropna().sum())
-            # Score by recent block trade amount: compare to 500M / 100M / 0 thresholds
-            if total_amt > 5e8:
-                bt_pct = 68.0   # 大量大宗 = 活跃关注
-            elif total_amt > 1e8:
-                bt_pct = 58.0
-            elif total_amt > 0:
-                bt_pct = 48.0
-            else:
-                bt_pct = 40.0
-            metrics.append({
-                'name': '大宗成交',
+            bt_pct = 68.0 if total_amt > 5e8 else (58.0 if total_amt > 1e8 else
+                     (48.0 if total_amt > 0 else 44.0))
+            slots[5].update({
                 'value_str': f'{total_amt/1e8:.1f}亿',
                 'pct': bt_pct,
-                'direction': 'bull',
                 'raw': total_amt,
             })
     except Exception as e:
         print(f'  [WARN] capital block_trade metric: {e}')
 
-    # ── 7. 股东增减持（90日净方向） ───────────────────────────────────────────
+    # ── 7. 机构调研强度（无调研记录则中性占位） ───────────────────────────────
     try:
-        ins_df = _fetch_insider(ts_code, trade_date)
-        if len(ins_df) >= 1:
-            # 'in_de' field: 'IN'=increase / 'DE'=decrease
-            in_de = ins_df.get('in_de', pd.Series(dtype=str))
-            buys  = ins_df[in_de.str.upper().str.startswith('I', na=False)]
-            sells = ins_df[in_de.str.upper().str.startswith('D', na=False)]
-            buy_vol  = buys['change_vol'].dropna().sum()  if 'change_vol' in buys.columns else 0.0
-            sell_vol = sells['change_vol'].dropna().abs().sum() if 'change_vol' in sells.columns else 0.0
-            total_vol = buy_vol + sell_vol
-            if total_vol > 0:
-                net_ratio = (buy_vol - sell_vol) / total_vol  # −1 to +1
-                ins_pct   = round(max(5.0, min(95.0, 50.0 + net_ratio * 40.0)), 1)
-            else:
-                ins_pct = 50.0
-            metrics.append({
-                'name': '增减持净向',
-                'value_str': f'净{"增" if buy_vol >= sell_vol else "减"}持',
-                'pct': ins_pct,
-                'direction': 'bull',
-                'raw': buy_vol - sell_vol,
+        surv = _fetch_inst_survey_score(ts_code, trade_date)
+        if surv:
+            slots[6].update({
+                'value_str': surv['value_str'],
+                'pct': surv['pct'],
+                'raw': surv.get('n_recent', 0),
             })
     except Exception as e:
-        print(f'  [WARN] capital insider metric: {e}')
+        print(f'  [WARN] capital inst_survey metric: {e}')
 
-    return metrics
+    return slots
 
 
 # ── 图表构建（雷达图） ────────────────────────────────────────────────────────
@@ -437,8 +441,11 @@ def _build_narrative(ts_code: str, metrics: list[dict]) -> str:
                  for m in metrics]
     composite = float(np.mean(bull_pcts))
 
+    real_metrics = [m for m in metrics if m.get('value_str', 'N/A') != 'N/A']
+    na_count     = len(metrics) - len(real_metrics)
+
     parts = []
-    for m in metrics:
+    for m in real_metrics:
         bp = m['pct'] if m['direction'] == 'bull' else 100 - m['pct']
         if bp >= 70:
             parts.append(f"{m['name']}偏多（{m['pct']:.0f}%ile）")
@@ -453,9 +460,10 @@ def _build_narrative(ts_code: str, metrics: list[dict]) -> str:
         tone = '资金博弈分歧'
 
     highlights = '；'.join(parts) if parts else '各指标均处历史中性区间'
+    na_note = f'（{na_count}项无历史数据，以中性50%ile占位）' if na_count > 0 else ''
 
     return (
-        f"{code}各维度资金博弈综合百分位**{composite:.0f}%**，{tone}。"
+        f"{code}7维资金博弈综合百分位**{composite:.0f}%**，{tone}{na_note}。"
         f"显著信号：{highlights}。"
         f"百分位越高代表该指标相对过去1年处于越强势位置——"
         f"高换手+高融资+高主力净流入同时出现时，短期上涨动能最强。"
@@ -472,8 +480,10 @@ def capital_dashboard(ts_code: str, trade_date: str) -> dict:
     }
 
     metrics = _compute_metrics(ts_code, trade_date)
-    # drop metrics where pct is NaN
-    metrics = [m for m in metrics if not np.isnan(m.get('pct', float('nan')))]
+    # Always 7 slots; sanitise any NaN pct to 50 (neutral)
+    for m in metrics:
+        if np.isnan(m.get('pct', float('nan'))):
+            m['pct'] = 50.0
 
     if not metrics:
         result['narrative'] = f'【{ts_code.split(".")[0]}】资金指标数据不足。'
