@@ -592,6 +592,20 @@ def _war_record_html(df: pd.DataFrame | None) -> str:
     )
 
 
+_TIER_THR = {'Top 1%': 99, 'Top 5%': 95, 'Top 20%': 80}
+
+
+def _matching_tier_row(fwd_df: pd.DataFrame | None, current_pct: float):
+    """Return the tightest-qualifying tier row for the given current_pct."""
+    if fwd_df is None or fwd_df.empty:
+        return None
+    # Rows are ordered Top 20% → Top 5% → Top 1%; iterate reversed for tightest first
+    for _, row in fwd_df.iloc[::-1].iterrows():
+        if current_pct >= _TIER_THR.get(row['label'], 0):
+            return row
+    return fwd_df.iloc[0]
+
+
 def _simple_say(current_pct: float, stock_name: str, fwd_df: pd.DataFrame | None) -> str:
     """One plain-language sentence for the verdict card."""
     if current_pct >= 99:
@@ -604,9 +618,11 @@ def _simple_say(current_pct: float, stock_name: str, fwd_df: pd.DataFrame | None
         strength = '信号中等'
 
     perf = ''
-    if fwd_df is not None and not fwd_df.empty:
-        r = fwd_df.iloc[0]
-        perf = f'历史上类似情形后30天平均涨 <strong style="color:#2ca02c">{r["avg30"]:+.1f}%</strong>，胜率 <strong>{r["hit30"]:.0f}%</strong>。'
+    r = _matching_tier_row(fwd_df, current_pct)
+    if r is not None:
+        perf = (f'历史上类似情形后30天平均涨 '
+                f'<strong style="color:#2ca02c">{r["avg30"]:+.1f}%</strong>，'
+                f'胜率 <strong>{r["hit30"]:.0f}%</strong>。')
 
     return f'<strong>简单说：</strong>{stock_name}当前处于{strength}，{perf}值得关注。'
 
@@ -624,8 +640,8 @@ def _ai_voice_html(core_focus: dict, current_pct: float,
         strength = '量化信号中等'
 
     perf_line = ''
-    if fwd_df is not None and not fwd_df.empty:
-        r = fwd_df.iloc[0]
+    r = _matching_tier_row(fwd_df, current_pct)
+    if r is not None:
         perf_line = (f'历史上类似信号出现后30天，'
                      f'平均上涨 {r["avg30"]:+.1f}%，{r["hit30"]:.0f}% 的时候收益为正。')
 
