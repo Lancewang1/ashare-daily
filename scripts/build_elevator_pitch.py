@@ -325,31 +325,29 @@ def _quant_summary_text(fwd_df: pd.DataFrame | None, current_pct: float) -> str:
 
     parts = []
 
-    # Sentence 1: today's signal position
+    # Sentence 1: today's signal position (bilingual: plain explanation of %ile)
+    pct_int = int(round(current_pct))
+    plain_note = f'过去1年中，只有约{100-pct_int}%的时间比今天更强'
     parts.append(
-        f'综合因子百分位当前 <strong>{current_pct:.0f}%ile</strong>，'
+        f'综合因子评分当前 <strong>{pct_int}分</strong>（满分100，{plain_note}），'
         f'处于自身历史 <strong>{tier_label}</strong>（{tier_desc}）。'
     )
 
-    # Sentence 2: best available tier stats, then next tier for context
+    # Sentence 2: historical outcome stats — plain language first
     best_tiers = [t for t in ('Top 1%', 'Top 5%', 'Top 20%') if t in rows]
     if best_tiers:
         r  = rows[best_tiers[0]]
         s2 = (
-            f'历史上 {r["label"]} 信号共出现 <strong>{int(r["n"])} 次</strong>，'
-            f'后续 30 日平均涨幅 <strong style="color:#2ca02c">{r["avg30"]:+.1f}%</strong>，'
-            f'胜率 <strong style="color:#2ca02c">{r["hit30"]:.0f}%</strong>；'
+            f'过去3年，每当出现类似强度的信号（共 <strong>{int(r["n"])} 次</strong>），'
+            f'后续30天平均上涨 <strong style="color:#2ca02c">{r["avg30"]:+.1f}%</strong>，'
+            f'其中 <strong style="color:#2ca02c">{r["hit30"]:.0f}%</strong> 的时候是上涨的。'
         )
-        # Add a second tier for comparison if available
         if len(best_tiers) > 1:
             r2 = rows[best_tiers[1]]
             s2 += (
-                f'{r2["label"]}（{int(r2["n"])} 次）'
-                f'后续 30 日均涨 <strong>{r2["avg30"]:+.1f}%</strong>，'
-                f'胜率 {r2["hit30"]:.0f}%。'
+                f'&nbsp;信号更弱一档（{r2["label"]}，{int(r2["n"])}次）'
+                f'后续30日均涨 {r2["avg30"]:+.1f}%，胜率{r2["hit30"]:.0f}%。'
             )
-        else:
-            s2 = s2.rstrip('；') + '。'
         parts.append(s2)
 
     return ''.join(parts)
@@ -468,7 +466,78 @@ img { max-width: 100%; height: auto; display: block; }
                       color: #fff; margin-bottom: 6px; }
 .ll-card .concl { font-size: 11.5px; color: #555; line-height: 1.5; }
 .divider { border: none; border-top: 1px solid #eef; margin: 14px 0; }
+
+/* Verdict card (首屏结论) */
+.verdict-card { background: #fff; margin: 10px 12px 0; border-radius: 12px;
+                padding: 14px 18px; box-shadow: 0 2px 10px rgba(0,0,0,.06);
+                border-top: 3px solid #1a6fc4; }
+.vc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+             flex-wrap: wrap; }
+.vc-title  { font-size: 13px; font-weight: 800; color: #1a1a2e; }
+.vc-date   { font-size: 11px; color: #bbb; margin-left: auto; }
+.vc-rows   { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.vc-row    { font-size: 12.5px; line-height: 1.55; padding: 7px 10px;
+             border-radius: 6px; display: flex; gap: 8px; align-items: flex-start; }
+.vc-bull   { background: #f0faf0; color: #1a3a1a; }
+.vc-bear   { background: #fff5f5; color: #4a1818; }
+.vc-icon   { flex-shrink: 0; font-size: 10px; margin-top: 3px; font-weight: 900; }
+.vc-bull .vc-icon { color: #2ca02c; }
+.vc-bear .vc-icon { color: #d62728; }
+
+/* Bilingual gloss notes */
+.gloss-note { font-size: 11px; color: #999; display: block;
+              margin-top: 5px; line-height: 1.5; }
+
+/* Responsive — single column on mobile */
+@media (max-width: 640px) {
+  .g2, .g3, .g-60-40, .g-45-55, .ll-cards, .vc-rows {
+    grid-template-columns: 1fr !important;
+  }
+  .hero { padding: 16px 16px 14px; }
+  .hero h1 { font-size: 18px; }
+  .sec, .verdict-card { margin: 8px 8px 0; padding: 13px 13px; }
+  .mkt-tile .val { font-size: 17px; }
+  img { max-height: 260px; object-fit: contain; }
+  .fwd-table { font-size: 11.5px; }
+  .fwd-table th, .fwd-table td { padding: 6px 7px; }
+  .ll-card .q1 { font-size: 17px; }
+  .vc-date { display: none; }
+}
 </style>'''
+
+
+def _verdict_card_html(core_focus: dict, current_pct: float, dt: str) -> str:
+    """首屏 AI 结论卡：看多理由 + 主要风险，2列排布。"""
+    bull = core_focus.get('bull', [])
+    bear = core_focus.get('bear', '')
+
+    if current_pct >= 95:
+        badge_cls, badge_txt = 'v-bull', '买入信号'
+    elif current_pct >= 70:
+        badge_cls, badge_txt = 'v-neut', '关注观察'
+    else:
+        badge_cls, badge_txt = 'v-bear', '谨慎观望'
+
+    bull_rows = ''.join(
+        f'<div class="vc-row vc-bull">'
+        f'<span class="vc-icon">▲</span><span>{b}</span></div>'
+        for b in bull[:3]
+    )
+    bear_row = (
+        f'<div class="vc-row vc-bear">'
+        f'<span class="vc-icon">▼</span><span>{bear}</span></div>'
+    ) if bear else ''
+
+    return (
+        f'<div class="verdict-card">'
+        f'<div class="vc-header">'
+        f'<span class="vc-title">🤖 AI 综合判断</span>'
+        f'<span class="verdict {badge_cls}">{badge_txt}</span>'
+        f'<span class="vc-date">数据截至 {dt}</span>'
+        f'</div>'
+        f'<div class="vc-rows">{bull_rows}{bear_row}</div>'
+        f'</div>'
+    )
 
 
 def _fmt_pct(v: float, decimals: int = 1) -> str:
@@ -495,16 +564,19 @@ def _fwd_table_html(df: pd.DataFrame | None) -> str:
         )
 
     return f'''
+<div style="overflow-x:auto">
 <table class="fwd-table">
   <thead>
     <tr>
-      <th>信号强度</th><th>样本</th>
-      <th>次日均涨</th><th>5日均涨</th><th>30日均涨</th><th>30日胜率</th>
+      <th>信号强度</th><th>历史次数</th>
+      <th>次日涨跌</th><th>5日涨跌</th><th>30日涨跌</th>
+      <th>30日胜率<br><span style="font-weight:400;font-size:10px">（上涨比例）</span></th>
     </tr>
   </thead>
   <tbody>{rows_html}</tbody>
 </table>
-<p class="fwd-note">注：综合因子百分位达到阈值时（自身1年历史），历史平均表现</p>'''
+</div>
+<p class="fwd-note">以上为过去3年历史回测：每当综合信号进入该强度区间，后续实际股价平均表现</p>'''
 
 
 def _core_focus_html(cf: dict) -> str:
@@ -608,13 +680,19 @@ def build_pitch_html(
   <h1>{code} {stock_name}
     <span class="verdict v-bull">买入信号</span>
   </h1>
-  <div class="meta">{dt} &nbsp;·&nbsp; CSI 300 量化选股 TOP 1 &nbsp;·&nbsp; 申万半导体</div>
+  <div class="meta">
+    {dt} &nbsp;·&nbsp; CSI 300 量化选股 TOP 1 &nbsp;·&nbsp; 申万半导体
+    &nbsp;·&nbsp; <span style="color:#7090b8">数据截至收盘 {dt}</span>
+  </div>
   <p class="tagline">{cf_summary}</p>
 </div>
 
+<!-- VERDICT CARD -->
+{_verdict_card_html(core_focus, current_pct, dt)}
+
 <!-- SECTION 1: 量化指标 -->
 <div class="sec">
-  <div class="sec-title">📈 量化指标 <span class="sec-sub">— 买了能涨多少？</span></div>
+  <div class="sec-title">📈 量化指标 <span class="sec-sub">— 历史上类似信号之后涨了多少？</span></div>
   <div class="quant-view">
     <div class="tagline">{q_tagline}</div>
     <div class="detail">{q_signal_text}</div>
@@ -622,14 +700,16 @@ def build_pitch_html(
   <div class="g-60-40">
     <div class="chart-box">{img(charts.get("kline",""), "K线关键价位")}</div>
     <div>
-      <p style="font-size:12.5px;color:#555;font-weight:700;margin-bottom:8px">
-        历史信号强度 → 后续表现（自身1年历史）
+      <p style="font-size:12.5px;color:#555;font-weight:700;margin-bottom:4px">
+        历史回测：类似信号出现后股价表现
       </p>
+      <span class="gloss-note">「信号强度」= 综合评分分位，越高代表当前动量越罕见强势</span>
       {_fwd_table_html(fwd_df)}
       <hr class="divider"/>
-      <p style="font-size:12px;color:#555;font-weight:700;margin-bottom:6px">
-        量化因子雷达（当前）
+      <p style="font-size:12px;color:#555;font-weight:700;margin-bottom:4px">
+        量化因子雷达（当前状态）
       </p>
+      <span class="gloss-note">7个技术指标打分，满分100分，分数越高代表该维度越强势</span>
       {img(charts.get("factor_radar",""), "量化因子雷达")}
     </div>
   </div>
@@ -638,17 +718,22 @@ def build_pitch_html(
 
 <!-- SECTION 2: 资金博弈 -->
 <div class="sec">
-  <div class="sec-title">💰 资金博弈 <span class="sec-sub">— 有没有人买？</span></div>
+  <div class="sec-title">💰 资金博弈 <span class="sec-sub">— 有没有大资金在买？</span></div>
 
-  <p style="font-size:12px;color:#888;font-weight:700;margin-bottom:8px">市场与板块环境</p>
+  <p style="font-size:12px;color:#888;font-weight:700;margin-bottom:8px">① 大盘与板块：买的环境好不好</p>
   <div class="g-45-55" style="margin-bottom:8px">
     <div>{mkt_tiles}</div>
     <div class="chart-box">{img(charts.get("beta",""), "大盘Beta与板块环境")}</div>
   </div>
-  <div class="narr-sm">{market_narr}</div>
+  <div class="narr-sm">{market_narr}
+    <span class="gloss-note">Beta=1.24：大盘每涨1%，中芯理论上涨约1.24%；板块超额49pp = 半导体远强于大盘。</span>
+  </div>
 
   <hr class="divider"/>
-  <p style="font-size:12px;color:#888;font-weight:700;margin-bottom:10px">个股资金博弈</p>
+  <p style="font-size:12px;color:#888;font-weight:700;margin-bottom:6px">② 个股资金：这只股票有没有人买</p>
+  <span class="gloss-note" style="margin-bottom:8px;display:block">
+    左图：7项资金指标综合打分（满分100），分越高代表当前资金越活跃；右图：在申万半导体板块内的相对强弱排名。
+  </span>
   <div class="g-45-55" style="margin-bottom:8px">
     <div class="chart-box">{img(charts.get("capital_radar",""), "资金博弈雷达")}</div>
     <div class="chart-box">{img(charts.get("peer",""), "板块相对强弱")}</div>
@@ -656,7 +741,10 @@ def build_pitch_html(
   <div class="narr-sm">{radar_narr}</div>
 
   <hr class="divider"/>
-  <div class="narr"><strong>资金博弈总结 &nbsp;</strong>{capital_narr}</div>
+  <p style="font-size:12px;color:#888;font-weight:700;margin-bottom:6px">③ 成交量节奏：放量还是缩量</p>
+  <div class="narr">{capital_narr}
+    <span class="gloss-note">成交量Z分数：当日成交量比近20日均量高出几倍标准差；+2.42 ≈ 比平时放量约2.4倍，属极高水平。</span>
+  </div>
 </div>
 
 <!-- SECTION 3: 基本面催化剂 -->
