@@ -167,40 +167,43 @@ def _fetch_insider(ts_code: str, trade_date: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def _fetch_inst_survey_score(ts_code: str, trade_date: str) -> dict:
-    """Fetch institution survey data; returns pct score + value_str."""
+def _fetch_analyst_score(ts_code: str, trade_date: str) -> dict:
+    """Fetch analyst report ratings (report_rc) as proxy for institutional attention.
+    Returns pct score based on recent-30d buy/outperform count vs prior-30d."""
     end_dt   = datetime.strptime(trade_date, '%Y%m%d')
-    start_dt = end_dt - timedelta(days=65)
     cut30    = (end_dt - timedelta(days=30)).strftime('%Y%m%d')
+    cut60    = (end_dt - timedelta(days=60)).strftime('%Y%m%d')
+    BULLISH  = {'买入', '强买入', '增持', '跑赢行业', '推荐', 'Buy', 'Outperform'}
     try:
-        df = pro.stk_surv(
+        df = pro.report_rc(
             ts_code=ts_code,
-            start_date=start_dt.strftime('%Y%m%d'),
+            start_date=cut60,
             end_date=trade_date,
+            fields='report_date,rating',
         )
         time.sleep(0.2)
         if df is None or len(df) == 0:
             return {}
-        date_col = next((c for c in ['surv_date', 'rece_date'] if c in df.columns), None)
-        if date_col is None:
-            return {}
-        df['_d'] = df[date_col].astype(str)
-        recent30 = int((df['_d'] >= cut30).sum())
-        prev30   = int((df['_d'] < cut30).sum())
-        accel    = recent30 / max(prev30, 1) if prev30 > 0 else (2.5 if recent30 > 0 else 1.0)
-        if recent30 >= 5 and accel >= 2:
-            pct = 80.0;  val = f'{recent30}次↑×{accel:.1f}'
-        elif recent30 >= 3 or (recent30 >= 1 and accel >= 1.5):
-            pct = 65.0;  val = f'{recent30}次'
-        elif recent30 >= 1:
-            pct = 52.0;  val = f'{recent30}次'
-        elif prev30 > 0:
-            pct = 32.0;  val = '近期减少'
+        df['_d'] = df['report_date'].astype(str)
+        recent = df[df['_d'] >= cut30]
+        prev   = df[df['_d'] <  cut30]
+        bull_recent = int(recent['rating'].isin(BULLISH).sum())
+        bull_prev   = int(prev['rating'].isin(BULLISH).sum())
+        n_recent    = len(recent)
+        accel = bull_recent / max(bull_prev, 1) if bull_prev > 0 else (2.0 if bull_recent > 0 else 1.0)
+        if bull_recent >= 5 and accel >= 1.5:
+            pct = 82.0;  val = f'{bull_recent}篇买入↑'
+        elif bull_recent >= 3:
+            pct = 68.0;  val = f'{bull_recent}篇买入'
+        elif bull_recent >= 1:
+            pct = 55.0;  val = f'{bull_recent}篇买入'
+        elif n_recent >= 1:
+            pct = 40.0;  val = f'{n_recent}篇·无明确买入'
         else:
-            pct = 42.0;  val = '暂无'
-        return {'pct': pct, 'value_str': val, 'n_recent': recent30, 'n_prev': prev30}
+            pct = 42.0;  val = '无覆盖'
+        return {'pct': pct, 'value_str': val, 'n_recent': n_recent, 'n_bull': bull_recent}
     except Exception as e:
-        print(f'  [WARN] capital inst_survey: {e}')
+        print(f'  [WARN] capital analyst_score: {e}')
         return {}
 
 
@@ -225,7 +228,7 @@ def _compute_metrics(ts_code: str, trade_date: str) -> list[dict]:
         {'name': '北向持股变化', 'value_str': 'N/A', 'pct': 50.0, 'direction': 'bull', 'raw': None},
         {'name': '融券/融资比',  'value_str': 'N/A', 'pct': 50.0, 'direction': 'bear', 'raw': None},
         {'name': '大宗成交',     'value_str': 'N/A', 'pct': 50.0, 'direction': 'bull', 'raw': None},
-        {'name': '机构调研',     'value_str': 'N/A', 'pct': 50.0, 'direction': 'bull', 'raw': None},
+        {'name': '券商评级',     'value_str': 'N/A', 'pct': 50.0, 'direction': 'bull', 'raw': None},
     ]
 
     # ── 1. 换手率 ─────────────────────────────────────────────────────────────
@@ -287,16 +290,17 @@ def _compute_metrics(ts_code: str, trade_date: str) -> list[dict]:
             })
 
     # ── 5. 融券/融资比（空头压力，无数据保留中性占位） ────────────────────────
-    if rqye_series is not None and len(rqye_series) >= 5 and len(mg) >= 5:
-        rzye_s = mg['rzye'].dropna()
-        if len(rzye_s) >= 5:
-            ratio_series = (rqye_series.reset_index(drop=True)
-                            / rzye_s.reset_index(drop=True).clip(lower=1e6))
-            curr_ratio = float(ratio_series.iloc[-1]) if not ratio_series.empty else float('nan')
+    # Align on rows where BOTH rzye and rqye are non-NaN to avoid length mismatch
+    if len(mg) >= 5 and 'rzye' in mg.columns and 'rqye' in mg.columns:
+        mg_clean = mg.dropna(subset=['rzye', 'rqye'])
+        if len(mg_clean) >= 5:
+            ratio_series = (mg_clean['rqye'].values
+                            / mg_clean['rzye'].clip(lower=1e6).values)
+            curr_ratio = float(ratio_series[-1])
             if not np.isnan(curr_ratio):
                 slots[4].update({
                     'value_str': f'{curr_ratio*100:.1f}%',
-                    'pct': _pct_of(ratio_series.dropna(), curr_ratio),
+                    'pct': _pct_of(pd.Series(ratio_series), curr_ratio),
                     'raw': curr_ratio,
                 })
 
@@ -315,17 +319,17 @@ def _compute_metrics(ts_code: str, trade_date: str) -> list[dict]:
     except Exception as e:
         print(f'  [WARN] capital block_trade metric: {e}')
 
-    # ── 7. 机构调研强度（无调研记录则中性占位） ───────────────────────────────
+    # ── 7. 券商研报关注度（report_rc 近30日买入评级数） ────────────────────────
     try:
-        surv = _fetch_inst_survey_score(ts_code, trade_date)
-        if surv:
+        ana = _fetch_analyst_score(ts_code, trade_date)
+        if ana:
             slots[6].update({
-                'value_str': surv['value_str'],
-                'pct': surv['pct'],
-                'raw': surv.get('n_recent', 0),
+                'value_str': ana['value_str'],
+                'pct': ana['pct'],
+                'raw': ana.get('n_bull', 0),
             })
     except Exception as e:
-        print(f'  [WARN] capital inst_survey metric: {e}')
+        print(f'  [WARN] capital analyst metric: {e}')
 
     return slots
 

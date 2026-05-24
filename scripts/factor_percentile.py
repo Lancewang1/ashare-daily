@@ -191,62 +191,82 @@ def _compute_factors(daily: pd.DataFrame, basic: pd.DataFrame) -> list[dict]:
     return factors
 
 
-# ── Chart builder ─────────────────────────────────────────────────────────────
+# ── Chart builder (radar) ─────────────────────────────────────────────────────
 
 def _build_chart(factors: list[dict], ts_code: str) -> str:
+    """Build a radar (spider) chart for factor percentiles, matching capital_dashboard style."""
     if not factors:
         return ''
 
-    code    = ts_code.split('.')[0]
-    names   = [f['name'] for f in factors]
-    pcts    = [f['pct'] for f in factors]
-    vstrs   = [f['value_str'] for f in factors]
-    n       = len(factors)
+    code       = ts_code.split('.')[0]
+    n          = len(factors)
+    labels     = [f['name'] for f in factors]
+    pcts       = np.array([f['pct'] for f in factors], dtype=float)
+    value_strs = [f['value_str'] for f in factors]
+    composite  = float(np.nanmean(pcts))
 
-    fig, ax = plt.subplots(figsize=(6.5, 0.65 * n + 0.8), facecolor='white')
-    fig.subplots_adjust(left=0.28, right=0.88, top=0.88, bottom=0.08)
+    if composite >= 65:
+        main_color, comp_label = '#2ca02c', '因子偏强'
+    elif composite <= 35:
+        main_color, comp_label = '#d62728', '因子偏弱'
+    else:
+        main_color, comp_label = '#e8a500', '因子中性'
 
-    y_pos = list(range(n - 1, -1, -1))  # top to bottom
+    vals = pcts / 100.0
+    angles = np.linspace(np.pi / 2, np.pi / 2 + 2 * np.pi, n, endpoint=False)
+    angles_c = np.append(angles, angles[0])
+    vals_c   = np.append(vals, vals[0])
 
-    for i, (y, p, vs) in enumerate(zip(y_pos, pcts, vstrs)):
-        color = '#2ca02c' if p >= 65 else ('#d62728' if p <= 35 else '#f7dc6f')
-        # Background bar (full 100%)
-        ax.barh(y, 100, left=0, height=0.55, color='#f0f0f0', zorder=1)
-        # Filled portion
-        ax.barh(y, p, left=0, height=0.55, color=color, alpha=0.85, zorder=2)
-        # Value label on right
-        ax.text(102, y, vs, va='center', ha='left', fontsize=7.5, color='#444')
-        # Percentile label inside bar
-        pct_x = max(p - 3, 2)
-        ax.text(pct_x, y, f'{p:.0f}%ile', va='center', ha='right' if p > 15 else 'left',
-                fontsize=7, color='white' if p > 20 else '#555', fontweight='bold')
+    fig, ax = plt.subplots(figsize=(5.5, 5.0),
+                           subplot_kw={'projection': 'polar'},
+                           facecolor='white')
+    ax.set_facecolor('#fafafa')
 
-    # Reference lines
-    for xline in (25, 50, 75):
-        ax.axvline(xline, color='#ccc', linewidth=0.8, linestyle='--', zorder=0)
+    theta_ring = np.linspace(0, 2 * np.pi, 300)
+    for r, ls, alpha in [(0.25, ':', 0.4), (0.50, '--', 0.42),
+                         (0.75, ':', 0.4), (1.0, '-', 0.55)]:
+        ax.plot(theta_ring, [r] * 300, color='#ccc', lw=0.8,
+                ls=ls, alpha=alpha, zorder=1)
+    for angle in angles:
+        ax.plot([angle, angle], [0, 1.0], color='#ddd', lw=0.9, zorder=1)
 
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(names, fontsize=8)
-    ax.set_xlim(0, 100)
-    ax.set_xlabel('历史百分位（过去1年）', fontsize=7.5)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.tick_params(axis='x', labelsize=7)
-    ax.set_title(f'{code} 量化因子百分位（自身历史1年）',
-                 fontsize=9, fontweight='bold', pad=6)
+    ax.fill(angles_c, vals_c, alpha=0.20, color=main_color, zorder=2)
+    ax.plot(angles_c, vals_c, color=main_color, lw=2.2, zorder=3)
+    ax.scatter(angles, vals, s=65, color=main_color,
+               edgecolors='white', linewidths=1.5, zorder=4)
 
-    # Legend dots
-    from matplotlib.patches import Patch
-    legend_els = [
-        Patch(facecolor='#2ca02c', alpha=0.85, label='偏强（>65%ile）'),
-        Patch(facecolor='#f7dc6f', alpha=0.85, label='中性'),
-        Patch(facecolor='#d62728', alpha=0.85, label='偏弱（<35%ile）'),
-    ]
-    ax.legend(handles=legend_els, fontsize=6.5, loc='lower right',
-              framealpha=0.7, ncol=3, bbox_to_anchor=(1.0, -0.06))
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.spines['polar'].set_visible(False)
+    ax.set_ylim(0, 1.6)
+
+    ref_angle = angles[0] + 0.08
+    for r, lbl in [(0.25, '25%'), (0.5, '50%'), (0.75, '75%'), (1.0, '100%')]:
+        ax.text(ref_angle, r + 0.01, lbl, fontsize=6, color='#bbb',
+                ha='left', va='bottom', zorder=5)
+
+    for angle, label, val_str, pct in zip(angles, labels, value_strs, pcts):
+        r_lbl = 1.28
+        txt_color = ('#2ca02c' if pct >= 65 else ('#d62728' if pct <= 35 else '#555'))
+        weight = 'bold' if abs(pct - 50) >= 25 else 'normal'
+        ax.text(angle, r_lbl,
+                f'{label}\n{val_str}  {pct:.0f}%ile',
+                ha='center', va='center', fontsize=8,
+                color=txt_color, fontweight=weight, zorder=6)
+
+    ax.text(0, 0,
+            f'{composite:.0f}%ile\n{comp_label}',
+            ha='center', va='center', fontsize=12, fontweight='bold',
+            color=main_color, zorder=7,
+            bbox=dict(boxstyle='round,pad=0.35', facecolor='white',
+                      edgecolor=main_color, alpha=0.95, linewidth=1.8))
+
+    ax.set_title(f'{code} 量化因子雷达（自身历史1年）',
+                 fontsize=10, fontweight='bold', color='#1a1a2e', pad=18)
+    fig.tight_layout()
 
     buf = io.BytesIO()
-    fig.savefig(buf, format='png', dpi=130, bbox_inches='tight', facecolor='white')
+    fig.savefig(buf, format='png', dpi=150, bbox_inches='tight', facecolor='white')
     plt.close(fig)
     buf.seek(0)
     return base64.b64encode(buf.read()).decode('utf-8')
