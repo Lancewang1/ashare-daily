@@ -11,23 +11,47 @@ body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background: #f
 .header h1 { font-size: 22px; font-weight: 700; }
 .header p  { font-size: 13px; opacity: 0.6; margin-top: 6px; }
 .container { max-width: 640px; margin: 0 auto; padding: 20px 16px; }
+
+/* Card — now a div so we can nest links inside */
 .card {
   background: white; border-radius: 12px; margin-bottom: 14px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden;
-  text-decoration: none; display: block; color: inherit;
-  transition: box-shadow 0.15s;
 }
-.card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.13); }
-.card-inner { padding: 16px 20px; display: flex; align-items: center; gap: 14px; }
+.card-main {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 20px; text-decoration: none; color: inherit;
+  transition: background 0.12s;
+}
+.card-main:hover { background: #f7f9ff; }
 .date-badge {
   background: #1a2035; color: white; border-radius: 8px;
-  padding: 8px 12px; text-align: center; min-width: 60px;
+  padding: 8px 12px; text-align: center; min-width: 60px; flex-shrink: 0;
 }
 .date-badge .day  { font-size: 22px; font-weight: 800; line-height: 1; }
 .date-badge .mon  { font-size: 11px; opacity: 0.7; margin-top: 2px; }
 .card-meta h3    { font-size: 15px; font-weight: 600; }
 .card-meta p     { font-size: 12px; color: #888; margin-top: 3px; }
-.arrow { margin-left: auto; font-size: 18px; color: #ccc; }
+.arrow { margin-left: auto; font-size: 18px; color: #ccc; flex-shrink: 0; }
+
+/* Action bar below the main card row */
+.card-actions {
+  border-top: 1px solid #f0f0f0;
+  padding: 0 20px 0 94px;   /* align with text (badge 60px + gap 14px + padding 20px) */
+  display: flex; gap: 8px; align-items: center;
+}
+.btn {
+  display: inline-block; padding: 7px 14px; border-radius: 6px;
+  font-size: 12px; font-weight: 700; text-decoration: none;
+  transition: opacity 0.12s;
+}
+.btn:hover { opacity: 0.80; }
+.btn-full  { background: #eef3fb; color: #1a6fc4; }
+.btn-pitch { background: #1a6fc4; color: #fff; }
+.btn-label {
+  font-size: 11px; color: #bbb; padding: 7px 0;
+  margin-right: 2px;
+}
+
 .footer { text-align: center; font-size: 12px; color: #aaa; padding: 24px 0; }
 </style>
 </head>
@@ -37,40 +61,47 @@ body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background: #f
   <p>Powered by DeepSeek V4 Pro · AKShare · Wind · Tushare</p>
 </div>
 <div class="container">
-  <a class="card" href="stocks/20260520_csi300_688981_中芯国际.html">
-    <div class="card-inner">
+
+  <!-- 中芯国际 — has both full report and pitch -->
+  <div class="card">
+    <a class="card-main" href="stocks/20260520_csi300_688981_中芯国际.html">
       <div class="date-badge"><div class="day">20</div><div class="mon">05/2026</div></div>
       <div class="card-meta">
         <h3>中芯国际 (688981) — CSI 300 AI 模型 TOP 1</h3>
         <p>电子  ·  收盘 133.81  ·  ML 排名 #1</p>
       </div>
       <div class="arrow">›</div>
+    </a>
+    <div class="card-actions">
+      <span class="btn-label">快速阅读</span>
+      <a class="btn btn-pitch" href="stocks/20260520_pitch_688981_中芯国际.html">⚡ 研究摘要</a>
+      <a class="btn btn-full"  href="stocks/20260520_csi300_688981_中芯国际.html">完整报告 →</a>
     </div>
-  </a>
+  </div>
 
-  <a class="card" href="stocks/20260520_csi1000_000880_潍柴重机.html">
-    <div class="card-inner">
+  <!-- 潍柴重机 — full report only -->
+  <div class="card">
+    <a class="card-main" href="stocks/20260520_csi1000_000880_潍柴重机.html">
       <div class="date-badge"><div class="day">20</div><div class="mon">05/2026</div></div>
       <div class="card-meta">
         <h3>潍柴重机 (000880) — CSI 1000 AI 模型 TOP 1</h3>
         <p>汽车  ·  收盘 35.42  ·  ML 排名 #1</p>
       </div>
       <div class="arrow">›</div>
-    </div>
-  </a>
+    </a>
+  </div>
 
-
-
-  <a class="card" href="daily_reports/20260520_ashare_report.html">
-    <div class="card-inner">
+  <!-- 晨报 -->
+  <div class="card">
+    <a class="card-main" href="daily_reports/20260520_ashare_report.html">
       <div class="date-badge"><div class="day">20</div><div class="mon">05/2026</div></div>
       <div class="card-meta">
         <h3>2026-05-20 晨报</h3>
         <p>电子 · 电气设备 · 成交2.86万亿 · 全A -0.01%</p>
       </div>
       <div class="arrow">›</div>
-    </div>
-  </a>
+    </a>
+  </div>
 
 </div>
 <div class="footer">仅供参考，不构成投资建议</div>
