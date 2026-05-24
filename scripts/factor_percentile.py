@@ -48,7 +48,7 @@ def _fetch_daily(ts_code: str, trade_date: str) -> pd.DataFrame:
             ts_code=ts_code,
             start_date=start_dt.strftime('%Y%m%d'),
             end_date=trade_date,
-            fields='trade_date,close,pct_chg',
+            fields='trade_date,close,pct_chg,vol',
         )
         time.sleep(0.2)
     except Exception as e:
@@ -57,8 +57,9 @@ def _fetch_daily(ts_code: str, trade_date: str) -> pd.DataFrame:
     if df is None or len(df) == 0:
         return pd.DataFrame()
     df['trade_date'] = df['trade_date'].astype(str)
-    for col in ('close', 'pct_chg'):
-        df[col] = pd.to_numeric(df[col], errors='coerce')
+    for col in ('close', 'pct_chg', 'vol'):
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
     return df.sort_values('trade_date').reset_index(drop=True)
 
 
@@ -187,6 +188,24 @@ def _compute_factors(daily: pd.DataFrame, basic: pd.DataFrame) -> list[dict]:
             'pct': _pct_rank(rsi14.dropna(), v),
             'direction': 'bull',
         })
+
+    # 7. 量能节奏 — 20-day volume Z-score
+    vol_col = merged.get('vol', None)
+    if vol_col is not None and not isinstance(vol_col, pd.DataFrame):
+        vol_s = vol_col.dropna()
+        if len(vol_s) >= 25:
+            vol_mean = vol_col.rolling(20).mean()
+            vol_std  = vol_col.rolling(20).std()
+            vol_z    = (vol_col - vol_mean) / vol_std.replace(0, np.nan)
+            if not pd.isna(vol_z.iloc[-1]):
+                v = float(vol_z.iloc[-1])
+                factors.append({
+                    'name': '量能节奏',
+                    'value': v,
+                    'value_str': f'{v:+.1f}σ',
+                    'pct': _pct_rank(vol_z.dropna(), v),
+                    'direction': 'bull',
+                })
 
     return factors
 
