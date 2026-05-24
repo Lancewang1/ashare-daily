@@ -49,11 +49,22 @@ def _extract_b64(html: str, marker: str, max_scan: int = 200_000) -> str:
 
 
 def extract_all_charts(long_html: str) -> dict:
+    # Peer chart: try several sector titles (semiconductor, auto, etc.)
+    peer_markers = [
+        '半导体板块强弱对比', '汽车板块强弱对比', '板块强弱对比',
+        '个股相对强弱', '同行对比',
+    ]
+    peer_b64 = ''
+    for m in peer_markers:
+        peer_b64 = _extract_b64(long_html, m)
+        if peer_b64:
+            break
+
     return {
         'kline':        _extract_b64(long_html, '<span class="card-title">关键价位'),
         'factor_radar': _extract_b64(long_html, '<span class="card-title">量化因子百分位'),
         'capital_radar':_extract_b64(long_html, '<span class="card-title">资金博弈雷达'),
-        'peer':         _extract_b64(long_html, '半导体板块强弱对比'),
+        'peer':         peer_b64,
         'beta':         _extract_b64(long_html, '<div class="tb-head">大盘 BETA 与板块环境'),
     }
 
@@ -174,6 +185,49 @@ def extract_quant_narratives(long_html: str) -> dict:
     rationale = _section_para('量化模型为何选中', 3)
     stage    = _section_para('当前阶段定性', 2)
     return {'tagline': tagline, 'rationale': rationale, 'stage': stage}
+
+
+def extract_sector_info(long_html: str) -> dict:
+    """Extract sector name + key return numbers from BETA section."""
+    out = {'sector_name': '', 'csi300_30d': None, 'sector_30d': None,
+           'sector_60d': None, 'breadth': None, 'beta': None}
+    pos = long_html.find('<div class="tb-head">大盘 BETA 与板块环境</div>')
+    if pos == -1:
+        return out
+    next_h = long_html.find('<div class="tb-head">', pos + 50)
+    section = _strip(long_html[pos: next_h if next_h != -1 else pos + 6000])
+
+    # Sector name: 申万 + 2-4 Chinese chars, strip trailing 指数/板块
+    m = re.search(r'申万([一-鿿]{2,4})', section)
+    if m:
+        name = re.sub(r'(指数|板块|ETF)$', '', m.group(1))
+        out['sector_name'] = '申万' + name
+
+    # CSI300 30d return — allow digits in between (近30天涨+8.30%)
+    m = re.search(r'沪深300[^%]{0,20}?\+?(\d+\.?\d*)%', section)
+    if m:
+        out['csi300_30d'] = float(m.group(1))
+
+    # Sector 30d return
+    if out['sector_name']:
+        sn = re.escape(out['sector_name'])
+        # match pattern: 申万汽车指数近30天仅涨+4.36%  (include 指数 variant)
+        m = (re.search(rf'{sn}(?:指数)?[^%]{{0,25}}?\+?(\d+\.?\d*)%', section) or
+             re.search(rf'申万[^\s]{{2,6}}[^%]{{0,25}}?\+?(\d+\.?\d*)%', section))
+        if m:
+            out['sector_30d'] = float(m.group(1))
+
+    # Beta value
+    m = re.search(r'Beta[=＝\s]{0,3}(\d+\.?\d*)', section, re.IGNORECASE)
+    if m:
+        out['beta'] = float(m.group(1))
+
+    # Breadth: % stocks above MA20
+    m = re.search(r'(\d+\.?\d*)%[^%]{0,20}(?:20日均线|20MA|MA20)', section)
+    if m:
+        out['breadth'] = m.group(1) + '%'
+
+    return out
 
 
 def extract_market_narrative(long_html: str) -> str:
@@ -764,6 +818,7 @@ def build_pitch_html(
     quant_narr: dict | None = None,
     market_narr: str = '',
     radar_narr: str = '',
+    sector_info: dict | None = None,
 ) -> str:
     code = ts_code.split('.')[0]
     dt   = datetime.strptime(trade_date, '%Y%m%d').strftime('%Y-%m-%d')
@@ -782,25 +837,35 @@ def build_pitch_html(
             return f'<div style="height:200px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:12px">图表加载中</div>'
         return f'<img src="data:image/png;base64,{b64}" alt="{alt}" style="max-width:100%;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.08)"/>'
 
-    # Market stat tiles — vertical stack (used inside 45% column)
+    # Market stat tiles — dynamic from sector_info, fallback to placeholders
+    si = sector_info or {}
+    sector_name = si.get('sector_name') or '所属板块'
+    csi300_val  = si.get('csi300_30d')
+    sector_val  = si.get('sector_30d')
+    breadth_val = si.get('breadth')
+    beta_val    = si.get('beta')
+
+    def _tile(label: str, val_html: str, sub: str) -> str:
+        return (f'<div class="mkt-tile">'
+                f'<div class="label">{label}</div>'
+                f'<div class="val">{val_html}</div>'
+                f'<div class="sub">{sub}</div>'
+                f'</div>')
+
+    csi300_html = (f'<span class="green">+{csi300_val:.1f}%</span>'
+                   if csi300_val is not None else '<span style="color:#aaa">—</span>')
+    sector_html = (f'<span class="green">+{sector_val:.1f}%</span>'
+                   if sector_val is not None else '<span style="color:#aaa">—</span>')
+    beta_sub    = f'Beta={beta_val:.2f} &nbsp;·&nbsp; 弹性放大' if beta_val else '见右图'
+    breadth_html= (f'<span class="amber">{breadth_val}</span>'
+                   if breadth_val else '<span style="color:#aaa">—</span>')
+
     mkt_tiles = (
         '<div style="display:flex;flex-direction:column;gap:8px;height:100%">'
-        '<div class="mkt-tile">'
-        '<div class="label">沪深300（30日）</div>'
-        '<div class="val green">+8.30%</div>'
-        '<div class="sub">60日 +2.90% &nbsp;·&nbsp; 牛市格局</div>'
-        '</div>'
-        '<div class="mkt-tile">'
-        '<div class="label">申万半导体（30日）</div>'
-        '<div class="val green">+57.74%</div>'
-        '<div class="sub">60日 +40.57% &nbsp;·&nbsp; 全市场最强</div>'
-        '</div>'
-        '<div class="mkt-tile">'
-        '<div class="label">板块广度</div>'
-        '<div class="val amber">93.8%</div>'
-        '<div class="sub">个股 &gt; 20MA &nbsp;·&nbsp; 共振极强</div>'
-        '</div>'
-        '</div>'
+        + _tile('沪深300（30日）', csi300_html, beta_sub)
+        + _tile(f'{sector_name}（30日）', sector_html, '板块近期表现')
+        + _tile('板块广度', breadth_html, '个股 &gt; 20MA')
+        + '</div>'
     )
 
     return f'''<!DOCTYPE html>
@@ -820,7 +885,7 @@ def build_pitch_html(
     <span class="verdict v-bull">买入信号</span>
   </h1>
   <div class="meta">
-    {dt} &nbsp;·&nbsp; CSI 300 量化选股 TOP 1 &nbsp;·&nbsp; 申万半导体
+    {dt} &nbsp;·&nbsp; 量化选股 TOP 1 &nbsp;·&nbsp; {sector_name}
     &nbsp;·&nbsp; <span style="color:#7090b8">数据截至收盘 {dt}</span>
   </div>
   <p class="tagline">{cf_summary}</p>
@@ -868,18 +933,15 @@ def build_pitch_html(
     <div class="chart-box">{img(charts.get("beta",""), "大盘Beta与板块环境")}</div>
   </div>
   <div class="narr-sm">{market_narr}
-    <span class="gloss-note">Beta=1.24：大盘每涨1%，中芯理论上涨约1.24%；板块超额49pp = 半导体远强于大盘。</span>
+    <span class="gloss-note">Beta={beta_val or "—"}：大盘每涨1%，{stock_name}理论弹性约{beta_val or "—"}倍；{sector_name}近期表现见上图。</span>
   </div>
 
   <hr class="divider"/>
   <p style="font-size:12px;color:#888;font-weight:700;margin-bottom:6px">② 个股资金：这只股票有没有人买</p>
   <span class="gloss-note" style="margin-bottom:8px;display:block">
-    左图：7项资金指标综合打分（满分100），分越高代表当前资金越活跃；右图：在申万半导体板块内的相对强弱排名。
+    {'左图：7项资金指标综合打分（满分100），分越高代表当前资金越活跃；右图：在' + sector_name + '板块内的相对强弱排名。' if charts.get('peer') else '7项资金指标综合打分（满分100），分越高代表当前资金越活跃。'}
   </span>
-  <div class="g-45-55" style="margin-bottom:8px">
-    <div class="chart-box">{img(charts.get("capital_radar",""), "资金博弈雷达")}</div>
-    <div class="chart-box">{img(charts.get("peer",""), "板块相对强弱")}</div>
-  </div>
+  {'<div class="g-45-55" style="margin-bottom:8px"><div class="chart-box">' + img(charts.get("capital_radar",""), "资金博弈雷达") + '</div><div class="chart-box">' + img(charts.get("peer",""), "板块相对强弱") + '</div></div>' if charts.get('peer') else '<div style="margin-bottom:8px">' + img(charts.get("capital_radar",""), "资金博弈雷达") + '</div>'}
   <div class="narr-sm">{radar_narr}</div>
 
   <hr class="divider"/>
@@ -920,12 +982,13 @@ def build_elevator_pitch(ts_code: str, trade_date: str, stock_name: str) -> Path
     long_html_path = _STOCKS / f'{trade_date}_csi300_{code}_{stock_name}.html'
 
     if not long_html_path.exists():
-        # Try glob
         candidates = list(_STOCKS.glob(f'*{code}*.html'))
         candidates = [p for p in candidates if 'pitch' not in p.name]
         if not candidates:
             raise FileNotFoundError(f'Long report not found for {ts_code}')
-        long_html_path = candidates[0]
+        # Prefer files that start with the trade_date (avoid backups)
+        dated = [p for p in candidates if p.name.startswith(trade_date)]
+        long_html_path = dated[0] if dated else candidates[0]
         print(f'  Using: {long_html_path.name}')
 
     print(f'  Loading long report: {long_html_path.name}')
@@ -937,6 +1000,19 @@ def build_elevator_pitch(ts_code: str, trade_date: str, stock_name: str) -> Path
     for k, v in charts.items():
         print(f'    {k}: {len(v):,} chars' if v else f'    {k}: MISSING')
 
+    # Fallback: generate factor_radar on the fly if missing from report
+    if not charts.get('factor_radar'):
+        print(f'  [fallback] generating factor_radar via API...')
+        try:
+            sys.path.insert(0, str(_SCRIPTS))
+            from factor_percentile import factor_percentile
+            fp = factor_percentile(ts_code, trade_date)
+            if fp.get('chart_b64'):
+                charts['factor_radar'] = fp['chart_b64']
+                print(f'    factor_radar generated: {len(fp["chart_b64"]):,} chars')
+        except Exception as e:
+            print(f'    factor_radar fallback failed: {e}')
+
     print(f'  Extracting text...')
     core_focus    = extract_core_focus(long_html)
     leadlag       = extract_leadlag(long_html)
@@ -944,6 +1020,8 @@ def build_elevator_pitch(ts_code: str, trade_date: str, stock_name: str) -> Path
     quant_narr    = extract_quant_narratives(long_html)
     market_narr   = extract_market_narrative(long_html)
     radar_narr    = extract_radar_narrative(long_html)
+    sector_info   = extract_sector_info(long_html)
+    print(f'    sector_info: {sector_info}')
 
     print(f'  Computing forward return table...')
     fwd_result = compute_fwd_return_table(ts_code, trade_date)
@@ -959,6 +1037,7 @@ def build_elevator_pitch(ts_code: str, trade_date: str, stock_name: str) -> Path
         quant_narr=quant_narr,
         market_narr=market_narr,
         radar_narr=radar_narr,
+        sector_info=sector_info,
     )
 
     out_path = _STOCKS / f'{trade_date}_pitch_{code}_{stock_name}.html'
