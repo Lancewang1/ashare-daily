@@ -537,6 +537,12 @@ img { max-width: 100%; height: auto; display: block; }
               background: #eef3fb; border-radius: 8px;
               font-size: 13px; color: #1a3463; line-height: 1.7; }
 
+/* Section-lead opinion banner */
+.sec-lead { background: linear-gradient(135deg, #eef3fb 0%, #f0f8ff 100%);
+            border-left: 4px solid #1a6fc4; border-radius: 0 8px 8px 0;
+            padding: 11px 16px; font-size: 13.5px; color: #1a2d63;
+            line-height: 1.75; font-weight: 600; margin-bottom: 16px; }
+
 /* Bilingual gloss notes */
 .gloss-note { font-size: 11px; color: #999; display: block;
               margin-top: 5px; line-height: 1.5; }
@@ -1006,6 +1012,11 @@ def build_pitch_html(
     q_stage     = qn.get('stage', '')
     q_signal_text = _quant_summary_text(fwd_df, current_pct)
 
+    # Section-lead opinion lines (shared with summary block)
+    sec_q = _sum_quant(current_pct, fwd_df)
+    sec_c = _sum_capital(sector_info, radar_narr, stock_name)
+    sec_f = _sum_fundamental(core_focus)
+
     def img(b64: str, alt: str = '') -> str:
         if not b64:
             return f'<div style="height:200px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:12px">图表加载中</div>'
@@ -1071,6 +1082,7 @@ def build_pitch_html(
 <!-- SECTION 1: 量化指标 -->
 <div class="sec">
   <div class="sec-title">📈 量化指标 <span class="sec-sub">— 历史上类似信号之后涨了多少？</span></div>
+  <div class="sec-lead">{sec_q}</div>
   <div class="quant-view">
     <div class="tagline">{q_tagline}</div>
     <div class="detail">{q_signal_text}</div>
@@ -1100,6 +1112,7 @@ def build_pitch_html(
 <!-- SECTION 2: 资金博弈 -->
 <div class="sec">
   <div class="sec-title">💰 资金博弈 <span class="sec-sub">— 有没有大资金在买？</span></div>
+  <div class="sec-lead">{sec_c}</div>
 
   <p style="font-size:12px;color:#888;font-weight:700;margin-bottom:8px">① 大盘与板块：买的环境好不好</p>
   <div class="g-45-55" style="margin-bottom:8px">
@@ -1128,6 +1141,7 @@ def build_pitch_html(
 <!-- SECTION 3: 基本面催化剂 -->
 <div class="sec">
   <div class="sec-title">🔍 基本面催化剂 <span class="sec-sub">— 为什么会涨？</span></div>
+  <div class="sec-lead">{sec_f}</div>
   <div class="g2">
     <div>
       <p style="font-size:12px;color:#888;font-weight:700;margin-bottom:8px">市场核心关注点</p>
