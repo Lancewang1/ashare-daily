@@ -627,26 +627,50 @@ def _simple_say(current_pct: float, stock_name: str, fwd_df: pd.DataFrame | None
     return f'<strong>简单说：</strong>{stock_name}当前处于{strength}，{perf}值得关注。'
 
 
+def _clean_bull_tip(raw: str, max_chars: int = 28) -> str:
+    """Strip ①②③ prefix + citations, return the short headline before the colon."""
+    s = re.sub(r'^[①②③④⑤]\s*', '', raw.strip())
+    s = re.sub(r'（\d{4}-\d{2}-\d{2}[^）]*）', '', s)
+    s = re.sub(r'（[^）]{0,20}）', '', s)
+    # Structure is "主题：来源/说明" — use the headline BEFORE the colon
+    colon = s.find('：')
+    if colon != -1:
+        s = s[:colon].strip()
+    # Trim at first pause if still long
+    for sep in ('，', '。', '；'):
+        idx = s.find(sep)
+        if 0 < idx < max_chars:
+            s = s[:idx]
+            break
+    return s.strip()[:max_chars]
+
+
 def _ai_voice_html(core_focus: dict, current_pct: float,
                    fwd_df: pd.DataFrame | None, stock_name: str) -> str:
-    """Dark-gradient 'Freeride AI 对你说' footer card."""
+    """Dark-gradient 'Freeride AI 对你说' footer card — short, colloquial."""
     bull = core_focus.get('bull', [])
 
-    if current_pct >= 95:
-        strength = '量化信号极强'
+    if current_pct >= 99:
+        tier_desc = '历史前1%'
+    elif current_pct >= 95:
+        tier_desc = '历史前5%'
     elif current_pct >= 80:
-        strength = '量化信号偏强'
+        tier_desc = '历史前20%'
     else:
-        strength = '量化信号中等'
+        tier_desc = f'历史{100 - int(current_pct)}%分位'
 
-    perf_line = ''
     r = _matching_tier_row(fwd_df, current_pct)
     if r is not None:
-        perf_line = (f'历史上类似信号出现后30天，'
-                     f'平均上涨 {r["avg30"]:+.1f}%，{r["hit30"]:.0f}% 的时候收益为正。')
+        hit_int = int(round(r['hit30'] / 10)) * 10  # round to nearest 10
+        perf_line = (f'信号进了{tier_desc}，'
+                     f'这种时候一个月平均涨{r["avg30"]:+.1f}%，'
+                     f'{hit_int}%概率上涨。')
+    else:
+        perf_line = f'信号处于{tier_desc}。'
 
-    tip = (bull[0][:80] if bull else '').rstrip('。；')
-    main = f'{strength}，{perf_line}' + (f'最值得关注：{tip}。' if tip else '')
+    tip = _clean_bull_tip(bull[0]) if bull else ''
+    catalyst = f'催化剂：{tip}。' if tip else ''
+    main = perf_line + catalyst
 
     return (
         '<div style="background:linear-gradient(135deg,#0d1322 0%,#1a2d63 100%);'
