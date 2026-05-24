@@ -126,6 +126,49 @@ def _fetch_hk_hold(ts_code: str, trade_date: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
+def _fetch_block_trade(ts_code: str, trade_date: str) -> pd.DataFrame:
+    """Recent 40-day block trades — returns discount rate series."""
+    try:
+        df = pro.block_trade(
+            ts_code=ts_code,
+            start_date=_lookback(trade_date, 40),
+            end_date=trade_date,
+        )
+        time.sleep(0.2)
+        if df is None or len(df) == 0:
+            return pd.DataFrame()
+        df = df.copy()
+        df['trade_date'] = df['trade_date'].astype(str)
+        for col in ('price', 'vol', 'amount'):
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+        return df.sort_values('trade_date').reset_index(drop=True)
+    except Exception as e:
+        print(f'  [WARN] capital block_trade: {e}')
+        return pd.DataFrame()
+
+
+def _fetch_insider(ts_code: str, trade_date: str) -> pd.DataFrame:
+    """Insider trades in past 90 days (stk_holdertrade)."""
+    try:
+        df = pro.stk_holdertrade(
+            ts_code=ts_code,
+            start_date=_lookback(trade_date, 90),
+            end_date=trade_date,
+        )
+        time.sleep(0.2)
+        if df is None or len(df) == 0:
+            return pd.DataFrame()
+        df = df.copy()
+        for col in ('change_vol', 'change_ratio', 'avg_price'):
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+        return df.reset_index(drop=True)
+    except Exception as e:
+        print(f'  [WARN] capital insider: {e}')
+        return pd.DataFrame()
+
+
 # ── 计算各指标的历史百分位 ────────────────────────────────────────────────────
 
 def _pct_of(series: pd.Series, current_val: float) -> float:
@@ -229,6 +272,56 @@ def _compute_metrics(ts_code: str, trade_date: str) -> list[dict]:
                 'direction': 'bear',  # high short ratio = bearish pressure
                 'raw': curr_ratio,
             })
+
+    # ── 6. 大宗交易（最近40日成交额 → 机构关注度信号） ─────────────────────
+    try:
+        bt_df = _fetch_block_trade(ts_code, trade_date)
+        if 'amount' in bt_df.columns and bt_df['amount'].dropna().shape[0] >= 1:
+            total_amt = float(bt_df['amount'].dropna().sum())
+            # Score by recent block trade amount: compare to 500M / 100M / 0 thresholds
+            if total_amt > 5e8:
+                bt_pct = 68.0   # 大量大宗 = 活跃关注
+            elif total_amt > 1e8:
+                bt_pct = 58.0
+            elif total_amt > 0:
+                bt_pct = 48.0
+            else:
+                bt_pct = 40.0
+            metrics.append({
+                'name': '大宗成交',
+                'value_str': f'{total_amt/1e8:.1f}亿',
+                'pct': bt_pct,
+                'direction': 'bull',
+                'raw': total_amt,
+            })
+    except Exception as e:
+        print(f'  [WARN] capital block_trade metric: {e}')
+
+    # ── 7. 股东增减持（90日净方向） ───────────────────────────────────────────
+    try:
+        ins_df = _fetch_insider(ts_code, trade_date)
+        if len(ins_df) >= 1:
+            # 'in_de' field: 'IN'=increase / 'DE'=decrease
+            in_de = ins_df.get('in_de', pd.Series(dtype=str))
+            buys  = ins_df[in_de.str.upper().str.startswith('I', na=False)]
+            sells = ins_df[in_de.str.upper().str.startswith('D', na=False)]
+            buy_vol  = buys['change_vol'].dropna().sum()  if 'change_vol' in buys.columns else 0.0
+            sell_vol = sells['change_vol'].dropna().abs().sum() if 'change_vol' in sells.columns else 0.0
+            total_vol = buy_vol + sell_vol
+            if total_vol > 0:
+                net_ratio = (buy_vol - sell_vol) / total_vol  # −1 to +1
+                ins_pct   = round(max(5.0, min(95.0, 50.0 + net_ratio * 40.0)), 1)
+            else:
+                ins_pct = 50.0
+            metrics.append({
+                'name': '增减持净向',
+                'value_str': f'净{"增" if buy_vol >= sell_vol else "减"}持',
+                'pct': ins_pct,
+                'direction': 'bull',
+                'raw': buy_vol - sell_vol,
+            })
+    except Exception as e:
+        print(f'  [WARN] capital insider metric: {e}')
 
     return metrics
 

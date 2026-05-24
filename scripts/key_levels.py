@@ -43,7 +43,7 @@ def _fetch_daily(ts_code: str, trade_date: str) -> pd.DataFrame:
             ts_code=ts_code,
             start_date=start_dt.strftime('%Y%m%d'),
             end_date=trade_date,
-            fields='trade_date,close,high,low,vol',
+            fields='trade_date,open,close,high,low,vol',
         )
         time.sleep(0.2)
     except Exception as e:
@@ -53,7 +53,7 @@ def _fetch_daily(ts_code: str, trade_date: str) -> pd.DataFrame:
         return pd.DataFrame()
     df = df.copy()
     df['trade_date'] = df['trade_date'].astype(str)
-    for col in ('close', 'high', 'low', 'vol'):
+    for col in ('open', 'close', 'high', 'low', 'vol'):
         df[col] = pd.to_numeric(df[col], errors='coerce')
     df = df.dropna(subset=['close'])
     df = df.sort_values('trade_date').tail(120).reset_index(drop=True)
@@ -147,69 +147,86 @@ def _fetch_float_share(ts_code: str) -> float:
 # Support / resistance calculation
 # ---------------------------------------------------------------------------
 
-def _local_extrema(close: np.ndarray, window: int = 5) -> tuple[list[float], list[float]]:
-    """Return (lows, highs) as lists of price values at local extrema."""
+def _local_extrema(close: np.ndarray, dates: list[str],
+                   window: int = 5) -> tuple[list[tuple], list[tuple]]:
+    """Return (lows, highs) as lists of (price, date, index) at local extrema."""
     n = len(close)
-    lows, highs = [], []
+    lows: list[tuple] = []
+    highs: list[tuple] = []
     for i in range(window, n - window):
         lo = close[i - window: i + window + 1]
         if close[i] == lo.min():
-            lows.append(float(close[i]))
+            lows.append((float(close[i]), dates[i], i))
         if close[i] == lo.max():
-            highs.append(float(close[i]))
+            highs.append((float(close[i]), dates[i], i))
     return lows, highs
 
 
-def _cluster_levels(prices: list[float], tol_pct: float = 1.5) -> list[float]:
-    """Cluster price levels within tol_pct% tolerance; return cluster means."""
-    if not prices:
+def _cluster_levels(extrema: list[tuple], tol_pct: float = 1.5) -> list[dict]:
+    """Cluster extrema (price, date, idx) within tol_pct% tolerance.
+    Returns list of {price, dates, count} dicts sorted by price."""
+    if not extrema:
         return []
-    prices_sorted = sorted(prices)
-    clusters: list[list[float]] = []
-    for p in prices_sorted:
+    sorted_ex = sorted(extrema, key=lambda x: x[0])
+    clusters: list[list[tuple]] = []
+    for item in sorted_ex:
+        p = item[0]
         merged = False
         for cluster in clusters:
-            if abs(p - np.mean(cluster)) / np.mean(cluster) * 100 <= tol_pct:
-                cluster.append(p)
+            mean_p = np.mean([c[0] for c in cluster])
+            if abs(p - mean_p) / mean_p * 100 <= tol_pct:
+                cluster.append(item)
                 merged = True
                 break
         if not merged:
-            clusters.append([p])
-    return [round(float(np.mean(c)), 2) for c in clusters]
+            clusters.append([item])
+    result = []
+    for cl in clusters:
+        mean_p = round(float(np.mean([c[0] for c in cl])), 2)
+        dates  = sorted(set(c[1] for c in cl))
+        result.append({'price': mean_p, 'dates': dates, 'count': len(cl)})
+    return result
 
 
 def _compute_sr_levels(df: pd.DataFrame, current_price: float) -> dict:
-    """Compute support/resistance levels from 120-day close."""
-    close = df['close'].values
-    lows, highs = _local_extrema(close, window=5)
+    """Compute support/resistance levels from 120-day close, with originating dates."""
+    close  = df['close'].values
+    dates  = df['trade_date'].tolist()
+    lows, highs = _local_extrema(close, dates, window=5)
 
-    # Cluster and classify
-    all_lows   = _cluster_levels(lows)
-    all_highs  = _cluster_levels(highs)
+    all_lows_cl  = _cluster_levels(lows)
+    all_highs_cl = _cluster_levels(highs)
 
-    supports   = sorted([p for p in all_lows  if p < current_price], reverse=True)[:2]
-    resistances = sorted([p for p in all_highs if p > current_price])[:2]
+    supports    = sorted([c for c in all_lows_cl  if c['price'] < current_price],
+                         key=lambda x: -x['price'])[:2]
+    resistances = sorted([c for c in all_highs_cl if c['price'] > current_price],
+                         key=lambda x: x['price'])[:2]
 
-    # Also include any clustered levels from highs that are below (potential supports)
-    # and lows above (potential resistances) — fill if sparse
+    # Fill if sparse
     if len(supports) < 2:
-        extras = sorted([p for p in all_highs if p < current_price], reverse=True)
-        for p in extras:
+        extras = sorted([c for c in all_highs_cl if c['price'] < current_price],
+                        key=lambda x: -x['price'])
+        for c in extras:
             if len(supports) >= 2:
                 break
-            if not any(abs(p - s) / current_price * 100 < 1.5 for s in supports):
-                supports.append(round(p, 2))
+            if not any(abs(c['price'] - s['price']) / current_price * 100 < 1.5
+                       for s in supports):
+                supports.append(c)
     if len(resistances) < 2:
-        extras = sorted([p for p in all_lows if p > current_price])
-        for p in extras:
+        extras = sorted([c for c in all_lows_cl if c['price'] > current_price],
+                        key=lambda x: x['price'])
+        for c in extras:
             if len(resistances) >= 2:
                 break
-            if not any(abs(p - r) / current_price * 100 < 1.5 for r in resistances):
-                resistances.append(round(p, 2))
+            if not any(abs(c['price'] - r['price']) / current_price * 100 < 1.5
+                       for r in resistances):
+                resistances.append(c)
 
     return {
-        'support_levels':    sorted(supports, reverse=True)[:2],
-        'resistance_levels': sorted(resistances)[:2],
+        'support_clusters':    supports[:2],
+        'resistance_clusters': resistances[:2],
+        'support_levels':    [c['price'] for c in supports[:2]],
+        'resistance_levels': [c['price'] for c in resistances[:2]],
     }
 
 
@@ -247,82 +264,97 @@ def _classify_signal(current_price: float, supports: list[float], resistances: l
 # ---------------------------------------------------------------------------
 
 def _build_chart(df: pd.DataFrame, current_price: float,
-                 supports: list[float], resistances: list[float],
+                 support_clusters: list[dict], resistance_clusters: list[dict],
                  exercise_prices: list[float], unlock_events: list[dict],
                  ts_code: str) -> str:
-    dates  = df['trade_date'].tolist()
-    closes = df['close'].tolist()
-    n      = len(dates)
-    x      = list(range(n))
+    dates   = df['trade_date'].tolist()
+    opens   = df['open'].tolist()
+    closes  = df['close'].tolist()
+    highs   = df['high'].tolist()
+    lows_   = df['low'].tolist()
+    n       = len(dates)
 
-    fig, ax = plt.subplots(figsize=(8, 3.2), facecolor='white')
-    fig.subplots_adjust(left=0.08, right=0.78, top=0.86, bottom=0.14)
+    supports    = [c['price'] for c in support_clusters]
+    resistances = [c['price'] for c in resistance_clusters]
 
-    # ── Price line + fill ────────────────────────────────────────────────────
-    ax.plot(x, closes, color='#1f77b4', linewidth=1.8, zorder=3)
-    ax.fill_between(x, closes, min(closes) * 0.97, color='#1f77b4', alpha=0.08)
+    fig, ax = plt.subplots(figsize=(9, 4.0), facecolor='white')
+    fig.subplots_adjust(left=0.07, right=0.72, top=0.88, bottom=0.12)
 
-    # ── Determine y range for annotation positioning ────────────────────────
-    all_prices = closes + supports + resistances + exercise_prices
-    y_lo = min(all_prices) * 0.97
-    y_hi = max(all_prices) * 1.03
+    # ── Candlestick bars ──────────────────────────────────────────────────────
+    bar_w = 0.6
+    for i, (o, c, h, lo) in enumerate(zip(opens, closes, highs, lows_)):
+        if any(v is None or (isinstance(v, float) and np.isnan(v)) for v in (o, c, h, lo)):
+            continue
+        color = '#2ca02c' if c >= o else '#d62728'
+        # Wick (high-low)
+        ax.plot([i, i], [lo, h], color=color, linewidth=0.8, zorder=2)
+        # Body (open-close)
+        body_lo = min(o, c)
+        body_hi = max(o, c)
+        ax.bar(i, body_hi - body_lo, bottom=body_lo, width=bar_w,
+               color=color, alpha=0.85, zorder=3, linewidth=0)
+
+    # ── Determine y range ────────────────────────────────────────────────────
+    all_prices = [v for v in closes + supports + resistances + exercise_prices
+                  if v is not None and not (isinstance(v, float) and np.isnan(v))]
+    y_lo = min(all_prices) * 0.96
+    y_hi = max(all_prices) * 1.04
     y_span = y_hi - y_lo if y_hi != y_lo else 1.0
-
-    # Right-side annotation x position (in axes transform for text)
-    ax_right = n + 0.5  # just past the last bar index
+    ax_right = n + 0.8
 
     # ── Support levels ───────────────────────────────────────────────────────
-    for s in supports:
-        gap_pct = (s / current_price - 1) * 100  # negative
-        ax.axhline(s, color='#2ca02c', linewidth=1.0, linestyle='--', alpha=0.85, zorder=2)
-        ax.text(ax_right, s, f'支撑 {s:.2f} ({gap_pct:+.1f}%)',
-                va='center', ha='left', fontsize=6.5, color='#2ca02c',
-                clip_on=False)
+    for cl in support_clusters:
+        s = cl['price']
+        gap_pct = (s / current_price - 1) * 100
+        date_lbl = cl['dates'][0][4:] if cl['dates'] else ''
+        cnt = cl['count']
+        ax.axhline(s, color='#2ca02c', linewidth=1.2, linestyle='--', alpha=0.85, zorder=2)
+        ax.text(ax_right, s,
+                f'支撑 {s:.2f} ({gap_pct:+.1f}%)\n触碰{cnt}次·{date_lbl}低',
+                va='center', ha='left', fontsize=6.0, color='#2ca02c',
+                clip_on=False, linespacing=1.4)
 
     # ── Resistance levels ────────────────────────────────────────────────────
-    for r in resistances:
-        gap_pct = (r / current_price - 1) * 100  # positive
-        ax.axhline(r, color='#d62728', linewidth=1.0, linestyle='--', alpha=0.85, zorder=2)
-        ax.text(ax_right, r, f'压力 {r:.2f} ({gap_pct:+.1f}%)',
-                va='center', ha='left', fontsize=6.5, color='#d62728',
-                clip_on=False)
+    for cl in resistance_clusters:
+        r = cl['price']
+        gap_pct = (r / current_price - 1) * 100
+        date_lbl = cl['dates'][-1][4:] if cl['dates'] else ''
+        cnt = cl['count']
+        ax.axhline(r, color='#d62728', linewidth=1.2, linestyle='--', alpha=0.85, zorder=2)
+        ax.text(ax_right, r,
+                f'压力 {r:.2f} ({gap_pct:+.1f}%)\n{cnt}次高点·{date_lbl}顶',
+                va='center', ha='left', fontsize=6.0, color='#d62728',
+                clip_on=False, linespacing=1.4)
 
-    # ── Exercise price(s) ────────────────────────────────────────────────────
+    # ── Exercise prices ──────────────────────────────────────────────────────
     if exercise_prices:
-        ep_min = min(exercise_prices)
-        ep_max = max(exercise_prices)
-        if ep_min != ep_max:
-            ax.axhspan(ep_min, ep_max, alpha=0.08, color='#ff7f0e')
-        for ep in exercise_prices:
-            ax.axhline(ep, color='#ff7f0e', linewidth=1.3, linestyle='-', alpha=0.90, zorder=4)
-        # Annotate once at avg
         ep_avg = float(np.mean(exercise_prices))
+        for ep in exercise_prices:
+            ax.axhline(ep, color='#ff7f0e', linewidth=1.3, linestyle='-', alpha=0.88, zorder=4)
         ax.text(ax_right, ep_avg, f'行权价 {ep_avg:.2f}',
-                va='center', ha='left', fontsize=6.5, color='#ff7f0e',
-                clip_on=False)
+                va='center', ha='left', fontsize=6.0, color='#ff7f0e', clip_on=False)
 
-    # ── Unlock dates ─────────────────────────────────────────────────────────
-    # Build a date-to-x mapping for price series dates
+    # ── Unlock events ────────────────────────────────────────────────────────
     date_to_x = {d: i for i, d in enumerate(dates)}
-    last_date_str = dates[-1] if dates else ''
     mid_price = float(np.median(closes))
-
-    for ev in unlock_events:
+    for idx_ev, ev in enumerate(unlock_events):
         fdate = ev['date']
-        label = f"+{ev['days_to']}天\n{ev['yi']:.2f}亿股"
         if fdate in date_to_x:
             xi = date_to_x[fdate]
-            ax.axvline(xi, color='#9467bd', linewidth=1.0, linestyle=':', alpha=0.80, zorder=2)
-            ax.annotate(label, xy=(xi, y_hi * 0.98),
-                        xytext=(xi + 0.3, y_hi * 0.98),
-                        ha='left', va='top', fontsize=5.5, color='#9467bd',
-                        clip_on=False)
+            ax.axvline(xi, color='#9467bd', linewidth=0.9, linestyle=':', alpha=0.75, zorder=2)
+            ax.text(xi + 0.3, y_hi * 0.98,
+                    f'+{ev["days_to"]}天\n{ev["yi"]:.2f}亿',
+                    ha='left', va='top', fontsize=5.5, color='#9467bd',
+                    clip_on=False, linespacing=1.3)
         else:
-            # Future date beyond last price: right-margin text annotation
-            ax.text(n + 0.5, mid_price + (y_span * 0.15 * unlock_events.index(ev)),
+            ax.text(n + 0.5,
+                    mid_price + y_span * 0.12 * idx_ev,
                     f'解禁{fdate[4:6]}-{fdate[6:]} {ev["yi"]:.2f}亿',
                     ha='left', va='center', fontsize=5.5, color='#9467bd',
                     clip_on=False)
+
+    # ── Current price line ────────────────────────────────────────────────────
+    ax.axhline(current_price, color='#555', linewidth=0.8, linestyle=':', alpha=0.6, zorder=1)
 
     # ── X-axis ───────────────────────────────────────────────────────────────
     step = max(1, n // 6)
@@ -333,8 +365,8 @@ def _build_chart(df: pd.DataFrame, current_price: float,
     ax.set_ylim(y_lo, y_hi)
 
     code_disp = ts_code.split('.')[0]
-    ax.set_title(f'{code_disp} 关键价位图（支撑/压力/行权价/解禁）',
-                 fontsize=8.5, fontweight='bold', pad=5)
+    ax.set_title(f'{code_disp} 关键价位 K 线图（支撑/压力/行权价）',
+                 fontsize=9, fontweight='bold', pad=6)
     ax.tick_params(axis='y', labelsize=6)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -351,39 +383,41 @@ def _build_chart(df: pd.DataFrame, current_price: float,
 # ---------------------------------------------------------------------------
 
 def _build_narrative(ts_code: str, current_price: float,
-                     supports: list[float], resistances: list[float],
+                     support_clusters: list[dict], resistance_clusters: list[dict],
                      exercise_prices: list[float], unlock_events: list[dict],
                      signal: str) -> str:
     code = ts_code.split('.')[0]
-    parts = [f'{code}当前{current_price:.2f}元。']
+    parts = [f'{code}当前价{current_price:.2f}元。']
 
-    if supports:
-        s1 = supports[0]
-        gap = (s1 / current_price - 1) * 100
-        parts.append(f'最近支撑{s1:.2f}（{gap:+.1f}%）。')
+    for cl in support_clusters[:2]:
+        s = cl['price']
+        gap = (s / current_price - 1) * 100
+        cnt = cl['count']
+        date_str = cl['dates'][0][4:] if cl['dates'] else ''
+        why = f'（{date_lbl}附近触底{cnt}次确认）' if (date_lbl := date_str) else f'（触碰{cnt}次）'
+        parts.append(f'**支撑{s:.2f}**{gap:+.1f}%{why}。')
 
-    if resistances:
-        r1 = resistances[0]
-        gap = (r1 / current_price - 1) * 100
-        parts.append(f'最近压力{r1:.2f}（{gap:+.1f}%）。')
+    for cl in resistance_clusters[:2]:
+        r = cl['price']
+        gap = (r / current_price - 1) * 100
+        cnt = cl['count']
+        date_str = cl['dates'][-1][4:] if cl['dates'] else ''
+        why = f'（{date_lbl}压制{cnt}次）' if (date_lbl := date_str) else f'（压制{cnt}次）'
+        parts.append(f'**压力{r:.2f}**{gap:+.1f}%{why}。')
 
     if exercise_prices:
         ep_avg = float(np.mean(exercise_prices))
-        if abs(ep_avg / current_price - 1) <= 0.15:
+        if abs(ep_avg / current_price - 1) <= 0.20:
             dist = (ep_avg / current_price - 1) * 100
-            parts.append(f'行权价{ep_avg:.2f}（{dist:+.1f}%）形成锚定。')
+            parts.append(f'股权激励行权价{ep_avg:.2f}（{dist:+.1f}%）形成价格锚定。')
 
     if unlock_events:
         near = [e for e in unlock_events if e['days_to'] <= 60]
         if near:
             ev = near[0]
-            parts.append(f'{ev["days_to"]}天后解禁{ev["yi"]:.2f}亿股。')
+            parts.append(f'{ev["days_to"]}天后解禁{ev["yi"]:.2f}亿股，关注供给压力。')
 
-    narrative = ''.join(parts)
-    # Trim to ~60 Chinese characters (rough proxy: 80 chars)
-    if len(narrative) > 80:
-        narrative = narrative[:78] + '…'
-    return narrative
+    return ''.join(parts)
 
 
 # ---------------------------------------------------------------------------
@@ -433,6 +467,8 @@ def key_levels(ts_code: str, trade_date: str) -> dict:
 
     # 2. Support / resistance
     sr = _compute_sr_levels(df, current_price)
+    support_clusters    = sr['support_clusters']
+    resistance_clusters = sr['resistance_clusters']
     supports    = sr['support_levels']
     resistances = sr['resistance_levels']
     result['support_levels']    = supports
@@ -463,10 +499,10 @@ def key_levels(ts_code: str, trade_date: str) -> dict:
         f'→ {signal}'
     )
 
-    # 7. Chart
+    # 7. Chart (candlestick)
     try:
         result['chart_b64'] = _build_chart(
-            df, current_price, supports, resistances,
+            df, current_price, support_clusters, resistance_clusters,
             exercise_prices, unlock_events, ts_code,
         )
     except Exception as e:
@@ -475,7 +511,7 @@ def key_levels(ts_code: str, trade_date: str) -> dict:
 
     # 8. Narrative
     result['narrative'] = _build_narrative(
-        ts_code, current_price, supports, resistances,
+        ts_code, current_price, support_clusters, resistance_clusters,
         exercise_prices, unlock_events, signal,
     )
 
