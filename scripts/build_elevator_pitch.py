@@ -585,46 +585,104 @@ def _clean_label_prefix(text: str) -> str:
     return text.strip()
 
 
-def _sum_capital(sector_info: dict | None, radar_narr: str) -> str:
+def _sum_capital(sector_info: dict | None, radar_narr: str, stock_name: str = '') -> str:
     si = sector_info or {}
-    csi300 = si.get('csi300_30d')
+    csi300      = si.get('csi300_30d')
     sector_name = si.get('sector_name', '所属板块')
     sector_30d  = si.get('sector_30d')
+    short_name  = re.sub(r'(股份|国际|科技|集团|控股)$', '', stock_name) or stock_name
 
-    mkt = ('大盘牛市格局' if csi300 and csi300 > 5
-           else '大盘温和上涨' if csi300 and csi300 > 0
-           else '大盘震荡')
-    sec = (f'，{sector_name}近30日+{sector_30d:.1f}%' if sector_30d else '')
+    # Market environment
+    if csi300 and csi300 > 5:
+        market = '牛市'
+    elif csi300 and csi300 > 0:
+        market = '温和上涨行情'
+    else:
+        market = '震荡行情'
 
-    # First sentence of radar narrative, strip jargon labels, trim
-    radar_short = ''
-    if radar_narr:
-        first = re.split(r'[。！？]', radar_narr.strip())[0]
-        first = _clean_label_prefix(first)
-        # Drop sentences that still contain % data strings (too technical)
-        if re.search(r'\d+%ile|\d+维', first):
-            first = ''
-        radar_short = first[:50].strip()
+    # Sector vs CSI300 — determine leadership
+    if sector_30d is not None and csi300 is not None:
+        gap = sector_30d - csi300
+        if gap > 20:
+            sector_view = f'{sector_name}是当前最强板块（+{sector_30d:.1f}%，跑赢大盘{gap:.0f}pp）'
+            is_leading = True
+        elif gap > 3:
+            sector_view = f'{sector_name}跑赢大盘{gap:.1f}pp（+{sector_30d:.1f}%）'
+            is_leading = True
+        elif gap > -3:
+            sector_view = f'{sector_name}与大盘同步（+{sector_30d:.1f}%）'
+            is_leading = False
+        else:
+            sector_view = f'{sector_name}跑输大盘{abs(gap):.1f}pp（+{sector_30d:.1f}%）'
+            is_leading = False
+    else:
+        sector_view = sector_name
+        is_leading  = False
 
-    base = f'{mkt}{sec}'
-    return f'{base}；{radar_short}。' if radar_short else f'{base}。'
+    # Capital flow — parse composite score + direction from radar narrative
+    radar_pct, flow_dir = None, ''
+    m = re.search(r'综合百分位(\d+)', radar_narr)
+    if m:
+        radar_pct = int(m.group(1))
+    m = re.search(r'整体资金(偏多|偏空|中性|均衡|分歧|活跃)', radar_narr)
+    if m:
+        flow_dir = m.group(1)
+
+    if radar_pct and radar_pct >= 65:
+        flow_view = '高换手+资金净流入+多方主导，短期上涨动能最强'
+    elif radar_pct and radar_pct >= 50:
+        flow_view = f'资金整体{flow_dir or "偏多"}，有支撑'
+    else:
+        flow_view = f'资金面{flow_dir or "中性"}，分歧偏大'
+
+    # Assemble opinionated sentence (avoid embedding sector_view mid-phrase)
+    if market == '牛市' and is_leading and sector_30d is not None:
+        gap2 = sector_30d - (csi300 or 0)
+        return (f'{short_name}是{market}最强板块（{sector_name}近30日+{sector_30d:.1f}%，'
+                f'跑赢大盘{gap2:.0f}pp）中的龙头；{flow_view}。')
+    elif market == '牛市' and is_leading:
+        return f'{short_name}是{market}跑赢大盘板块（{sector_name}）龙头；{flow_view}。'
+    elif market == '牛市':
+        return f'大盘{market}格局，但{sector_name}跑输大盘（+{sector_30d:.1f}%）；{flow_view}。'
+    else:
+        return f'大盘{market}，{sector_name}+{sector_30d:.1f}%；{flow_view}。'
 
 
 def _sum_fundamental(core_focus: dict) -> str:
     summary = core_focus.get('summary', '')
-    # Strip label prefixes then take first sentence
+    bull    = core_focus.get('bull', [])
+
+    # Clean and take first complete sentence (up to 100 chars then truncate with …)
     summary = _clean_label_prefix(summary)
-    first = re.split(r'[。！？]', summary.strip())[0]
-    return (first[:80] + '。').strip() if first else ''
+    first   = re.split(r'[。！？]', summary.strip())[0]
+    if len(first) > 100:
+        first = first[:97] + '…'
+    first = first.strip()
+
+    # Add top 2 bull catalysts as a short list
+    tips = []
+    for b in bull[:3]:
+        tip = _clean_bull_tip(b, max_chars=18)
+        if tip and tip not in first:
+            tips.append(tip)
+        if len(tips) >= 2:
+            break
+
+    parts = []
+    if first:
+        parts.append(first)
+    if tips:
+        parts.append('做多逻辑：' + '+'.join(tips))
+    return '，'.join(parts) + '。' if parts else ''
 
 
 def _summary_block_html(core_focus: dict, current_pct: float, fwd_df,
                         sector_info: dict | None, radar_narr: str,
                         stock_name: str, dt: str) -> str:
     q_line  = _sum_quant(current_pct, fwd_df)
-    c_line  = _sum_capital(sector_info, radar_narr)
+    c_line  = _sum_capital(sector_info, radar_narr, stock_name)
     f_line  = _sum_fundamental(core_focus)
-    say     = _simple_say(current_pct, stock_name, fwd_df)
+    say     = _simple_say(current_pct, stock_name, fwd_df, sector_info, core_focus)
 
     def row(icon, label, text):
         return (f'<div class="sum-row">'
@@ -742,8 +800,10 @@ def _matching_tier_row(fwd_df: pd.DataFrame | None, current_pct: float):
     return fwd_df.iloc[0]
 
 
-def _simple_say(current_pct: float, stock_name: str, fwd_df: pd.DataFrame | None) -> str:
-    """One plain-language sentence for the verdict card."""
+def _simple_say(current_pct: float, stock_name: str, fwd_df: pd.DataFrame | None,
+                sector_info: dict | None = None,
+                core_focus: dict | None = None) -> str:
+    """One plain-language 说白了 line covering quant + capital + fundamental."""
     if current_pct >= 99:
         tier_desc = '历史前1%'
     elif current_pct >= 95:
@@ -753,22 +813,52 @@ def _simple_say(current_pct: float, stock_name: str, fwd_df: pd.DataFrame | None
     else:
         tier_desc = f'历史{100 - int(current_pct)}%分位'
 
-    # Use abbreviated stock name (drop 股份/国际/科技 suffixes for brevity)
     short_name = re.sub(r'(股份|国际|科技|集团|控股)$', '', stock_name) or stock_name
 
-    perf = ''
+    # ① Quant part
+    verb = '强到' if current_pct >= 80 else '处于'
     r = _matching_tier_row(fwd_df, current_pct)
     if r is not None:
         hit_chinese = {70: '七成', 80: '八成', 90: '九成', 100: '几乎全涨',
                        60: '六成', 50: '五成', 40: '四成'}
         hit_int = int(round(r['hit30'] / 10)) * 10
         hit_str = hit_chinese.get(hit_int, f'{hit_int}%')
-        perf = (f'历史上类似情形后30天平均赚'
-                f'<strong style="color:#2ca02c">{r["avg30"]:.1f}%</strong>，'
-                f'<strong>{hit_str}</strong>概率正收益。')
+        q_part = (f'量化信号{verb}{tier_desc}，买后30天历史平均赚'
+                  f'<strong style="color:#2ca02c">{r["avg30"]:.1f}%</strong>'
+                  f'（<strong>{hit_str}</strong>赢）')
+    else:
+        q_part = f'量化信号{verb}{tier_desc}'
 
-    verb = '强到' if current_pct >= 80 else '处于'
-    return f'<strong>说白了：</strong>{short_name}信号{verb}{tier_desc}，{perf}'
+    # ② Capital part — market + sector leadership
+    si = sector_info or {}
+    csi300     = si.get('csi300_30d')
+    sector_30d = si.get('sector_30d')
+    sector_name = si.get('sector_name', '')
+    if csi300 and csi300 > 5:
+        market_str = '牛市'
+    elif csi300 and csi300 > 0:
+        market_str = '上涨行情'
+    else:
+        market_str = '震荡市'
+
+    if sector_30d is not None and csi300 is not None and sector_30d > csi300 + 5:
+        c_part = f'{market_str}中{sector_name}最强，资金追板块龙头'
+    elif sector_30d is not None and csi300 is not None and sector_30d > csi300:
+        c_part = f'{market_str}，{sector_name}跑赢大盘'
+    elif sector_30d is not None and csi300 is not None:
+        c_part = f'{market_str}，{sector_name}跑输大盘，资金分歧'
+    else:
+        c_part = f'大盘{market_str}'
+
+    # ③ Fundamental part — top catalyst
+    cf   = core_focus or {}
+    bull = cf.get('bull', [])
+    tip  = _clean_bull_tip(bull[0]) if bull else ''
+    f_part = f'催化剂是{tip}' if tip else ''
+
+    # Assemble: 说白了：中芯——量化...；资金...；催化剂...。
+    body = '；'.join(p for p in [q_part, c_part, f_part] if p)
+    return f'<strong>说白了：</strong>{short_name}——{body}。'
 
 
 def _clean_bull_tip(raw: str, max_chars: int = 28) -> str:
