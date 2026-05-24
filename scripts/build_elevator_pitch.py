@@ -533,9 +533,10 @@ img { max-width: 100%; height: auto; display: block; }
 .sum-label{ font-size: 12px; font-weight: 800; color: #1a3463;
             flex-shrink: 0; min-width: 52px; margin-top: 2px; }
 .sum-text { font-size: 13px; color: #333; line-height: 1.65; }
-.sum-saibai { margin-top: 12px; padding: 10px 14px;
-              background: #eef3fb; border-radius: 8px;
-              font-size: 13px; color: #1a3463; line-height: 1.7; }
+.sum-saibai { margin-bottom: 12px; padding: 11px 16px;
+              background: #1a2d63; border-radius: 8px;
+              font-size: 13.5px; color: #e8f0ff; line-height: 1.8;
+              font-weight: 600; }
 
 /* Section-lead opinion banner */
 .sec-lead { background: linear-gradient(135deg, #eef3fb 0%, #f0f8ff 100%);
@@ -699,10 +700,10 @@ def _summary_block_html(core_focus: dict, current_pct: float, fwd_df,
 
     return (
         f'<div class="sum-card">'
+        + f'<div class="sum-saibai">{say}</div>'
         + row('📈', '量化', q_line)
         + row('💰', '资金', c_line)
         + row('🔍', '基本面', f_line)
-        + f'<div class="sum-saibai">{say}</div>'
         + f'<div style="font-size:11px;color:#bbb;margin-top:8px;text-align:right">数据截至 {dt}</div>'
         + f'</div>'
     )
@@ -864,7 +865,7 @@ def _simple_say(current_pct: float, stock_name: str, fwd_df: pd.DataFrame | None
 
     # Assemble: 说白了：中芯——量化...；资金...；催化剂...。
     body = '；'.join(p for p in [q_part, c_part, f_part] if p)
-    return f'<strong>说白了：</strong>{short_name}——{body}。'
+    return f'<strong>核心观点：</strong>{short_name}——{body}。'
 
 
 def _clean_bull_tip(raw: str, max_chars: int = 28) -> str:
