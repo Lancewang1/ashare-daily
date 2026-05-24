@@ -609,22 +609,29 @@ def _matching_tier_row(fwd_df: pd.DataFrame | None, current_pct: float):
 def _simple_say(current_pct: float, stock_name: str, fwd_df: pd.DataFrame | None) -> str:
     """One plain-language sentence for the verdict card."""
     if current_pct >= 99:
-        strength = '历史罕见的最强信号'
+        tier_desc = '历史前1%'
     elif current_pct >= 95:
-        strength = '强信号'
+        tier_desc = '历史前5%'
     elif current_pct >= 80:
-        strength = '较强信号'
+        tier_desc = '历史前20%'
     else:
-        strength = '信号中等'
+        tier_desc = f'历史{100 - int(current_pct)}%分位'
+
+    # Use abbreviated stock name (drop 股份/国际/科技 suffixes for brevity)
+    short_name = re.sub(r'(股份|国际|科技|集团|控股)$', '', stock_name) or stock_name
 
     perf = ''
     r = _matching_tier_row(fwd_df, current_pct)
     if r is not None:
-        perf = (f'历史上类似情形后30天平均涨 '
-                f'<strong style="color:#2ca02c">{r["avg30"]:+.1f}%</strong>，'
-                f'胜率 <strong>{r["hit30"]:.0f}%</strong>。')
+        hit_chinese = {70: '七成', 80: '八成', 90: '九成', 100: '几乎全涨',
+                       60: '六成', 50: '五成', 40: '四成'}
+        hit_int = int(round(r['hit30'] / 10)) * 10
+        hit_str = hit_chinese.get(hit_int, f'{hit_int}%')
+        perf = (f'历史上类似情形后30天平均赚'
+                f'<strong style="color:#2ca02c">{r["avg30"]:.1f}%</strong>，'
+                f'<strong>{hit_str}</strong>概率正收益。')
 
-    return f'<strong>简单说：</strong>{stock_name}当前处于{strength}，{perf}值得关注。'
+    return f'<strong>说白了：</strong>{short_name}信号强到{tier_desc}，{perf}'
 
 
 def _clean_bull_tip(raw: str, max_chars: int = 28) -> str:
