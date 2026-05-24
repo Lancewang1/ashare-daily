@@ -135,18 +135,75 @@ def extract_leadlag(long_html: str) -> list[dict]:
 
 
 def extract_capital_narrative(long_html: str) -> str:
+    """Overall capital summary: pull from 量能节奏 section (volume/flow narrative)."""
+    ch3_s = long_html.find('<section class="chapter" id="ch3"')
+    ch4_s = long_html.find('<section class="chapter" id="ch4"')
+    if ch3_s == -1:
+        return ''
+    pos = long_html.find('>量能节奏<', ch3_s, ch4_s)
+    if pos == -1:
+        return ''
+    pm = re.search(r'<p[^>]*>(.*?)</p>', long_html[pos:pos+3000], re.DOTALL)
+    if not pm:
+        return ''
+    text = _strip(pm.group(1))
+    parts = re.split(r'(?<=[。！？])', text)
+    return ''.join(parts[:3]).strip()[:350]
+
+
+def extract_quant_narratives(long_html: str) -> dict:
+    """Extract ch2 narrative texts: tagline, model rationale, stage assessment."""
+    ch2_s = long_html.find('<section class="chapter" id="ch2"')
+    ch3_s = long_html.find('<section class="chapter" id="ch3"')
+    if ch2_s == -1:
+        return {}
+    ch2 = long_html[ch2_s:ch3_s]
+
+    def _section_para(head_text: str, max_sents: int = 2) -> str:
+        pos = ch2.find(f'>{head_text}<')
+        if pos == -1:
+            return ''
+        pm = re.search(r'<p[^>]*>(.*?)</p>', ch2[pos:pos+3000], re.DOTALL)
+        if not pm:
+            return ''
+        text = _strip(pm.group(1))
+        parts = re.split(r'(?<=[。！？])', text)
+        return ''.join(parts[:max_sents]).strip()
+
+    tagline  = _section_para('一句话定调', 1)
+    rationale = _section_para('量化模型为何选中', 3)
+    stage    = _section_para('当前阶段定性', 2)
+    return {'tagline': tagline, 'rationale': rationale, 'stage': stage}
+
+
+def extract_market_narrative(long_html: str) -> str:
+    """Extract beta/market environment paragraph from ch4."""
+    pos = long_html.find('<div class="tb-head">大盘 BETA 与板块环境</div>')
+    if pos == -1:
+        return ''
+    pm = re.search(r'<p[^>]*>(.*?)</p>', long_html[pos:pos+4000], re.DOTALL)
+    if not pm:
+        return ''
+    text = _strip(pm.group(1))
+    # First 3 sentences
+    parts = re.split(r'(?<=[。！？])', text)
+    return ''.join(parts[:3]).strip()[:400]
+
+
+def extract_radar_narrative(long_html: str) -> str:
+    """Extract 资金博弈雷达 card-body narrative."""
     title_pos = long_html.find('<span class="card-title">资金博弈雷达')
     if title_pos == -1:
         return ''
-    cb_s  = long_html.find('<div class="card-body"', title_pos)
+    cb_s = long_html.find('<div class="card-body"', title_pos)
     if cb_s == -1:
         return ''
     inner = long_html.index('>', cb_s) + 1
     cb_e  = long_html.find('</div>', inner)
-    narr  = _strip(long_html[inner:cb_e])
-    # First 2 sentences
-    parts = re.split(r'(?<=[。！？])', narr)
-    return ''.join(parts[:3]).strip()[:350]
+    text = _strip(long_html[inner:cb_e])
+    # Clean up "688981 7维" → "7维" (strip leading stock code if present)
+    text = re.sub(r'^\d{6}\s*', '', text)
+    return text[:400]
 
 
 # ── Forward return table (self-history) ──────────────────────────────────────
@@ -316,10 +373,18 @@ img { max-width: 100%; height: auto; display: block; }
 .red   { color: #d62728; }
 .amber { color: #e8a500; }
 
-/* Capital narrative */
+/* Narrative blocks */
 .narr { font-size: 13px; line-height: 1.8; color: #333; margin-top: 12px;
         padding: 11px 15px; background: #f5f8ff;
         border-left: 3px solid #1a6fc4; border-radius: 0 6px 6px 0; }
+.narr-sm { font-size: 12px; line-height: 1.7; color: #555; margin-top: 8px;
+           padding: 8px 12px; background: #f9fafc;
+           border-left: 3px solid #bcd; border-radius: 0 5px 5px 0; }
+.quant-view { background: #f0f4ff; border-radius: 8px; padding: 12px 16px;
+              margin-bottom: 14px; }
+.quant-view .tagline { font-size: 14px; font-weight: 800; color: #1a2d63;
+                       margin-bottom: 6px; }
+.quant-view .detail  { font-size: 12.5px; color: #444; line-height: 1.75; }
 
 /* Core focus */
 .exec-sum { font-size: 13px; font-weight: 700; color: #1a2d63;
@@ -427,6 +492,9 @@ def build_pitch_html(
     core_focus: dict,
     leadlag: list[dict],
     capital_narr: str,
+    quant_narr: dict | None = None,
+    market_narr: str = '',
+    radar_narr: str = '',
 ) -> str:
     code = ts_code.split('.')[0]
     dt   = datetime.strptime(trade_date, '%Y%m%d').strftime('%Y-%m-%d')
@@ -434,6 +502,11 @@ def build_pitch_html(
     # Shorten to first sentence for hero tagline
     _sent = re.split(r'[。！？]', cf_summary_full)
     cf_summary = (_sent[0] + '。') if _sent and _sent[0] else cf_summary_full
+
+    qn = quant_narr or {}
+    q_tagline   = qn.get('tagline', '')
+    q_rationale = qn.get('rationale', '')
+    q_stage     = qn.get('stage', '')
 
     def img(b64: str, alt: str = '') -> str:
         if not b64:
@@ -484,6 +557,10 @@ def build_pitch_html(
 <!-- SECTION 1: 量化指标 -->
 <div class="sec">
   <div class="sec-title">📈 量化指标 <span class="sec-sub">— 买了能涨多少？</span></div>
+  <div class="quant-view">
+    <div class="tagline">{q_tagline}</div>
+    <div class="detail">{q_rationale}</div>
+  </div>
   <div class="g-60-40">
     <div class="chart-box">{img(charts.get("kline",""), "K线关键价位")}</div>
     <div>
@@ -498,6 +575,7 @@ def build_pitch_html(
       {img(charts.get("factor_radar",""), "量化因子雷达")}
     </div>
   </div>
+  <div class="narr-sm" style="margin-top:12px">{q_stage}</div>
 </div>
 
 <!-- SECTION 2: 资金博弈 -->
@@ -505,19 +583,22 @@ def build_pitch_html(
   <div class="sec-title">💰 资金博弈 <span class="sec-sub">— 有没有人买？</span></div>
 
   <p style="font-size:12px;color:#888;font-weight:700;margin-bottom:8px">市场与板块环境</p>
-  <div class="g-45-55" style="margin-bottom:14px">
+  <div class="g-45-55" style="margin-bottom:8px">
     <div>{mkt_tiles}</div>
     <div class="chart-box">{img(charts.get("beta",""), "大盘Beta与板块环境")}</div>
   </div>
+  <div class="narr-sm">{market_narr}</div>
 
   <hr class="divider"/>
   <p style="font-size:12px;color:#888;font-weight:700;margin-bottom:10px">个股资金博弈</p>
-  <div class="g-45-55">
+  <div class="g-45-55" style="margin-bottom:8px">
     <div class="chart-box">{img(charts.get("capital_radar",""), "资金博弈雷达")}</div>
     <div class="chart-box">{img(charts.get("peer",""), "板块相对强弱")}</div>
   </div>
+  <div class="narr-sm">{radar_narr}</div>
 
-  <div class="narr">{capital_narr}</div>
+  <hr class="divider"/>
+  <div class="narr"><strong>资金博弈总结 &nbsp;</strong>{capital_narr}</div>
 </div>
 
 <!-- SECTION 3: 基本面催化剂 -->
@@ -568,6 +649,9 @@ def build_elevator_pitch(ts_code: str, trade_date: str, stock_name: str) -> Path
     core_focus    = extract_core_focus(long_html)
     leadlag       = extract_leadlag(long_html)
     capital_narr  = extract_capital_narrative(long_html)
+    quant_narr    = extract_quant_narratives(long_html)
+    market_narr   = extract_market_narrative(long_html)
+    radar_narr    = extract_radar_narrative(long_html)
 
     print(f'  Computing forward return table...')
     fwd_df = compute_fwd_return_table(ts_code, trade_date)
@@ -576,6 +660,9 @@ def build_elevator_pitch(ts_code: str, trade_date: str, stock_name: str) -> Path
     pitch_html = build_pitch_html(
         ts_code, trade_date, stock_name,
         charts, fwd_df, core_focus, leadlag, capital_narr,
+        quant_narr=quant_narr,
+        market_narr=market_narr,
+        radar_narr=radar_narr,
     )
 
     out_path = _STOCKS / f'{trade_date}_pitch_{code}_{stock_name}.html'
