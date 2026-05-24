@@ -279,6 +279,10 @@ def compute_fwd_return_table(ts_code: str, trade_date: str) -> pd.DataFrame | No
     fwd5  = close.pct_change(5).shift(-5)  * 100
     fwd30 = close.pct_change(30).shift(-30)* 100
 
+    # Today's composite (last non-NaN)
+    current_pct = float(composite.dropna().iloc[-1]) if composite.dropna().size else 50.0
+    print(f'    current composite: {current_pct:.1f}%ile')
+
     rows = []
     for thr, label in [(80, 'Top 20%'), (95, 'Top 5%'), (99, 'Top 1%')]:
         mask = composite.ge(thr) & fwd1.notna() & fwd5.notna() & fwd30.notna()
@@ -295,7 +299,60 @@ def compute_fwd_return_table(ts_code: str, trade_date: str) -> pd.DataFrame | No
         print(f'    {label}: n={n}  avg1={rows[-1]["avg1"]:+.2f}%  '
               f'avg30={rows[-1]["avg30"]:+.2f}%  hit30={rows[-1]["hit30"]:.0f}%')
 
-    return pd.DataFrame(rows) if rows else None
+    df = pd.DataFrame(rows) if rows else None
+    return df, current_pct
+
+
+def _quant_summary_text(fwd_df: pd.DataFrame | None, current_pct: float) -> str:
+    """
+    Build a 2-sentence narrative describing today's signal strength
+    and what history says about subsequent returns.
+    """
+    if fwd_df is None or fwd_df.empty:
+        return ''
+
+    # Determine which tier today falls in
+    if current_pct >= 99:
+        tier_label, tier_desc = 'Top 1%', '历史最强信号区间'
+    elif current_pct >= 95:
+        tier_label, tier_desc = 'Top 5%', '强信号区间'
+    elif current_pct >= 80:
+        tier_label, tier_desc = 'Top 20%', '较强信号区间'
+    else:
+        tier_label, tier_desc = '', ''
+
+    rows = {r['label']: r for _, r in fwd_df.iterrows()}
+
+    parts = []
+
+    # Sentence 1: today's signal position
+    parts.append(
+        f'综合因子百分位当前 <strong>{current_pct:.0f}%ile</strong>，'
+        f'处于自身历史 <strong>{tier_label}</strong>（{tier_desc}）。'
+    )
+
+    # Sentence 2: best available tier stats, then next tier for context
+    best_tiers = [t for t in ('Top 1%', 'Top 5%', 'Top 20%') if t in rows]
+    if best_tiers:
+        r  = rows[best_tiers[0]]
+        s2 = (
+            f'历史上 {r["label"]} 信号共出现 <strong>{int(r["n"])} 次</strong>，'
+            f'后续 30 日平均涨幅 <strong style="color:#2ca02c">{r["avg30"]:+.1f}%</strong>，'
+            f'胜率 <strong style="color:#2ca02c">{r["hit30"]:.0f}%</strong>；'
+        )
+        # Add a second tier for comparison if available
+        if len(best_tiers) > 1:
+            r2 = rows[best_tiers[1]]
+            s2 += (
+                f'{r2["label"]}（{int(r2["n"])} 次）'
+                f'后续 30 日均涨 <strong>{r2["avg30"]:+.1f}%</strong>，'
+                f'胜率 {r2["hit30"]:.0f}%。'
+            )
+        else:
+            s2 = s2.rstrip('；') + '。'
+        parts.append(s2)
+
+    return ''.join(parts)
 
 
 # ── HTML builders ─────────────────────────────────────────────────────────────
@@ -489,6 +546,7 @@ def build_pitch_html(
     stock_name: str,
     charts: dict,
     fwd_df: pd.DataFrame | None,
+    current_pct: float,
     core_focus: dict,
     leadlag: list[dict],
     capital_narr: str,
@@ -505,8 +563,8 @@ def build_pitch_html(
 
     qn = quant_narr or {}
     q_tagline   = qn.get('tagline', '')
-    q_rationale = qn.get('rationale', '')
     q_stage     = qn.get('stage', '')
+    q_signal_text = _quant_summary_text(fwd_df, current_pct)
 
     def img(b64: str, alt: str = '') -> str:
         if not b64:
@@ -559,7 +617,7 @@ def build_pitch_html(
   <div class="sec-title">📈 量化指标 <span class="sec-sub">— 买了能涨多少？</span></div>
   <div class="quant-view">
     <div class="tagline">{q_tagline}</div>
-    <div class="detail">{q_rationale}</div>
+    <div class="detail">{q_signal_text}</div>
   </div>
   <div class="g-60-40">
     <div class="chart-box">{img(charts.get("kline",""), "K线关键价位")}</div>
@@ -654,12 +712,16 @@ def build_elevator_pitch(ts_code: str, trade_date: str, stock_name: str) -> Path
     radar_narr    = extract_radar_narrative(long_html)
 
     print(f'  Computing forward return table...')
-    fwd_df = compute_fwd_return_table(ts_code, trade_date)
+    fwd_result = compute_fwd_return_table(ts_code, trade_date)
+    if isinstance(fwd_result, tuple):
+        fwd_df, current_pct = fwd_result
+    else:
+        fwd_df, current_pct = None, 50.0
 
     print(f'  Building pitch HTML...')
     pitch_html = build_pitch_html(
         ts_code, trade_date, stock_name,
-        charts, fwd_df, core_focus, leadlag, capital_narr,
+        charts, fwd_df, current_pct, core_focus, leadlag, capital_narr,
         quant_narr=quant_narr,
         market_narr=market_narr,
         radar_narr=radar_narr,
