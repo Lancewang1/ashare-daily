@@ -401,19 +401,21 @@ img { max-width: 100%; height: auto; display: block; }
 .chart-box img { border-radius: 8px;
                  box-shadow: 0 1px 6px rgba(0,0,0,.08); }
 
-/* Forward return table */
-.fwd-table { width: 100%; border-collapse: collapse; margin-top: 2px;
-             font-size: 12.5px; }
-.fwd-table th { background: #f0f4ff; color: #1a3463; font-weight: 700;
-                padding: 8px 10px; text-align: center;
-                border: 1px solid #dde; font-size: 12px; }
-.fwd-table td { padding: 7px 10px; text-align: center;
-                border: 1px solid #eef; }
-.fwd-table tr:nth-child(even) { background: #f9faff; }
+/* War-record emoji cards */
+.fwd-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+             margin-top: 4px; }
+.fwd-card { border-radius: 10px; padding: 12px 14px; }
+.fc-header { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.fc-emoji  { font-size: 20px; line-height: 1; }
+.fc-name   { font-size: 14px; font-weight: 900; }
+.fc-tier   { font-size: 10.5px; font-weight: 700; margin-left: auto; }
+.fc-stats  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.fc-stat   { text-align: center; }
+.fc-stat-val { font-size: 16px; font-weight: 900; line-height: 1.2; }
+.fc-stat-lbl { font-size: 10px; color: #888; margin-top: 2px; }
 .pos  { color: #2ca02c; font-weight: 700; }
 .neg  { color: #d62728; font-weight: 700; }
 .fwd-note { font-size: 11px; color: #aaa; margin-top: 6px; text-align: right; }
-.fwd-label { font-size: 12.5px; font-weight: 800; color: #1a3463; }
 
 /* Market stat tiles */
 .mkt-tiles { display: grid; grid-template-columns: repeat(3, 1fr);
@@ -493,21 +495,22 @@ img { max-width: 100%; height: auto; display: block; }
   .g2, .g3, .g-60-40, .g-45-55, .ll-cards, .vc-rows {
     grid-template-columns: 1fr !important;
   }
+  .fwd-cards { grid-template-columns: 1fr !important; }
+  .fc-stats  { grid-template-columns: repeat(3, 1fr); }
   .hero { padding: 16px 16px 14px; }
   .hero h1 { font-size: 18px; }
   .sec, .verdict-card { margin: 8px 8px 0; padding: 13px 13px; }
   .mkt-tile .val { font-size: 17px; }
   img { max-height: 260px; object-fit: contain; }
-  .fwd-table { font-size: 11.5px; }
-  .fwd-table th, .fwd-table td { padding: 6px 7px; }
   .ll-card .q1 { font-size: 17px; }
   .vc-date { display: none; }
 }
 </style>'''
 
 
-def _verdict_card_html(core_focus: dict, current_pct: float, dt: str) -> str:
-    """首屏 AI 结论卡：看多理由 + 主要风险，2列排布。"""
+def _verdict_card_html(core_focus: dict, current_pct: float, dt: str,
+                       fwd_df=None, stock_name: str = '') -> str:
+    """首屏 AI 结论卡：看多理由 + 主要风险，2列排布 + 白话总结。"""
     bull = core_focus.get('bull', [])
     bear = core_focus.get('bear', '')
 
@@ -528,6 +531,13 @@ def _verdict_card_html(core_focus: dict, current_pct: float, dt: str) -> str:
         f'<span class="vc-icon">▼</span><span>{bear}</span></div>'
     ) if bear else ''
 
+    simple = _simple_say(current_pct, stock_name, fwd_df)
+    simple_block = (
+        f'<p style="font-size:12.5px;color:#1a3463;background:#eef3fb;'
+        f'border-radius:6px;padding:9px 13px;margin-top:10px;line-height:1.7">'
+        f'{simple}</p>'
+    )
+
     return (
         f'<div class="verdict-card">'
         f'<div class="vc-header">'
@@ -536,47 +546,104 @@ def _verdict_card_html(core_focus: dict, current_pct: float, dt: str) -> str:
         f'<span class="vc-date">数据截至 {dt}</span>'
         f'</div>'
         f'<div class="vc-rows">{bull_rows}{bear_row}</div>'
+        f'{simple_block}'
         f'</div>'
     )
 
 
-def _fmt_pct(v: float, decimals: int = 1) -> str:
-    s = f'{v:+.{decimals}f}%'
-    cls = 'pos' if v > 0 else ('neg' if v < 0 else '')
-    return f'<span class="{cls}">{s}</span>'
-
-
-def _fwd_table_html(df: pd.DataFrame | None) -> str:
+def _war_record_html(df: pd.DataFrame | None) -> str:
+    """Gaming-style war-record cards: 🔥顶级 / 🚀很强 / ✅较强 with full data."""
     if df is None or df.empty:
-        return '<p style="color:#aaa;font-size:12px;padding:20px 0 0">信号历史数据不足</p>'
+        return '<p style="color:#aaa;font-size:12px;padding:12px 0">信号历史数据不足</p>'
 
-    rows_html = ''
+    tier_cfg = {
+        'Top 1%':  ('🔥', '顶级', '#fff8f0', '#c45200', '#e65100'),
+        'Top 5%':  ('🚀', '很强', '#f0faf0', '#1b5e20', '#2ca02c'),
+        'Top 20%': ('✅', '较强', '#f0f4ff', '#0d47a1', '#1a6fc4'),
+    }
+
+    cards = ''
     for _, r in df.iterrows():
-        rows_html += (
-            f'<tr>'
-            f'<td class="fwd-label">{r["label"]}</td>'
-            f'<td style="color:#888">{int(r["n"])} 次</td>'
-            f'<td>{_fmt_pct(r["avg1"])}</td>'
-            f'<td>{_fmt_pct(r["avg5"])}</td>'
-            f'<td>{_fmt_pct(r["avg30"])}</td>'
-            f'<td class="{"pos" if r["hit30"]>=55 else "neg"}">{r["hit30"]:.0f}%</td>'
-            f'</tr>'
+        emoji, name, bg, dark, mid = tier_cfg.get(
+            r['label'], ('·', r['label'], '#f5f5f5', '#333', '#666'))
+        avg30_col = '#2ca02c' if r['avg30'] > 0 else '#d62728'
+        hit30_col = '#2ca02c' if r['hit30'] >= 55 else '#d62728'
+        cards += (
+            f'<div class="fwd-card" style="background:{bg};border:1.5px solid {mid}40">'
+            f'<div class="fc-header">'
+            f'<span class="fc-emoji">{emoji}</span>'
+            f'<span class="fc-name" style="color:{dark}">{name}</span>'
+            f'<span class="fc-tier" style="color:{mid}">{r["label"]}</span>'
+            f'</div>'
+            f'<div class="fc-stats">'
+            f'<div class="fc-stat"><div class="fc-stat-val" style="color:{dark}">{int(r["n"])}次</div>'
+            f'<div class="fc-stat-lbl">历史出现</div></div>'
+            f'<div class="fc-stat"><div class="fc-stat-val" style="color:{avg30_col}">{r["avg30"]:+.1f}%</div>'
+            f'<div class="fc-stat-lbl">30日均涨</div></div>'
+            f'<div class="fc-stat"><div class="fc-stat-val" style="color:{hit30_col}">{r["hit30"]:.0f}%</div>'
+            f'<div class="fc-stat-lbl">30日胜率</div></div>'
+            f'</div>'
+            f'</div>'
         )
 
-    return f'''
-<div style="overflow-x:auto">
-<table class="fwd-table">
-  <thead>
-    <tr>
-      <th>信号强度</th><th>历史次数</th>
-      <th>次日涨跌</th><th>5日涨跌</th><th>30日涨跌</th>
-      <th>30日胜率<br><span style="font-weight:400;font-size:10px">（上涨比例）</span></th>
-    </tr>
-  </thead>
-  <tbody>{rows_html}</tbody>
-</table>
-</div>
-<p class="fwd-note">以上为过去3年历史回测：每当综合信号进入该强度区间，后续实际股价平均表现</p>'''
+    return (
+        f'<div class="fwd-cards">{cards}</div>'
+        f'<p class="fwd-note">过去3年历史回测：信号进入该区间后，实际股价平均表现</p>'
+    )
+
+
+def _simple_say(current_pct: float, stock_name: str, fwd_df: pd.DataFrame | None) -> str:
+    """One plain-language sentence for the verdict card."""
+    if current_pct >= 99:
+        strength = '历史罕见的最强信号'
+    elif current_pct >= 95:
+        strength = '强信号'
+    elif current_pct >= 80:
+        strength = '较强信号'
+    else:
+        strength = '信号中等'
+
+    perf = ''
+    if fwd_df is not None and not fwd_df.empty:
+        r = fwd_df.iloc[0]
+        perf = f'历史上类似情形后30天平均涨 <strong style="color:#2ca02c">{r["avg30"]:+.1f}%</strong>，胜率 <strong>{r["hit30"]:.0f}%</strong>。'
+
+    return f'<strong>简单说：</strong>{stock_name}当前处于{strength}，{perf}值得关注。'
+
+
+def _ai_voice_html(core_focus: dict, current_pct: float,
+                   fwd_df: pd.DataFrame | None, stock_name: str) -> str:
+    """Dark-gradient 'Freeride AI 对你说' footer card."""
+    bull = core_focus.get('bull', [])
+
+    if current_pct >= 95:
+        strength = '量化信号极强'
+    elif current_pct >= 80:
+        strength = '量化信号偏强'
+    else:
+        strength = '量化信号中等'
+
+    perf_line = ''
+    if fwd_df is not None and not fwd_df.empty:
+        r = fwd_df.iloc[0]
+        perf_line = (f'历史上类似信号出现后30天，'
+                     f'平均上涨 {r["avg30"]:+.1f}%，{r["hit30"]:.0f}% 的时候收益为正。')
+
+    tip = (bull[0][:80] if bull else '').rstrip('。；')
+    main = f'{strength}，{perf_line}' + (f'最值得关注：{tip}。' if tip else '')
+
+    return (
+        '<div style="background:linear-gradient(135deg,#0d1322 0%,#1a2d63 100%);'
+        'margin:12px 12px 0;border-radius:12px;padding:16px 20px;color:#fff">'
+        '<div style="font-size:12px;color:#8ea8d8;margin-bottom:8px;font-weight:700">'
+        '🤖 Freeride AI 对你说</div>'
+        f'<p style="font-size:13.5px;line-height:1.8;color:#e8f0ff">{main}</p>'
+        '<p style="font-size:11px;color:#4a6a90;margin-top:10px;'
+        'border-top:1px solid #1e3060;padding-top:8px">'
+        '⚠️ 仅供学习参考，不构成投资建议。历史回测不代表未来收益，投资有风险，入市需谨慎。'
+        '</p>'
+        '</div>'
+    )
 
 
 def _core_focus_html(cf: dict) -> str:
@@ -584,13 +651,34 @@ def _core_focus_html(cf: dict) -> str:
     bull    = cf.get('bull', [])
     bear    = cf.get('bear', '')
 
-    bull_li = ''.join(f'<li>{b}</li>' for b in bull[:3])
-    bear_div = f'<div class="bear-item">{bear}</div>' if bear else ''
+    connectors = [
+        ('首先', '#1a6fc4', '#eef3fb'),
+        ('其次', '#2ca02c', '#f0faf0'),
+        ('此外', '#e8a500', '#fffbf0'),
+    ]
 
-    return f'''
-<p class="exec-sum">{summary}</p>
-<ul class="bull-list">{bull_li}</ul>
-{bear_div}'''
+    story = ''
+    for i, b in enumerate(bull[:3]):
+        label, text_col, bg = connectors[i] if i < len(connectors) else ('另', '#666', '#f5f5f5')
+        story += (
+            f'<div style="display:flex;gap:10px;margin-bottom:8px;align-items:flex-start">'
+            f'<span style="flex-shrink:0;font-size:11px;font-weight:900;color:{text_col};'
+            f'background:{bg};border-radius:4px;padding:2px 8px;margin-top:2px">{label}</span>'
+            f'<span style="font-size:12.5px;color:#333;line-height:1.65">{b}</span>'
+            f'</div>'
+        )
+
+    bear_div = ''
+    if bear:
+        bear_div = (
+            f'<div style="display:flex;gap:10px;margin-top:4px;align-items:flex-start">'
+            f'<span style="flex-shrink:0;font-size:11px;font-weight:900;color:#d62728;'
+            f'background:#fff5f5;border-radius:4px;padding:2px 8px;margin-top:2px">注意</span>'
+            f'<span style="font-size:12.5px;color:#4a1818;line-height:1.65">{bear}</span>'
+            f'</div>'
+        )
+
+    return f'<p class="exec-sum">{summary}</p>{story}{bear_div}'
 
 
 def _leadlag_html(signals: list[dict]) -> str:
@@ -688,7 +776,7 @@ def build_pitch_html(
 </div>
 
 <!-- VERDICT CARD -->
-{_verdict_card_html(core_focus, current_pct, dt)}
+{_verdict_card_html(core_focus, current_pct, dt, fwd_df=fwd_df, stock_name=stock_name)}
 
 <!-- SECTION 1: 量化指标 -->
 <div class="sec">
@@ -697,15 +785,18 @@ def build_pitch_html(
     <div class="tagline">{q_tagline}</div>
     <div class="detail">{q_signal_text}</div>
   </div>
-  <div class="g-60-40">
+
+  <p style="font-size:12.5px;color:#555;font-weight:700;margin:0 0 4px">
+    🏆 战绩回放 <span style="font-size:11px;font-weight:400;color:#aaa">— 过去3年，信号达到该强度后股价怎么走</span>
+  </p>
+  <span class="gloss-note" style="margin-bottom:10px;display:block">
+    「信号强度」= 综合评分在历史中的排位，越高代表当前动量越罕见强势
+  </span>
+  {_war_record_html(fwd_df)}
+
+  <div class="g-60-40" style="margin-top:14px">
     <div class="chart-box">{img(charts.get("kline",""), "K线关键价位")}</div>
     <div>
-      <p style="font-size:12.5px;color:#555;font-weight:700;margin-bottom:4px">
-        历史回测：类似信号出现后股价表现
-      </p>
-      <span class="gloss-note">「信号强度」= 综合评分分位，越高代表当前动量越罕见强势</span>
-      {_fwd_table_html(fwd_df)}
-      <hr class="divider"/>
       <p style="font-size:12px;color:#555;font-weight:700;margin-bottom:4px">
         量化因子雷达（当前状态）
       </p>
@@ -761,6 +852,10 @@ def build_pitch_html(
     </div>
   </div>
 </div>
+
+<!-- AI VOICE FOOTER -->
+{_ai_voice_html(core_focus, current_pct, fwd_df, stock_name)}
+<div style="height:20px"></div>
 
 </div><!-- /page -->
 </body>
