@@ -79,7 +79,7 @@ def extract_core_focus(long_html: str) -> dict:
     # Bull / bear <li> items
     li_raw = re.findall(r'<li>(.*?)</li>', ch1, re.DOTALL)
     items  = [_strip(x) for x in li_raw]
-    bull   = [x for x in items if any(c in x for c in ('①', '②', '③', '产能', '整合', '扩产'))][:3]
+    bull   = [x for x in items if any(c in x for c in ('①', '②', '③'))][:3]
     bear   = next((x for x in items if any(c in x for c in ('盈利', '估值', '风险', '压力'))), '')[:220]
 
     return {'summary': summary, 'bull': bull, 'bear': bear}
@@ -118,10 +118,18 @@ def extract_leadlag(long_html: str) -> list[dict]:
         color    = '#2ca02c' if green else '#e8a500'
         bg       = '#f0faf0' if green else '#fffbf0'
 
+        # Infer supply-chain role from block text
+        if any(x in block for x in ('上游', '设备', '刻蚀', '光刻', 'CVD', '北方')):
+            role = '上游供应商'
+        elif any(x in block for x in ('下游', '消费电子', '终端', '客户', '立讯')):
+            role = '下游客户'
+        else:
+            role = ''
+
         signals.append({
             'name': name, 'q1': q1, 'price30': price30,
             'direction': direction, 'conclusion': concl,
-            'color': color, 'bg': bg,
+            'role': role, 'color': color, 'bg': bg,
         })
     return signals
 
@@ -271,9 +279,14 @@ body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
 .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 .g-60-40 { display: grid; grid-template-columns: 60% 40%; gap: 14px; }
 .g-45-55 { display: grid; grid-template-columns: 45% 55%; gap: 14px; }
+/* Prevent grid children from overflowing their track */
+.g2 > *, .g3 > *, .g-60-40 > *, .g-45-55 > * { min-width: 0; overflow: hidden; }
+
+/* Global image rule */
+img { max-width: 100%; height: auto; display: block; }
 
 /* Chart containers */
-.chart-box img { max-width: 100%; border-radius: 8px;
+.chart-box img { border-radius: 8px;
                  box-shadow: 0 1px 6px rgba(0,0,0,.08); }
 
 /* Forward return table */
@@ -391,10 +404,13 @@ def _leadlag_html(signals: list[dict]) -> str:
         return '<p style="color:#aaa">上下游数据不足</p>'
     cards = ''
     for s in signals[:2]:
+        role_txt  = s.get('role', '')
+        price_txt = s.get('price30', '')
+        sub_line  = f'{role_txt}  ·  近30日股价 {price_txt}' if price_txt else role_txt
         cards += f'''
 <div class="ll-card" style="background:{s["bg"]};border-left:3px solid {s["color"]}">
   <div class="co">{s["name"]}</div>
-  <div class="role">{s.get("direction","")}</div>
+  <div class="role">{sub_line}</div>
   <div class="q1" style="color:{s["color"]}">{s.get("q1","")}</div>
   <span class="dir-badge" style="background:{s["color"]}">{s.get("direction","")}</span>
   <p class="concl">{s.get("conclusion","")}</p>
@@ -414,32 +430,36 @@ def build_pitch_html(
 ) -> str:
     code = ts_code.split('.')[0]
     dt   = datetime.strptime(trade_date, '%Y%m%d').strftime('%Y-%m-%d')
-    cf_summary = core_focus.get('summary', '')
+    cf_summary_full = core_focus.get('summary', '')
+    # Shorten to first sentence for hero tagline
+    _sent = re.split(r'[。！？]', cf_summary_full)
+    cf_summary = (_sent[0] + '。') if _sent and _sent[0] else cf_summary_full
 
     def img(b64: str, alt: str = '') -> str:
         if not b64:
             return f'<div style="height:200px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:12px">图表加载中</div>'
         return f'<img src="data:image/png;base64,{b64}" alt="{alt}" style="max-width:100%;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.08)"/>'
 
-    # Market stat tiles
-    mkt_tiles = f'''
-<div class="mkt-tiles">
-  <div class="mkt-tile">
-    <div class="label">沪深300（30日）</div>
-    <div class="val green">+8.30%</div>
-    <div class="sub">60日 +2.90%  牛市格局</div>
-  </div>
-  <div class="mkt-tile">
-    <div class="label">申万半导体（30日）</div>
-    <div class="val green">+57.74%</div>
-    <div class="sub">60日 +40.57%  全市场最强板块</div>
-  </div>
-  <div class="mkt-tile">
-    <div class="label">板块广度</div>
-    <div class="val amber">93.8%</div>
-    <div class="sub">个股 > 20MA  共振极强</div>
-  </div>
-</div>'''
+    # Market stat tiles — vertical stack (used inside 45% column)
+    mkt_tiles = (
+        '<div style="display:flex;flex-direction:column;gap:8px;height:100%">'
+        '<div class="mkt-tile">'
+        '<div class="label">沪深300（30日）</div>'
+        '<div class="val green">+8.30%</div>'
+        '<div class="sub">60日 +2.90% &nbsp;·&nbsp; 牛市格局</div>'
+        '</div>'
+        '<div class="mkt-tile">'
+        '<div class="label">申万半导体（30日）</div>'
+        '<div class="val green">+57.74%</div>'
+        '<div class="sub">60日 +40.57% &nbsp;·&nbsp; 全市场最强</div>'
+        '</div>'
+        '<div class="mkt-tile">'
+        '<div class="label">板块广度</div>'
+        '<div class="val amber">93.8%</div>'
+        '<div class="sub">个股 &gt; 20MA &nbsp;·&nbsp; 共振极强</div>'
+        '</div>'
+        '</div>'
+    )
 
     return f'''<!DOCTYPE html>
 <html lang="zh-CN">
@@ -485,9 +505,9 @@ def build_pitch_html(
   <div class="sec-title">💰 资金博弈 <span class="sec-sub">— 有没有人买？</span></div>
 
   <p style="font-size:12px;color:#888;font-weight:700;margin-bottom:8px">市场与板块环境</p>
-  {mkt_tiles}
-  <div class="chart-box" style="margin-bottom:14px">
-    {img(charts.get("beta",""), "大盘Beta与板块环境")}
+  <div class="g-45-55" style="margin-bottom:14px">
+    <div>{mkt_tiles}</div>
+    <div class="chart-box">{img(charts.get("beta",""), "大盘Beta与板块环境")}</div>
   </div>
 
   <hr class="divider"/>
