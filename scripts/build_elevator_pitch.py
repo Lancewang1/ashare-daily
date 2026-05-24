@@ -661,15 +661,19 @@ def _ai_voice_html(core_focus: dict, current_pct: float,
 
     r = _matching_tier_row(fwd_df, current_pct)
     if r is not None:
-        hit_int = int(round(r['hit30'] / 10)) * 10  # round to nearest 10
-        perf_line = (f'信号进了{tier_desc}，'
-                     f'这种时候一个月平均涨{r["avg30"]:+.1f}%，'
-                     f'{hit_int}%概率上涨。')
+        # Convert hit rate to Chinese fraction (七成/八成 etc.)
+        hit_chinese = {70: '七成', 80: '八成', 90: '九成', 100: '几乎全涨',
+                       60: '六成', 50: '五成', 40: '四成'}
+        hit_int = int(round(r['hit30'] / 10)) * 10
+        hit_str = hit_chinese.get(hit_int, f'{hit_int}%')
+        perf_line = (f'说白了：信号强到{tier_desc}，'
+                     f'买了一个月平均赚{r["avg30"]:.1f}%，'
+                     f'{hit_str}概率正收益。')
     else:
-        perf_line = f'信号处于{tier_desc}。'
+        perf_line = f'说白了：信号处于{tier_desc}。'
 
     tip = _clean_bull_tip(bull[0]) if bull else ''
-    catalyst = f'催化剂：{tip}。' if tip else ''
+    catalyst = f'核心催化剂是{tip}。' if tip else ''
     main = perf_line + catalyst
 
     return (
