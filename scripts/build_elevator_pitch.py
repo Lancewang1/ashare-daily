@@ -197,11 +197,10 @@ def extract_sector_info(long_html: str) -> dict:
     next_h = long_html.find('<div class="tb-head">', pos + 50)
     section = _strip(long_html[pos: next_h if next_h != -1 else pos + 6000])
 
-    # Sector name: 申万 + 2-4 Chinese chars, strip trailing 指数/板块
-    m = re.search(r'申万([一-鿿]{2,4})', section)
-    if m:
-        name = re.sub(r'(指数|板块|ETF)$', '', m.group(1))
-        out['sector_name'] = '申万' + name
+    # Sector name: stop non-greedily before 指数/板块 or non-Chinese char
+    m = re.search(r'申万([一-鿿]+?)(?=指数|板块|ETF|[^一-鿿])', section)
+    if m and len(m.group(1)) >= 2:
+        out['sector_name'] = '申万' + m.group(1)
 
     # CSI300 30d return — allow digits in between (近30天涨+8.30%)
     m = re.search(r'沪深300[^%]{0,20}?\+?(\d+\.?\d*)%', section)
@@ -523,22 +522,20 @@ img { max-width: 100%; height: auto; display: block; }
 .ll-card .concl { font-size: 11.5px; color: #555; line-height: 1.5; }
 .divider { border: none; border-top: 1px solid #eef; margin: 14px 0; }
 
-/* Verdict card (首屏结论) */
-.verdict-card { background: #fff; margin: 10px 12px 0; border-radius: 12px;
-                padding: 14px 18px; box-shadow: 0 2px 10px rgba(0,0,0,.06);
-                border-top: 3px solid #1a6fc4; }
-.vc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
-             flex-wrap: wrap; }
-.vc-title  { font-size: 13px; font-weight: 800; color: #1a1a2e; }
-.vc-date   { font-size: 11px; color: #bbb; margin-left: auto; }
-.vc-rows   { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.vc-row    { font-size: 12.5px; line-height: 1.55; padding: 7px 10px;
-             border-radius: 6px; display: flex; gap: 8px; align-items: flex-start; }
-.vc-bull   { background: #f0faf0; color: #1a3a1a; }
-.vc-bear   { background: #fff5f5; color: #4a1818; }
-.vc-icon   { flex-shrink: 0; font-size: 10px; margin-top: 3px; font-weight: 900; }
-.vc-bull .vc-icon { color: #2ca02c; }
-.vc-bear .vc-icon { color: #d62728; }
+/* Summary block (首屏三段摘要) */
+.sum-card { background: #fff; margin: 10px 12px 0; border-radius: 12px;
+            padding: 16px 20px; box-shadow: 0 2px 10px rgba(0,0,0,.06);
+            border-top: 3px solid #1a6fc4; }
+.sum-row  { display: flex; gap: 10px; align-items: flex-start;
+            padding: 7px 0; border-bottom: 1px solid #f2f4f8; }
+.sum-row:last-of-type { border-bottom: none; }
+.sum-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+.sum-label{ font-size: 12px; font-weight: 800; color: #1a3463;
+            flex-shrink: 0; min-width: 52px; margin-top: 2px; }
+.sum-text { font-size: 13px; color: #333; line-height: 1.65; }
+.sum-saibai { margin-top: 12px; padding: 10px 14px;
+              background: #eef3fb; border-radius: 8px;
+              font-size: 13px; color: #1a3463; line-height: 1.7; }
 
 /* Bilingual gloss notes */
 .gloss-note { font-size: 11px; color: #999; display: block;
@@ -560,6 +557,91 @@ img { max-width: 100%; height: auto; display: block; }
   .vc-date { display: none; }
 }
 </style>'''
+
+
+def _sum_quant(current_pct: float, fwd_df) -> str:
+    if current_pct >= 99:
+        sig = '信号进了历史前1%'
+    elif current_pct >= 95:
+        sig = '信号进了历史前5%'
+    elif current_pct >= 80:
+        sig = '信号处于历史前20%'
+    else:
+        sig = f'信号处于历史{100 - int(current_pct)}%分位'
+    r = _matching_tier_row(fwd_df, current_pct)
+    if r is None:
+        return f'{sig}。'
+    hit_map = {100: '几乎全涨', 90: '九成', 80: '八成', 70: '七成',
+               60: '六成', 50: '五成', 40: '四成'}
+    hit_str = hit_map.get(int(round(r['hit30'] / 10)) * 10, f'{r["hit30"]:.0f}%')
+    return f'{sig}，类似情形后30天平均赚{r["avg30"]:.1f}%，{hit_str}概率正收益。'
+
+
+def _clean_label_prefix(text: str) -> str:
+    """Strip 【xxx】 / 'xxx：' / 数字维 section labels from text."""
+    text = re.sub(r'^【[^】]{1,10}】\s*', '', text)
+    text = re.sub(r'^\d+维\s*', '', text)
+    text = re.sub(r'^[^\s，。]{1,8}[：:]\s*', '', text)
+    return text.strip()
+
+
+def _sum_capital(sector_info: dict | None, radar_narr: str) -> str:
+    si = sector_info or {}
+    csi300 = si.get('csi300_30d')
+    sector_name = si.get('sector_name', '所属板块')
+    sector_30d  = si.get('sector_30d')
+
+    mkt = ('大盘牛市格局' if csi300 and csi300 > 5
+           else '大盘温和上涨' if csi300 and csi300 > 0
+           else '大盘震荡')
+    sec = (f'，{sector_name}近30日+{sector_30d:.1f}%' if sector_30d else '')
+
+    # First sentence of radar narrative, strip jargon labels, trim
+    radar_short = ''
+    if radar_narr:
+        first = re.split(r'[。！？]', radar_narr.strip())[0]
+        first = _clean_label_prefix(first)
+        # Drop sentences that still contain % data strings (too technical)
+        if re.search(r'\d+%ile|\d+维', first):
+            first = ''
+        radar_short = first[:50].strip()
+
+    base = f'{mkt}{sec}'
+    return f'{base}；{radar_short}。' if radar_short else f'{base}。'
+
+
+def _sum_fundamental(core_focus: dict) -> str:
+    summary = core_focus.get('summary', '')
+    # Strip label prefixes then take first sentence
+    summary = _clean_label_prefix(summary)
+    first = re.split(r'[。！？]', summary.strip())[0]
+    return (first[:80] + '。').strip() if first else ''
+
+
+def _summary_block_html(core_focus: dict, current_pct: float, fwd_df,
+                        sector_info: dict | None, radar_narr: str,
+                        stock_name: str, dt: str) -> str:
+    q_line  = _sum_quant(current_pct, fwd_df)
+    c_line  = _sum_capital(sector_info, radar_narr)
+    f_line  = _sum_fundamental(core_focus)
+    say     = _simple_say(current_pct, stock_name, fwd_df)
+
+    def row(icon, label, text):
+        return (f'<div class="sum-row">'
+                f'<span class="sum-icon">{icon}</span>'
+                f'<span class="sum-label">{label}</span>'
+                f'<span class="sum-text">{text}</span>'
+                f'</div>')
+
+    return (
+        f'<div class="sum-card">'
+        + row('📈', '量化', q_line)
+        + row('💰', '资金', c_line)
+        + row('🔍', '基本面', f_line)
+        + f'<div class="sum-saibai">{say}</div>'
+        + f'<div style="font-size:11px;color:#bbb;margin-top:8px;text-align:right">数据截至 {dt}</div>'
+        + f'</div>'
+    )
 
 
 def _verdict_card_html(core_focus: dict, current_pct: float, dt: str,
@@ -685,7 +767,8 @@ def _simple_say(current_pct: float, stock_name: str, fwd_df: pd.DataFrame | None
                 f'<strong style="color:#2ca02c">{r["avg30"]:.1f}%</strong>，'
                 f'<strong>{hit_str}</strong>概率正收益。')
 
-    return f'<strong>说白了：</strong>{short_name}信号强到{tier_desc}，{perf}'
+    verb = '强到' if current_pct >= 80 else '处于'
+    return f'<strong>说白了：</strong>{short_name}信号{verb}{tier_desc}，{perf}'
 
 
 def _clean_bull_tip(raw: str, max_chars: int = 28) -> str:
@@ -727,7 +810,8 @@ def _ai_voice_html(core_focus: dict, current_pct: float,
                        60: '六成', 50: '五成', 40: '四成'}
         hit_int = int(round(r['hit30'] / 10)) * 10
         hit_str = hit_chinese.get(hit_int, f'{hit_int}%')
-        perf_line = (f'说白了：信号强到{tier_desc}，'
+        verb2 = '强到' if current_pct >= 80 else '处于'
+        perf_line = (f'说白了：信号{verb2}{tier_desc}，'
                      f'买了一个月平均赚{r["avg30"]:.1f}%，'
                      f'{hit_str}概率正收益。')
     else:
@@ -891,8 +975,8 @@ def build_pitch_html(
   <p class="tagline">{cf_summary}</p>
 </div>
 
-<!-- VERDICT CARD -->
-{_verdict_card_html(core_focus, current_pct, dt, fwd_df=fwd_df, stock_name=stock_name)}
+<!-- SUMMARY BLOCK -->
+{_summary_block_html(core_focus, current_pct, fwd_df, sector_info, radar_narr, stock_name, dt)}
 
 <!-- SECTION 1: 量化指标 -->
 <div class="sec">

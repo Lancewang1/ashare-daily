@@ -118,22 +118,20 @@ img { max-width: 100%; height: auto; display: block; }
 .ll-card .concl { font-size: 11.5px; color: #555; line-height: 1.5; }
 .divider { border: none; border-top: 1px solid #eef; margin: 14px 0; }
 
-/* Verdict card (首屏结论) */
-.verdict-card { background: #fff; margin: 10px 12px 0; border-radius: 12px;
-                padding: 14px 18px; box-shadow: 0 2px 10px rgba(0,0,0,.06);
-                border-top: 3px solid #1a6fc4; }
-.vc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
-             flex-wrap: wrap; }
-.vc-title  { font-size: 13px; font-weight: 800; color: #1a1a2e; }
-.vc-date   { font-size: 11px; color: #bbb; margin-left: auto; }
-.vc-rows   { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.vc-row    { font-size: 12.5px; line-height: 1.55; padding: 7px 10px;
-             border-radius: 6px; display: flex; gap: 8px; align-items: flex-start; }
-.vc-bull   { background: #f0faf0; color: #1a3a1a; }
-.vc-bear   { background: #fff5f5; color: #4a1818; }
-.vc-icon   { flex-shrink: 0; font-size: 10px; margin-top: 3px; font-weight: 900; }
-.vc-bull .vc-icon { color: #2ca02c; }
-.vc-bear .vc-icon { color: #d62728; }
+/* Summary block (首屏三段摘要) */
+.sum-card { background: #fff; margin: 10px 12px 0; border-radius: 12px;
+            padding: 16px 20px; box-shadow: 0 2px 10px rgba(0,0,0,.06);
+            border-top: 3px solid #1a6fc4; }
+.sum-row  { display: flex; gap: 10px; align-items: flex-start;
+            padding: 7px 0; border-bottom: 1px solid #f2f4f8; }
+.sum-row:last-of-type { border-bottom: none; }
+.sum-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+.sum-label{ font-size: 12px; font-weight: 800; color: #1a3463;
+            flex-shrink: 0; min-width: 52px; margin-top: 2px; }
+.sum-text { font-size: 13px; color: #333; line-height: 1.65; }
+.sum-saibai { margin-top: 12px; padding: 10px 14px;
+              background: #eef3fb; border-radius: 8px;
+              font-size: 13px; color: #1a3463; line-height: 1.7; }
 
 /* Bilingual gloss notes */
 .gloss-note { font-size: 11px; color: #999; display: block;
@@ -171,8 +169,8 @@ img { max-width: 100%; height: auto; display: block; }
   <p class="tagline">多头论点：潍柴重机的营收和净利润在过去几个季度呈现强劲增长，尤其是2026年Q1的营收同比增长93.8%，净利润同比增长71.7%，显示出公司在行业中的竞争力。</p>
 </div>
 
-<!-- VERDICT CARD -->
-<div class="verdict-card"><div class="vc-header"><span class="vc-title">🤖 AI 综合判断</span><span class="verdict v-neut">关注观察</span><span class="vc-date">数据截至 2026-05-20</span></div><div class="vc-rows"><div class="vc-row vc-bear"><span class="vc-icon">▼</span><span>谨慎原因：PE处于5年71%分位、PB处于92%分位，估值偏贵。汽车板块整体近30天+4.36%，跑输大盘（沪深300+8.30%），说明本轮涨势是个股基本面驱动而非板块行情带动，缺乏群体性共振支撑。</span></div></div><p style="font-size:12.5px;color:#1a3463;background:#eef3fb;border-radius:6px;padding:9px 13px;margin-top:10px;line-height:1.7"><strong>说白了：</strong>潍柴重机信号强到历史21%分位，历史上类似情形后30天平均赚<strong style="color:#2ca02c">20.6%</strong>，<strong>七成</strong>概率正收益。</p></div>
+<!-- SUMMARY BLOCK -->
+<div class="sum-card"><div class="sum-row"><span class="sum-icon">📈</span><span class="sum-label">量化</span><span class="sum-text">信号处于历史21%分位，类似情形后30天平均赚20.6%，七成概率正收益。</span></div><div class="sum-row"><span class="sum-icon">💰</span><span class="sum-label">资金</span><span class="sum-text">大盘牛市格局，申万汽车近30日+4.4%；各维度资金博弈综合百分位38%，资金博弈分歧。</span></div><div class="sum-row"><span class="sum-icon">🔍</span><span class="sum-label">基本面</span><span class="sum-text">潍柴重机的营收和净利润在过去几个季度呈现强劲增长，尤其是2026年Q1的营收同比增长93.8%，净利润同比增长71.7%，显示出公司在行业中的竞争力。</span></div><div class="sum-saibai"><strong>说白了：</strong>潍柴重机信号处于历史21%分位，历史上类似情形后30天平均赚<strong style="color:#2ca02c">20.6%</strong>，<strong>七成</strong>概率正收益。</div><div style="font-size:11px;color:#bbb;margin-top:8px;text-align:right">数据截至 2026-05-20</div></div>
 
 <!-- SECTION 1: 量化指标 -->
 <div class="sec">
@@ -247,7 +245,7 @@ img { max-width: 100%; height: auto; display: block; }
 </div>
 
 <!-- AI VOICE FOOTER -->
-<div style="background:linear-gradient(135deg,#0d1322 0%,#1a2d63 100%);margin:12px 12px 0;border-radius:12px;padding:16px 20px;color:#fff"><div style="font-size:12px;color:#8ea8d8;margin-bottom:8px;font-weight:700">🤖 Freeride AI 对你说</div><p style="font-size:13.5px;line-height:1.8;color:#e8f0ff">说白了：信号强到历史21%分位，买了一个月平均赚20.6%，七成概率正收益。</p><p style="font-size:11px;color:#4a6a90;margin-top:10px;border-top:1px solid #1e3060;padding-top:8px">⚠️ 仅供学习参考，不构成投资建议。历史回测不代表未来收益，投资有风险，入市需谨慎。</p></div>
+<div style="background:linear-gradient(135deg,#0d1322 0%,#1a2d63 100%);margin:12px 12px 0;border-radius:12px;padding:16px 20px;color:#fff"><div style="font-size:12px;color:#8ea8d8;margin-bottom:8px;font-weight:700">🤖 Freeride AI 对你说</div><p style="font-size:13.5px;line-height:1.8;color:#e8f0ff">说白了：信号处于历史21%分位，买了一个月平均赚20.6%，七成概率正收益。</p><p style="font-size:11px;color:#4a6a90;margin-top:10px;border-top:1px solid #1e3060;padding-top:8px">⚠️ 仅供学习参考，不构成投资建议。历史回测不代表未来收益，投资有风险，入市需谨慎。</p></div>
 <div style="height:20px"></div>
 
 </div><!-- /page -->
