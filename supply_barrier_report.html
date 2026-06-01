@@ -168,10 +168,278 @@ footer{padding:20px 0;text-align:center;font-size:11px;color:#9ca3af;
   </div>
 </div>
 
-<!-- ② 当前供应链瓶颈地图 -->
+<!-- ② 产业链供应图谱 -->
+
 <div class="section">
   <div class="sec-head">
-    <h2>② 当前供应链瓶颈地图（2026年6月）</h2>
+    <h2>② 产业链供应图谱 — 关键节点与时序信号</h2>
+    <span class="hint">绿色实线=已验证时序信号 · 橙色实线=待验证 · 灰色虚线=供应流向 · ⚠=关键瓶颈 · 悬停查看详情</span>
+  </div>
+  <div style="padding:14px 20px;overflow-x:auto">
+    <svg viewBox="0 0 1300 480" width="100%" style="max-width:1300px;overflow:visible" xmlns="http://www.w3.org/2000/svg">
+
+<defs>
+  <marker id="arr-gray"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+    <polygon points="0 0, 7 3.5, 0 7" fill="#cbd5e1"/>
+  </marker>
+  <marker id="arr-green" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+    <polygon points="0 0, 7 3.5, 0 7" fill="#16a34a"/>
+  </marker>
+  <marker id="arr-orange" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+    <polygon points="0 0, 7 3.5, 0 7" fill="#d97706"/>
+  </marker>
+  <filter id="glow-red">
+    <feGaussianBlur stdDeviation="3" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="glow-orange">
+    <feGaussianBlur stdDeviation="2.5" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+<!-- Layer headers -->
+<text x="39.0" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#94a3b8">L0</text>
+<text x="39.0" y="24" text-anchor="middle" font-size="8" fill="#94a3b8">电力</text>
+<line x1="-6.0" y1="28" x2="-6.0" y2="480" stroke="#f1f5f9" stroke-width="1"/>
+<text x="130.0" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#94a3b8">L1</text>
+<text x="130.0" y="24" text-anchor="middle" font-size="8" fill="#94a3b8">原材料</text>
+<line x1="85.0" y1="28" x2="85.0" y2="480" stroke="#f1f5f9" stroke-width="1"/>
+<text x="234.0" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#94a3b8">L2</text>
+<text x="234.0" y="24" text-anchor="middle" font-size="8" fill="#94a3b8">晶圆/EDA</text>
+<line x1="189.0" y1="28" x2="189.0" y2="480" stroke="#f1f5f9" stroke-width="1"/>
+<text x="351.0" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#94a3b8">L3</text>
+<text x="351.0" y="24" text-anchor="middle" font-size="8" fill="#94a3b8">设备/工艺</text>
+<line x1="306.0" y1="28" x2="306.0" y2="480" stroke="#f1f5f9" stroke-width="1"/>
+<text x="494.0" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#94a3b8">L4</text>
+<text x="494.0" y="24" text-anchor="middle" font-size="8" fill="#94a3b8">芯片</text>
+<line x1="449.0" y1="28" x2="449.0" y2="480" stroke="#f1f5f9" stroke-width="1"/>
+<text x="650.0" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#94a3b8">L5</text>
+<text x="650.0" y="24" text-anchor="middle" font-size="8" fill="#94a3b8">存储</text>
+<line x1="605.0" y1="28" x2="605.0" y2="480" stroke="#f1f5f9" stroke-width="1"/>
+<text x="780.0" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#94a3b8">L6</text>
+<text x="780.0" y="24" text-anchor="middle" font-size="8" fill="#94a3b8">封装</text>
+<line x1="735.0" y1="28" x2="735.0" y2="480" stroke="#f1f5f9" stroke-width="1"/>
+<text x="909.9999999999999" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#94a3b8">L7</text>
+<text x="909.9999999999999" y="24" text-anchor="middle" font-size="8" fill="#94a3b8">组装/散热</text>
+<line x1="864.9999999999999" y1="28" x2="864.9999999999999" y2="480" stroke="#f1f5f9" stroke-width="1"/>
+<text x="1027.0" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#94a3b8">L8</text>
+<text x="1027.0" y="24" text-anchor="middle" font-size="8" fill="#94a3b8">网络</text>
+<line x1="982.0" y1="28" x2="982.0" y2="480" stroke="#f1f5f9" stroke-width="1"/>
+<text x="1144.0" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#94a3b8">L9</text>
+<text x="1144.0" y="24" text-anchor="middle" font-size="8" fill="#94a3b8">超大规模商</text>
+<line x1="1099.0" y1="28" x2="1099.0" y2="480" stroke="#f1f5f9" stroke-width="1"/>
+
+<!-- Edges -->
+<path d="M171.0,96.0 C226.6,96.0 254.39999999999998,72.0 310.0,72.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>稀土精炼→EUV永磁体/精密部件</title></path>
+<path d="M171.0,288.0 C283.8,288.0 340.2,120.0 453.0,120.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>工业气体(Ne/Ar) → 晶圆厂蚀刻</title></path>
+<path d="M275.0,96.0 C346.2,96.0 381.8,264.0 453.0,264.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>EDA软件→芯片设计（NVDA/AVGO）</title></path>
+<path d="M275.0,288.0 C346.2,288.0 381.8,120.0 453.0,120.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>12寸硅片→台积电晶圆</title></path>
+<path d="M392.0,72.0 C416.4,72.0 428.6,120.0 453.0,120.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>EUV设备装机→先进制程产能</title></path>
+<path d="M392.0,216.0 C416.4,216.0 428.6,120.0 453.0,120.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>CVD/CMP设备→晶圆工艺</title></path>
+<path d="M535.0,120.0 C616.6,120.0 657.4,144.0 739.0,144.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>台积电芯片→CoWoS先进封装</title></path>
+<path d="M691.0,168.0 C710.2,168.0 719.8,144.0 739.0,144.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>HBM内存堆叠→CoWoS封装集成</title></path>
+<path d="M392.0,374.40000000000003 C478.8,374.40000000000003 522.2,168.0 609.0,168.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>TC粘合剂→HBM层间堆叠工序</title></path>
+<path d="M821.0,144.0 C840.1999999999999,144.0 849.8,96.0 868.9999999999999,96.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>先进封装芯片→AI服务器组装</title></path>
+<path d="M950.9999999999999,96.0 C1011.8,96.0 1042.2,240.0 1103.0,240.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>AI服务器→超大规模商DC部署</title></path>
+<path d="M950.9999999999999,374.40000000000003 C1011.8,374.40000000000003 1042.2,240.0 1103.0,240.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>ODM服务器→超大规模商</title></path>
+<path d="M950.9999999999999,240.0 C918.1999999999999,240.0 901.7999999999998,96.0 868.9999999999999,96.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>液冷系统→高密度AI服务器机柜</title></path>
+<path d="M1068.0,168.0 C1082.0,168.0 1089.0,240.0 1103.0,240.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>数据中心交换机→超大规模商网络</title></path>
+<path d="M80.0,216.0 C489.20000000000005,216.0 693.8,240.0 1103.0,240.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>变压器/电网设备→DC电力基础设施</title></path>
+<path d="M1185.0,72.0 C1152.2,72.0 1135.8,240.0 1103.0,240.0" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)" opacity="0.7"><title>DC承包商施工→超大规模商DC建设</title></path>
+<path d="M535.0,264.0 C564.6,264.0 579.4,168.0 609.0,168.0" stroke="#16a34a" stroke-width="2.2" fill="none" marker-end="url(#arr-green)"><title>NVDA季度营收YoY → SK Hynix HBM收入YoY，相关性0.93（已验证）</title></path>
+<rect x="550.0" y="199.0" width="44" height="14" rx="3" fill="white" stroke="#16a34a" stroke-width="1" opacity="0.92"/>
+<text x="572.0" y="210.0" text-anchor="middle" font-size="8" font-weight="700" fill="#16a34a">+3-6季度</text>
+<path d="M691.0,168.0 C538.6,168.0 462.4,374.40000000000003 310.0,374.40000000000003" stroke="#16a34a" stroke-width="2.2" fill="none" marker-end="url(#arr-green)"><title>SK Hynix HBM出货 → Hanmi TC粘合剂收入，滞后1季度（已验证）</title></path>
+<rect x="478.5" y="254.20000000000005" width="44" height="14" rx="3" fill="white" stroke="#16a34a" stroke-width="1" opacity="0.92"/>
+<text x="500.5" y="265.20000000000005" text-anchor="middle" font-size="8" font-weight="700" fill="#16a34a">+1季度</text>
+<path d="M1185.0,72.0 C1152.2,72.0 1135.8,240.0 1103.0,240.0" stroke="#d97706" stroke-width="2.2" fill="none" marker-end="url(#arr-orange)"><title>DC承包商积压（已签合同）→ 超大规模商资本支出实际确认</title></path>
+<rect x="1122.0" y="139.0" width="44" height="14" rx="3" fill="white" stroke="#d97706" stroke-width="1" opacity="0.92"/>
+<text x="1144.0" y="150.0" text-anchor="middle" font-size="8" font-weight="700" fill="#d97706">+12-18月</text>
+<path d="M392.0,72.0 C416.4,72.0 428.6,120.0 453.0,120.0" stroke="#d97706" stroke-width="2.2" fill="none" marker-end="url(#arr-orange)"><title>ASML递延收入+EUV装机 → 台积电产能爬坡</title></path>
+<rect x="400.5" y="79.0" width="44" height="14" rx="3" fill="white" stroke="#d97706" stroke-width="1" opacity="0.92"/>
+<text x="422.5" y="90.0" text-anchor="middle" font-size="8" font-weight="700" fill="#d97706">+3-6月</text>
+<path d="M1185.0,240.0 C892.2,240.0 745.8,264.0 453.0,264.0" stroke="#d97706" stroke-width="2.2" fill="none" marker-end="url(#arr-orange)"><title>超大规模商资本支出指引 → NVDA DC订单加速</title></path>
+<rect x="797.0" y="235.0" width="44" height="14" rx="3" fill="white" stroke="#d97706" stroke-width="1" opacity="0.92"/>
+<text x="819.0" y="246.0" text-anchor="middle" font-size="8" font-weight="700" fill="#d97706">+3-6月</text>
+<path d="M535.0,120.0 C616.6,120.0 657.4,144.0 739.0,144.0" stroke="#d97706" stroke-width="2.2" fill="none" marker-end="url(#arr-orange)"><title>台积电月营收 → ASE CoWoS装载率跟进</title></path>
+<rect x="615.0" y="115.0" width="44" height="14" rx="3" fill="white" stroke="#d97706" stroke-width="1" opacity="0.92"/>
+<text x="637.0" y="126.0" text-anchor="middle" font-size="8" font-weight="700" fill="#d97706">+1-2月</text>
+
+<!-- Nodes -->
+<g class="dag-node" id="dagn-L0d" transform="translate(-2.0,198.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#f0fdf4" stroke="#dc2626" stroke-width="2.5" filter="url(#glow-red)"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">电网设备 ⚠</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">ETN/GEV</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#dc2626">48</text>
+  <title>L0d: 电网设备 (ETN/GEV) | 信号: 买入 | 评分: 48</title>
+</g>
+<g class="dag-node" id="dagn-L1a" transform="translate(89.0,78.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#fefce8" stroke="#d97706" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">稀土</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">MP.US</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">55</text>
+  <title>L1a: 稀土 (MP.US) | 信号: 观察 | 评分: 55</title>
+</g>
+<g class="dag-node" id="dagn-L1c" transform="translate(89.0,270.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#fefce8" stroke="#d97706" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">工业气体</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">LIN.US</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">53</text>
+  <title>L1c: 工业气体 (LIN.US) | 信号: 观察 | 评分: 53</title>
+</g>
+<g class="dag-node" id="dagn-L2c" transform="translate(193.0,78.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">EDA软件</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">CDNS/SNPS</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">58</text>
+  <title>L2c: EDA软件 (CDNS/SNPS) | 信号: 关注 | 评分: 58</title>
+</g>
+<g class="dag-node" id="dagn-L2a" transform="translate(193.0,270.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#fefce8" stroke="#d97706" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">硅片</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">SUMCO</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">51</text>
+  <title>L2a: 硅片 (SUMCO) | 信号: 观察 | 评分: 51</title>
+</g>
+<g class="dag-node" id="dagn-L3a" transform="translate(310.0,54.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#f0fdf4" stroke="#dc2626" stroke-width="2.5" filter="url(#glow-red)"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">EUV光刻机 ⚠</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">ASML.US</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">51</text>
+  <title>L3a: EUV光刻机 (ASML.US) | 信号: 买入 | 评分: 51</title>
+</g>
+<g class="dag-node" id="dagn-L3b" transform="translate(310.0,198.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#fefce8" stroke="#d97706" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">CVD/CMP设备</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">AMAT/LRCX</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#dc2626">47</text>
+  <title>L3b: CVD/CMP设备 (AMAT/LRCX) | 信号: 观察 | 评分: 47</title>
+</g>
+<g class="dag-node" id="dagn-L3f" transform="translate(310.0,356.40000000000003)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#f0fdf4" stroke="#d97706" stroke-width="2" filter="url(#glow-orange)"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">TC粘合剂 !</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">042700.KS</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">59</text>
+  <title>L3f: TC粘合剂 (042700.KS) | 信号: 买入 | 评分: 59</title>
+</g>
+<g class="dag-node" id="dagn-L4a" transform="translate(453.0,102.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#eff6ff" stroke="#d97706" stroke-width="2" filter="url(#glow-orange)"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">先进制程代工 !</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">2330.TW</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">56</text>
+  <title>L4a: 先进制程代工 (2330.TW) | 信号: 关注 | 评分: 56</title>
+</g>
+<g class="dag-node" id="dagn-L4b" transform="translate(453.0,246.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">AI GPU</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">NVDA.US</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">51</text>
+  <title>L4b: AI GPU (NVDA.US) | 信号: 关注 | 评分: 51</title>
+</g>
+<g class="dag-node" id="dagn-L4d" transform="translate(453.0,366.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">定制ASIC</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">AVGO/MRVL</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">54</text>
+  <title>L4d: 定制ASIC (AVGO/MRVL) | 信号: 关注 | 评分: 54</title>
+</g>
+<g class="dag-node" id="dagn-L5a" transform="translate(609.0,150.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#f0fdf4" stroke="#d97706" stroke-width="2" filter="url(#glow-orange)"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">HBM内存 !</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">000660.KS</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">58</text>
+  <title>L5a: HBM内存 (000660.KS) | 信号: 买入 | 评分: 58</title>
+</g>
+<g class="dag-node" id="dagn-L5b" transform="translate(609.0,294.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#fefce8" stroke="#d97706" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">DRAM</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">NANYA</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#dc2626">47</text>
+  <title>L5b: DRAM (NANYA) | 信号: 观察 | 评分: 47</title>
+</g>
+<g class="dag-node" id="dagn-L6a" transform="translate(739.0,126.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#eff6ff" stroke="#d97706" stroke-width="2" filter="url(#glow-orange)"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">CoWoS封装 !</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">ASE/AMKR</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">55</text>
+  <title>L6a: CoWoS封装 (ASE/AMKR) | 信号: 关注 | 评分: 55</title>
+</g>
+<g class="dag-node" id="dagn-L7b" transform="translate(868.9999999999999,78.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#fefce8" stroke="#d97706" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">AI服务器</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">SMCI/DELL</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">52</text>
+  <title>L7b: AI服务器 (SMCI/DELL) | 信号: 观察 | 评分: 52</title>
+</g>
+<g class="dag-node" id="dagn-L7c" transform="translate(868.9999999999999,222.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">液冷散热</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">VRT.US</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#dc2626">44</text>
+  <title>L7c: 液冷散热 (VRT.US) | 信号: 关注 | 评分: 44</title>
+</g>
+<g class="dag-node" id="dagn-L7a" transform="translate(868.9999999999999,356.40000000000003)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">ODM组装</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">2317.TW</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#dc2626">37</text>
+  <title>L7a: ODM组装 (2317.TW) | 信号: 回避 | 评分: 37</title>
+</g>
+<g class="dag-node" id="dagn-L8a" transform="translate(986.0,150.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#fefce8" stroke="#d97706" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">网络交换机</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">ANET.US</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">53</text>
+  <title>L8a: 网络交换机 (ANET.US) | 信号: 观察 | 评分: 53</title>
+</g>
+<g class="dag-node" id="dagn-L9d" transform="translate(1103.0,54.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">DC承包商</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">STRL/FIX</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">58</text>
+  <title>L9d: DC承包商 (STRL/FIX) | 信号: 买入 | 评分: 58</title>
+</g>
+<g class="dag-node" id="dagn-L9a" transform="translate(1103.0,222.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#fefce8" stroke="#d97706" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">超大规模商</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">MSFT/AMZN/META</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">57</text>
+  <title>L9a: 超大规模商 (MSFT/AMZN/META) | 信号: 观察 | 评分: 57</title>
+</g>
+<g class="dag-node" id="dagn-L9c" transform="translate(1103.0,366.0)" style="cursor:pointer">
+  <rect width="82" height="36" rx="5" fill="#fefce8" stroke="#d97706" stroke-width="1.5"/>
+  <text x="41.0" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#1f2937">数据中心REIT</text>
+  <text x="41.0" y="23" text-anchor="middle" font-size="8" fill="#6b7280">EQIX.US</text>
+  <text x="78" y="32" text-anchor="end" font-size="8" font-weight="700" fill="#6b7280">51</text>
+  <title>L9c: 数据中心REIT (EQIX.US) | 信号: 观察 | 评分: 51</title>
+</g>
+
+<!-- Legend -->
+
+<line x1="10" y1="478" x2="36" y2="478" stroke="#16a34a" stroke-width="2.2" marker-end="url(#arr-green)"/>
+<text x="40" y="482" font-size="9" fill="#16a34a" font-weight="700">已验证时序信号</text>
+<line x1="130" y1="478" x2="156" y2="478" stroke="#d97706" stroke-width="2.2" marker-end="url(#arr-orange)"/>
+<text x="160" y="482" font-size="9" fill="#d97706" font-weight="700">待验证时序信号</text>
+<line x1="260" y1="478" x2="286" y2="478" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-gray)"/>
+<text x="290" y="482" font-size="9" fill="#94a3b8">供应流向</text>
+<rect x="365" y="471" width="10" height="10" rx="2" fill="#fef2f2" stroke="#dc2626" stroke-width="2.5"/>
+<text x="378" y="482" font-size="9" fill="#dc2626" font-weight="700">极高瓶颈</text>
+<rect x="440" y="471" width="10" height="10" rx="2" fill="#fefce8" stroke="#d97706" stroke-width="2"/>
+<text x="453" y="482" font-size="9" fill="#d97706" font-weight="700">高瓶颈</text>
+<text x="500" y="482" font-size="9" fill="#6b7280">（右上角数字=节点总分）</text>
+</svg>
+  </div>
+  <div style="padding:6px 20px 14px;display:flex;gap:24px;flex-wrap:wrap;font-size:11px;color:#6b7280">
+    <span>📖 <b>读图方式：</b>从左（原材料）往右（终端需求）看供应流向。彩色带数字的标签=时序信号超前/滞后月数。</span>
+    <span>⚠ 极高瓶颈（红框）= 变压器L0d、EUV光刻L3a；当前交货期均超2年，是整条链的物理约束。</span>
+    <span>🟠 高瓶颈（橙框）= HBM内存L5a、CoWoS封装L6a、TC粘合剂L3f、先进制程L4a。</span>
+  </div>
+</div>
+
+<!-- ② 当前瓶颈摘要 -->
+<div class="section">
+  <div class="sec-head">
+    <h2>③ 当前供应链瓶颈排序（2026年6月）</h2>
     <span class="hint">基于积压比率 + 交货周期 + 市场集中度综合判断</span>
   </div>
   <div style="padding:16px 20px">
@@ -230,10 +498,10 @@ footer{padding:20px 0;text-align:center;font-size:11px;color:#9ca3af;
   </div>
 </div>
 
-<!-- ③ 股票推荐 -->
+<!-- ④ 股票推荐 -->
 <div class="section">
   <div class="sec-head">
-    <h2>③ 股票推荐清单</h2>
+    <h2>④ 股票推荐清单</h2>
     <span class="hint">基于SSBS壁垒评分 + 时序信号 + 积压数据 + 地缘风险综合判断</span>
   </div>
   <div style="padding:16px 20px">
@@ -349,10 +617,10 @@ footer{padding:20px 0;text-align:center;font-size:11px;color:#9ca3af;
   </div>
 </div>
 
-<!-- ④ 时序信号矩阵 -->
+<!-- ⑤ 时序信号矩阵 -->
 <div class="section">
   <div class="sec-head">
-    <h2>④ 产业链时序信号（Lead-Lag DAG）</h2>
+    <h2>⑤ 产业链时序信号（Lead-Lag DAG）</h2>
     <span class="hint">来源: chain_map.yaml 47条有向边 · 点击展开详情</span>
   </div>
   <div style="padding:14px 20px">
@@ -474,10 +742,10 @@ footer{padding:20px 0;text-align:center;font-size:11px;color:#9ca3af;
   </div>
 </div>
 
-<!-- ⑤ 完整节点评分表 -->
+<!-- ⑥ 完整节点评分表 -->
 <div class="section">
   <div class="sec-head">
-    <h2>⑤ 完整节点供应壁垒评分表</h2>
+    <h2>⑥ 完整节点供应壁垒评分表</h2>
     <span class="hint">点击行展开详细分析 · D1-D5 得分：弱/中/强 · 定价权为百分位数</span>
   </div>
   <div class="filter-bar">
@@ -2538,9 +2806,9 @@ footer{padding:20px 0;text-align:center;font-size:11px;color:#9ca3af;
   </div>
 </div>
 
-<!-- ⑥ SSBS方法论 -->
+<!-- ⑦ SSBS方法论 -->
 <div class="section">
-  <div class="sec-head"><h2>⑥ SSBS 方法论快速参考</h2></div>
+  <div class="sec-head"><h2>⑦ SSBS 方法论快速参考</h2></div>
   <div style="padding:14px 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:12px">
     <div style="background:#f9fafb;padding:10px;border-radius:6px;border-left:3px solid #2563eb">
       <b>节点总分公式</b><br>
