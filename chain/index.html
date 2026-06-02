@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI 链 79 节点索引</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+      background:#f8fafc;color:#111827;line-height:1.5}
+.container{max-width:1100px;margin:0 auto;padding:0 16px}
+.header{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#1e3a5f 100%);
+         color:white;padding:18px 0;margin-bottom:14px}
+.header h1{font-size:22px;font-weight:800;letter-spacing:-0.5px}
+.header .sub{font-size:12px;color:#94a3b8;margin-top:6px}
+.badges{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.badge{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);
+        padding:3px 10px;border-radius:20px;font-size:11px;color:#e2e8f0}
+.section{background:white;border:1px solid #e5e7eb;border-radius:8px;margin:10px 0;
+          overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.sec-head{padding:11px 18px;border-bottom:1px solid #f3f4f6;display:flex;
+           align-items:center;gap:8px;flex-wrap:wrap}
+.sec-head h2{font-size:14px;font-weight:800;color:#1f2937}
+.sec-head .hint{font-size:11px;color:#9ca3af;margin-left:auto}
+.sec-body{padding:14px 18px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kv{font-size:11px;display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dotted #f3f4f6}
+.kv .k{color:#6b7280}
+.kv .v{font-weight:700;color:#1f2937}
+.peer-grp{margin-bottom:10px}
+.peer-grp h3{font-size:12px;color:#1f2937;margin-bottom:4px;font-weight:700}
+.peer-list{display:flex;flex-wrap:wrap;gap:5px}
+.peer-chip{font-family:monospace;font-size:11px;background:#f1f5f9;color:#1f2937;
+            border:1px solid #cbd5e1;padding:3px 7px;border-radius:4px;text-decoration:none;
+            transition:all 0.12s}
+.peer-chip:hover{background:#2563eb;color:white;border-color:#2563eb}
+.peer-chip.no-link{color:#9ca3af;background:#f9fafb;cursor:default;border-color:#e5e7eb}
+.peer-chip .lag{font-size:9px;color:#6b7280;margin-left:3px}
+.peer-chip:hover .lag{color:#dbeafe}
+.signal-buy{background:#16a34a18;color:#16a34a;border:1px solid #16a34a40}
+.signal-watch{background:#2563eb18;color:#2563eb;border:1px solid #2563eb55}
+.signal-avoid{background:#dc262618;color:#dc2626;border:1px solid #dc262640}
+.score-card{background:#fffbeb;border:1px solid #fbbf2440;border-radius:8px;
+             padding:14px;text-align:center}
+.score-card .v{font-size:32px;font-weight:800;color:#92400e;line-height:1}
+.score-card .l{font-size:11px;color:#6b7280;margin-top:6px}
+.score-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.score-mini{background:white;border:1px solid #e5e7eb;border-radius:6px;padding:8px;text-align:center}
+.score-mini .v{font-size:18px;font-weight:800;color:#1f2937}
+.score-mini .l{font-size:10px;color:#6b7280;margin-top:2px}
+img.chart{max-width:100%;height:auto;display:block}
+.nav-bar{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+.btn{display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;
+      font-weight:700;text-decoration:none;border:1px solid #d1d5db;color:#374151;
+      background:white;transition:all 0.12s}
+.btn:hover{background:#2563eb;color:white;border-color:#2563eb}
+.btn-primary{background:#2563eb;color:white;border-color:#2563eb}
+.btn-primary:hover{background:#1d4ed8;border-color:#1d4ed8}
+.ext-links{display:flex;flex-wrap:wrap;gap:6px}
+footer{padding:18px 0;text-align:center;font-size:11px;color:#9ca3af;
+        border-top:1px solid #e5e7eb;margin-top:24px}
+.flag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;
+       font-weight:600;background:#f1f5f9;color:#475569;margin-left:4px}
+.report-card{display:flex;align-items:center;padding:8px 10px;background:#f8fafc;
+              border:1px solid #e5e7eb;border-radius:6px;margin-bottom:6px;
+              text-decoration:none;color:#1f2937;font-size:12px}
+.report-card:hover{background:#dbeafe;border-color:#2563eb}
+.no-data{padding:18px;text-align:center;color:#9ca3af;font-size:12px;font-style:italic}
+@media (max-width: 720px) {
+  .grid-2{grid-template-columns:1fr}
+  .score-row{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="container">
+  <h1>📋 AI 链节点 — Detail 索引</h1>
+  <div class="sub">79 节点 · 按 L0-L14 层级排序 · 同层按综合分降序</div>
+  <div style="margin-top:8px"><a href="../supply_barrier_report.html" style="color:#dbeafe;text-decoration:none">← 返回壁垒报告</a> · <a href="../index.html" style="color:#dbeafe;text-decoration:none">🏠 首页</a></div>
+</div>
+</div>
+<div class="container" style="padding-bottom:24px">
+  
+<div class="section">
+  <div class="sec-head"><h2>L0 — 电力发电 + 输配电</h2><span class="hint">6 节点 · Base-load (nuclear) + peaker (gas) + renewable + transformer + grid. DC siting bottleneck.</span></div>
+  <div>
+<a href="CEG.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">CEG.US</span>
+  <span style="flex:1;font-size:12px">Constellation Energy</span>
+  <span style="font-size:11px;color:#6b7280">电力公用事业</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">50</span>
+</a>
+<a href="VST.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">VST.US</span>
+  <span style="flex:1;font-size:12px">Vistra Corp</span>
+  <span style="font-size:11px;color:#6b7280">电力公用事业</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">50</span>
+</a>
+<a href="TLN.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">TLN.US</span>
+  <span style="flex:1;font-size:12px">Talen Energy</span>
+  <span style="font-size:11px;color:#6b7280">电力公用事业</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">50</span>
+</a>
+<a href="ETN.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">ETN.US</span>
+  <span style="flex:1;font-size:12px">Eaton Corp</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">45</span>
+</a>
+<a href="GEV.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">GEV.US</span>
+  <span style="flex:1;font-size:12px">GE Vernova</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">45</span>
+</a>
+<a href="HUBB.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">HUBB.US</span>
+  <span style="flex:1;font-size:12px">Hubbell Inc</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">45</span>
+</a></div>
+</div>
+<div class="section">
+  <div class="sec-head"><h2>L1 — 关键原材料 + 化工品</h2><span class="hint">6 节点 · Rare earth, industrial gas (He/Ne/Ar/H2), photoresist, etch chemistries</span></div>
+  <div>
+<a href="4185.T.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">4185.T</span>
+  <span style="flex:1;font-size:12px">JSR Corporation</span>
+  <span style="font-size:11px;color:#6b7280">特殊气体</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">52</span>
+</a>
+<a href="4063.T.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">4063.T</span>
+  <span style="flex:1;font-size:12px">Shin-Etsu Chemical</span>
+  <span style="font-size:11px;color:#6b7280">特殊气体</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">52</span>
+</a>
+<a href="LIN.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">LIN.US</span>
+  <span style="flex:1;font-size:12px">Linde plc</span>
+  <span style="font-size:11px;color:#6b7280">工业气体</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">48</span>
+</a>
+<a href="APD.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">APD.US</span>
+  <span style="flex:1;font-size:12px">Air Products</span>
+  <span style="font-size:11px;color:#6b7280">工业气体</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">48</span>
+</a>
+<a href="MP.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">MP.US</span>
+  <span style="flex:1;font-size:12px">MP Materials</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  
+  <span style="font-weight:800;color:#9ca3af;min-width:30px;text-align:right">37</span>
+</a>
+<a href="LYC.AX.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">LYC.AX</span>
+  <span style="flex:1;font-size:12px">Lynas Rare Earths</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  
+  <span style="font-weight:800;color:#9ca3af;min-width:30px;text-align:right">37</span>
+</a></div>
+</div>
+<div class="section">
+  <div class="sec-head"><h2>L2 — 硅片 + 光罩 + EDA + IP</h2><span class="hint">5 节点 · 12-inch wafer (Shin-Etsu/SUMCO oligopoly), EUV mask blank, EDA tools, semiconductor IP</span></div>
+  <div>
+<a href="CDNS.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">CDNS.US</span>
+  <span style="flex:1;font-size:12px">Cadence Design Systems</span>
+  <span style="font-size:11px;color:#6b7280">EDA软件</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">43</span>
+</a>
+<a href="SNPS.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">SNPS.US</span>
+  <span style="flex:1;font-size:12px">Synopsys</span>
+  <span style="font-size:11px;color:#6b7280">EDA软件</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">43</span>
+</a>
+<a href="3436.T.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">3436.T</span>
+  <span style="flex:1;font-size:12px">SUMCO Corp</span>
+  <span style="font-size:11px;color:#6b7280">硅晶圆</span>
+  
+  <span style="font-weight:800;color:#9ca3af;min-width:30px;text-align:right">37</span>
+</a>
+<a href="6488.TWO.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">6488.TWO</span>
+  <span style="flex:1;font-size:12px">GlobalWafers</span>
+  <span style="font-size:11px;color:#6b7280">硅晶圆</span>
+  
+  <span style="font-weight:800;color:#9ca3af;min-width:30px;text-align:right">37</span>
+</a>
+<a href="ARM.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">ARM.US</span>
+  <span style="flex:1;font-size:12px">Arm Holdings</span>
+  <span style="font-size:11px;color:#6b7280">芯片IP授权</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#9ca3af;min-width:30px;text-align:right">29</span>
+</a></div>
+</div>
+<div class="section">
+  <div class="sec-head"><h2>L3 — 半导体设备</h2><span class="hint">10 节点 · Lithography (ASML monopoly), depo/etch/inspection, HBM-specific bonder + annealing, test</span></div>
+  <div>
+<a href="6857.T.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">6857.T</span>
+  <span style="flex:1;font-size:12px">Advantest</span>
+  <span style="font-size:11px;color:#6b7280">封装设备</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">52</span>
+</a>
+<a href="KLAC.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">KLAC.US</span>
+  <span style="flex:1;font-size:12px">KLA Corporation</span>
+  <span style="font-size:11px;color:#6b7280">量检测设备</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">46</span>
+</a>
+<a href="ASML.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">ASML.US</span>
+  <span style="flex:1;font-size:12px">ASML Holding</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">44</span>
+</a>
+<a href="AMAT.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">AMAT.US</span>
+  <span style="flex:1;font-size:12px">Applied Materials</span>
+  <span style="font-size:11px;color:#6b7280">CVD/CMP设备</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">42</span>
+</a>
+<a href="LRCX.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">LRCX.US</span>
+  <span style="flex:1;font-size:12px">Lam Research</span>
+  <span style="font-size:11px;color:#6b7280">CVD/CMP设备</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">42</span>
+</a>
+<a href="8035.T.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">8035.T</span>
+  <span style="flex:1;font-size:12px">Tokyo Electron</span>
+  <span style="font-size:11px;color:#6b7280">CVD/CMP设备</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">42</span>
+</a>
+<a href="042700.KS.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">042700.KS</span>
+  <span style="flex:1;font-size:12px">Hanmi Semiconductor</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  
+  <span style="font-weight:800;color:#9ca3af;min-width:30px;text-align:right">29</span>
+</a>
+<a href="403870.KQ.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">403870.KQ</span>
+  <span style="flex:1;font-size:12px">HPSP</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  
+  <span style="font-weight:800;color:#9ca3af;min-width:30px;text-align:right">29</span>
+</a>
+<a href="0522.HK.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">0522.HK</span>
+  <span style="flex:1;font-size:12px">ASM Pacific Technology</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  
+  <span style="font-weight:800;color:#9ca3af;min-width:30px;text-align:right">29</span>
+</a>
+<a href="WOLF.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">WOLF.US</span>
+  <span style="flex:1;font-size:12px">WOLF.US</span>
+  <span style="font-size:11px;color:#6b7280">SiC衬底</span>
+  
+  <span style="font-weight:800;color:#9ca3af;min-width:30px;text-align:right">18</span>
+</a></div>
+</div>
+<div class="section">
+  <div class="sec-head"><h2>L4 — 逻辑芯片 (foundry + fabless)</h2><span class="hint">10 节点 · Pure-play foundry, AI accelerator, CPU, networking ASIC, custom AI chip, analog/power</span></div>
+  <div>
+<a href="NVDA.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">NVDA.US</span>
+  <span style="flex:1;font-size:12px">NVIDIA</span>
+  <span style="font-size:11px;color:#6b7280">AI GPU</span>
+  
+  <span style="font-weight:800;color:#16a34a;min-width:30px;text-align:right">67</span>
+</a>
+<a href="AMD.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">AMD.US</span>
+  <span style="flex:1;font-size:12px">Advanced Micro Devices</span>
+  <span style="font-size:11px;color:#6b7280">AI GPU</span>
+  
+  <span style="font-weight:800;color:#16a34a;min-width:30px;text-align:right">67</span>
+</a>
+<a href="2330.TW.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">2330.TW</span>
+  <span style="flex:1;font-size:12px">TSMC</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">57</span>
+</a>
+<a href="0981.HK.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">0981.HK</span>
+  <span style="flex:1;font-size:12px">SMIC</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">57</span>
+</a>
+<a href="2303.TW.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">2303.TW</span>
+  <span style="flex:1;font-size:12px">United Microelectronics</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">57</span>
+</a>
+<a href="AVGO.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">AVGO.US</span>
+  <span style="flex:1;font-size:12px">Broadcom</span>
+  <span style="font-size:11px;color:#6b7280">定制ASIC</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">50</span>
+</a>
+<a href="MRVL.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">MRVL.US</span>
+  <span style="flex:1;font-size:12px">Marvell Technology</span>
+  <span style="font-size:11px;color:#6b7280">定制ASIC</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">50</span>
+</a>
+<a href="ALAB.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">ALAB.US</span>
+  <span style="flex:1;font-size:12px">Astera Labs</span>
+  <span style="font-size:11px;color:#6b7280">定制ASIC</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">50</span>
+</a>
+<a href="3661.TW.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">3661.TW</span>
+  <span style="flex:1;font-size:12px">Alchip Technologies</span>
+  <span style="font-size:11px;color:#6b7280">ASIC设计(台湾)</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">47</span>
+</a>
+<a href="MPWR.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">MPWR.US</span>
+  <span style="flex:1;font-size:12px">Monolithic Power Systems</span>
+  <span style="font-size:11px;color:#6b7280">功率芯片</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">42</span>
+</a></div>
+</div>
+<div class="section">
+  <div class="sec-head"><h2>L5 — 存储制造</h2><span class="hint">5 节点 · HBM 3-player oligopoly, commodity DRAM, NAND, specialty memory</span></div>
+  <div>
+<a href="000660.KS.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">000660.KS</span>
+  <span style="flex:1;font-size:12px">SK Hynix</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#16a34a;min-width:30px;text-align:right">78</span>
+</a>
+<a href="005930.KS.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">005930.KS</span>
+  <span style="flex:1;font-size:12px">Samsung Electronics</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#16a34a;min-width:30px;text-align:right">78</span>
+</a>
+<a href="MU.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">MU.US</span>
+  <span style="flex:1;font-size:12px">Micron Technology</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#16a34a;min-width:30px;text-align:right">78</span>
+</a>
+<a href="2408.TW.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">2408.TW</span>
+  <span style="flex:1;font-size:12px">Nanya Technology</span>
+  <span style="font-size:11px;color:#6b7280">通用DRAM</span>
+  
+  <span style="font-weight:800;color:#16a34a;min-width:30px;text-align:right">67</span>
+</a>
+<a href="285A.T.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">285A.T</span>
+  <span style="flex:1;font-size:12px">Kioxia Holdings</span>
+  <span style="font-size:11px;color:#6b7280">NAND闪存</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">52</span>
+</a></div>
+</div>
+<div class="section">
+  <div class="sec-head"><h2>L6 — 高级封装 + 基板</h2><span class="hint">4 节点 · CoWoS/SoIC, OSAT, ABF substrate, lead frame/interposer</span></div>
+  <div>
+<a href="3037.TW.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">3037.TW</span>
+  <span style="flex:1;font-size:12px">Unimicron Technology</span>
+  <span style="font-size:11px;color:#6b7280">高端PCB基板</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">56</span>
+</a>
+<a href="4062.T.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">4062.T</span>
+  <span style="flex:1;font-size:12px">Ibiden Co</span>
+  <span style="font-size:11px;color:#6b7280">高端PCB基板</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">56</span>
+</a>
+<a href="3711.TW.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">3711.TW</span>
+  <span style="flex:1;font-size:12px">ASE Technology</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">55</span>
+</a>
+<a href="AMKR.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">AMKR.US</span>
+  <span style="flex:1;font-size:12px">Amkor Technology</span>
+  <span style="font-size:11px;color:#6b7280"></span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">55</span>
+</a></div>
+</div>
+<div class="section">
+  <div class="sec-head"><h2>L7 — 服务器集成 + 散热 + 电源</h2><span class="hint">9 节点 · Hyperscaler ODM (TWN), branded server, liquid cooling, power supply, rack/PDU</span></div>
+  <div>
+<a href="SMCI.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">SMCI.US</span>
+  <span style="flex:1;font-size:12px">Super Micro Computer</span>
+  <span style="font-size:11px;color:#6b7280">服务器品牌商</span>
+  <span class="badge signal-avoid">回避</span>
+  <span style="font-weight:800;color:#16a34a;min-width:30px;text-align:right">61</span>
+</a>
+<a href="DELL.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">DELL.US</span>
+  <span style="flex:1;font-size:12px">Dell Technologies</span>
+  <span style="font-size:11px;color:#6b7280">服务器品牌商</span>
+  <span class="badge signal-avoid">回避</span>
+  <span style="font-weight:800;color:#16a34a;min-width:30px;text-align:right">61</span>
+</a>
+<a href="2317.TW.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">2317.TW</span>
+  <span style="flex:1;font-size:12px">Hon Hai (Foxconn)</span>
+  <span style="font-size:11px;color:#6b7280">AI服务器ODM</span>
+  <span class="badge signal-avoid">回避</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">48</span>
+</a>
+<a href="2382.TW.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">2382.TW</span>
+  <span style="flex:1;font-size:12px">Quanta Computer</span>
+  <span style="font-size:11px;color:#6b7280">AI服务器ODM</span>
+  <span class="badge signal-avoid">回避</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">48</span>
+</a>
+<a href="6669.TW.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">6669.TW</span>
+  <span style="flex:1;font-size:12px">Wiwynn</span>
+  <span style="font-size:11px;color:#6b7280">AI服务器ODM</span>
+  <span class="badge signal-avoid">回避</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">48</span>
+</a>
+<a href="VRT.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">VRT.US</span>
+  <span style="flex:1;font-size:12px">Vertiv Holdings</span>
+  <span style="font-size:11px;color:#6b7280">液冷/散热</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">46</span>
+</a>
+<a href="3017.TW.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">3017.TW</span>
+  <span style="flex:1;font-size:12px">Asia Vital Components</span>
+  <span style="font-size:11px;color:#6b7280">液冷/散热</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">46</span>
+</a>
+<a href="3324.TW.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">3324.TW</span>
+  <span style="flex:1;font-size:12px">Auras Technology</span>
+  <span style="font-size:11px;color:#6b7280">液冷/散热</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">46</span>
+</a>
+<a href="2308.TW.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">2308.TW</span>
+  <span style="flex:1;font-size:12px">Delta Electronics</span>
+  <span style="font-size:11px;color:#6b7280">电源模块</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">45</span>
+</a></div>
+</div>
+<div class="section">
+  <div class="sec-head"><h2>L8 — 网络 + 光互联</h2><span class="hint">4 节点 · DC switch ASIC, switch system, optical module 800G/1.6T, fiber/cable, NIC</span></div>
+  <div>
+<a href="ANET.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">ANET.US</span>
+  <span style="flex:1;font-size:12px">Arista Networks</span>
+  <span style="font-size:11px;color:#6b7280">AI网络交换机</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">50</span>
+</a>
+<a href="COHR.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">COHR.US</span>
+  <span style="flex:1;font-size:12px">Coherent Corp</span>
+  <span style="font-size:11px;color:#6b7280">光互联收发器</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">43</span>
+</a>
+<a href="LITE.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">LITE.US</span>
+  <span style="flex:1;font-size:12px">Lumentum Holdings</span>
+  <span style="font-size:11px;color:#6b7280">光互联收发器</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">43</span>
+</a>
+<a href="300308.SZ.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">300308.SZ</span>
+  <span style="flex:1;font-size:12px">Innolight Technology</span>
+  <span style="font-size:11px;color:#6b7280">光互联收发器</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">43</span>
+</a></div>
+</div>
+<div class="section">
+  <div class="sec-head"><h2>L9 — 数据中心基础设施</h2><span class="hint">9 节点 · Hyperscaler self-build, neo-cloud, colocation REIT, DC mechanical contractor</span></div>
+  <div>
+<a href="CRWV.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">CRWV.US</span>
+  <span style="flex:1;font-size:12px">CoreWeave</span>
+  <span style="font-size:11px;color:#6b7280">AI云原生</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#16a34a;min-width:30px;text-align:right">68</span>
+</a>
+<a href="MSFT.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">MSFT.US</span>
+  <span style="flex:1;font-size:12px">Microsoft</span>
+  <span style="font-size:11px;color:#6b7280">超大规模商CapEx</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">54</span>
+</a>
+<a href="AMZN.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">AMZN.US</span>
+  <span style="flex:1;font-size:12px">Amazon</span>
+  <span style="font-size:11px;color:#6b7280">超大规模商CapEx</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">54</span>
+</a>
+<a href="GOOG.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">GOOG.US</span>
+  <span style="flex:1;font-size:12px">Alphabet</span>
+  <span style="font-size:11px;color:#6b7280">超大规模商CapEx</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">54</span>
+</a>
+<a href="META.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">META.US</span>
+  <span style="flex:1;font-size:12px">Meta Platforms</span>
+  <span style="font-size:11px;color:#6b7280">超大规模商CapEx</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">54</span>
+</a>
+<a href="ORCL.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">ORCL.US</span>
+  <span style="flex:1;font-size:12px">Oracle</span>
+  <span style="font-size:11px;color:#6b7280">超大规模商CapEx</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">54</span>
+</a>
+<a href="STRL.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">STRL.US</span>
+  <span style="flex:1;font-size:12px">Sterling Infrastructure</span>
+  <span style="font-size:11px;color:#6b7280">DC工程承包商</span>
+  <span class="badge signal-buy">买入</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">50</span>
+</a>
+<a href="FIX.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">FIX.US</span>
+  <span style="flex:1;font-size:12px">Comfort Systems USA</span>
+  <span style="font-size:11px;color:#6b7280">DC工程承包商</span>
+  <span class="badge signal-buy">买入</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">50</span>
+</a>
+<a href="EQIX.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">EQIX.US</span>
+  <span style="flex:1;font-size:12px">Equinix</span>
+  <span style="font-size:11px;color:#6b7280">数据中心REIT</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#9ca3af;min-width:30px;text-align:right">40</span>
+</a></div>
+</div>
+<div class="section">
+  <div class="sec-head"><h2>L10 — 云平台 + AI 基础设施</h2><span class="hint">4 节点 · Hyperscaler IaaS, AI inference cloud, vector DB / RAG infra, AI observability</span></div>
+  <div>
+<a href="9988.HK.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">9988.HK</span>
+  <span style="flex:1;font-size:12px">Alibaba</span>
+  <span style="font-size:11px;color:#6b7280">中国互联网巨头</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">47</span>
+</a>
+<a href="0700.HK.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">0700.HK</span>
+  <span style="flex:1;font-size:12px">Tencent</span>
+  <span style="font-size:11px;color:#6b7280">中国互联网巨头</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">47</span>
+</a>
+<a href="MDB.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">MDB.US</span>
+  <span style="flex:1;font-size:12px">MongoDB</span>
+  <span style="font-size:11px;color:#6b7280">数据库/数据仓库</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">45</span>
+</a>
+<a href="SNOW.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">SNOW.US</span>
+  <span style="flex:1;font-size:12px">Snowflake</span>
+  <span style="font-size:11px;color:#6b7280">数据库/数据仓库</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">45</span>
+</a></div>
+</div>
+<div class="section">
+  <div class="sec-head"><h2>L12 — 应用层 + 智能体</h2><span class="hint">2 节点 · AI-native SaaS, legacy SaaS+AI module, vertical AI, consumer AI subs, agents</span></div>
+  <div>
+<a href="CRM.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">CRM.US</span>
+  <span style="flex:1;font-size:12px">Salesforce</span>
+  <span style="font-size:11px;color:#6b7280">企业CRM/SaaS</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">54</span>
+</a>
+<a href="PLTR.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">PLTR.US</span>
+  <span style="flex:1;font-size:12px">Palantir</span>
+  <span style="font-size:11px;color:#6b7280">AI原生SaaS</span>
+  <span class="badge signal-watch">关注</span>
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">45</span>
+</a></div>
+</div>
+<div class="section">
+  <div class="sec-head"><h2>L13 — 端侧 / 设备 AI</h2><span class="hint">4 节点 · Smartphone NPU, PC AI, autonomous driving chip, robotics, AR/VR spatial</span></div>
+  <div>
+<a href="AAPL.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">AAPL.US</span>
+  <span style="flex:1;font-size:12px">Apple</span>
+  <span style="font-size:11px;color:#6b7280">边缘AI终端芯片</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">47</span>
+</a>
+<a href="QCOM.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">QCOM.US</span>
+  <span style="flex:1;font-size:12px">Qualcomm</span>
+  <span style="font-size:11px;color:#6b7280">边缘AI终端芯片</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">47</span>
+</a>
+<a href="2454.TW.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">2454.TW</span>
+  <span style="flex:1;font-size:12px">MediaTek</span>
+  <span style="font-size:11px;color:#6b7280">边缘AI终端芯片</span>
+  
+  <span style="font-weight:800;color:#d97706;min-width:30px;text-align:right">47</span>
+</a>
+<a href="TSLA.US.html" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f3f4f6;text-decoration:none;color:#1f2937">
+  <span style="font-family:monospace;font-weight:700;color:#2563eb;min-width:90px">TSLA.US</span>
+  <span style="flex:1;font-size:12px">Tesla</span>
+  <span style="font-size:11px;color:#6b7280">电动车/自动驾驶</span>
+  
+  <span style="font-weight:800;color:#9ca3af;min-width:30px;text-align:right">19</span>
+</a></div>
+</div>
+</div>
+<footer>AI 链节点索引 · 生成于 2026-06-02 22:52</footer>
+</body>
+</html>
