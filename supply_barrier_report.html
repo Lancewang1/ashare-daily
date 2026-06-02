@@ -3093,5 +3093,116 @@ function sortMT(col) {
 // Initial sort: combined score descending
 sortMT('comb');
 </script>
+<!-- chain-drilldown-script -->
+<script>
+(function() {
+  const AVAILABLE = new Set(["000660.KS", "005930.KS", "042700.KS", "0522.HK", "0700.HK", "0981.HK", "2303.TW", "2308.TW", "2317.TW", "2330.TW", "2382.TW", "2408.TW", "2454.TW", "285A.T", "300308.SZ", "3017.TW", "3037.TW", "3324.TW", "3436.T", "3661.TW", "3711.TW", "403870.KQ", "4062.T", "4063.T", "4185.T", "6488.TWO", "6669.TW", "6857.T", "8035.T", "9988.HK", "AAPL.US", "ALAB.US", "AMAT.US", "AMD.US", "AMKR.US", "AMZN.US", "ANET.US", "APD.US", "ARM.US", "ASML.US", "AVGO.US", "CDNS.US", "CEG.US", "COHR.US", "COPX.US", "CRM.US", "CRWV.US", "DELL.US", "EQIX.US", "ETN.US", "FIX.US", "GEV.US", "GOOG.US", "HUBB.US", "KLAC.US", "LIN.US", "LITE.US", "LRCX.US", "LYC.AX", "MDB.US", "META.US", "MP.US", "MPWR.US", "MRVL.US", "MSFT.US", "MU.US", "NVDA.US", "ORCL.US", "PLTR.US", "QCOM.US", "SMCI.US", "SNOW.US", "SNPS.US", "STRL.US", "TLN.US", "TSLA.US", "VRT.US", "VST.US", "WOLF.US"]);
+
+  // Ticker pattern: capital letters/digits + suffix (.US, .HK, .TW, .TWO, .KS, .KQ, .T, .SZ, .AX)
+  const TICKER_RE = /\b([A-Z0-9]{1,7}\.(?:US|HK|TWO|TW|KS|KQ|T|SZ|AX))\b/g;
+
+  function yahooFallback(t) {
+    const parts = t.split('.');
+    const sym = parts[0], suffix = parts[1];
+    // yfinance suffix conventions
+    const map = {
+      'US': '',          // NVDA
+      'HK': '.HK',       // 0700.HK
+      'TW': '.TW',       // 2330.TW
+      'TWO': '.TWO',     // 6488.TWO
+      'KS': '.KS',       // 000660.KS
+      'KQ': '.KS',       // KOSDAQ → yfinance uses .KS for some, .KQ for others; try .KS
+      'T':  '.T',        // 8035.T
+      'SZ': '.SZ',       // 300308.SZ
+      'AX': '.AX'        // LYC.AX
+    };
+    const yfSuffix = map[suffix] !== undefined ? map[suffix] : ('.' + suffix);
+    return 'https://finance.yahoo.com/quote/' + sym + yfSuffix;
+  }
+
+  function urlFor(t) {
+    if (AVAILABLE.has(t)) return 'chain/' + t + '.html';
+    return yahooFallback(t);
+  }
+
+  function shouldSkipNode(el) {
+    // Skip if already inside an <a>
+    if (el.closest('a')) return true;
+    // Skip script / style / head
+    if (el.closest('script,style,head')) return true;
+    return false;
+  }
+
+  function wrapTickersInTextNode(textNode) {
+    const text = textNode.nodeValue;
+    if (!text || !TICKER_RE.test(text)) return;
+    TICKER_RE.lastIndex = 0;  // reset (test() advances on /g)
+
+    if (shouldSkipNode(textNode.parentNode)) return;
+
+    const frag = document.createDocumentFragment();
+    let lastIdx = 0;
+    let m;
+    while ((m = TICKER_RE.exec(text)) !== null) {
+      if (m.index > lastIdx) {
+        frag.appendChild(document.createTextNode(text.slice(lastIdx, m.index)));
+      }
+      const t = m[1];
+      const a = document.createElement('a');
+      a.href = urlFor(t);
+      a.textContent = t;
+      a.style.color = AVAILABLE.has(t) ? '#2563eb' : '#6b7280';
+      a.style.textDecoration = 'underline';
+      a.style.textDecorationStyle = AVAILABLE.has(t) ? 'solid' : 'dashed';
+      a.style.textDecorationColor = AVAILABLE.has(t) ? '#2563eb88' : '#9ca3af66';
+      a.title = AVAILABLE.has(t)
+        ? 'AI 链节点详情：' + t
+        : '暂无内部 detail 页 → 跳 Yahoo Finance: ' + t;
+      if (!AVAILABLE.has(t)) {
+        a.target = '_blank';
+        a.rel = 'noopener';
+      }
+      frag.appendChild(a);
+      lastIdx = m.index + t.length;
+    }
+    if (lastIdx < text.length) {
+      frag.appendChild(document.createTextNode(text.slice(lastIdx)));
+    }
+    textNode.parentNode.replaceChild(frag, textNode);
+  }
+
+  function walk(root) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue) return NodeFilter.FILTER_SKIP;
+        if (!TICKER_RE.test(node.nodeValue)) return NodeFilter.FILTER_SKIP;
+        TICKER_RE.lastIndex = 0;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const targets = [];
+    let n;
+    while ((n = walker.nextNode())) targets.push(n);
+    targets.forEach(wrapTickersInTextNode);
+  }
+
+  function init() {
+    walk(document.body);
+    // Add legend banner explaining clickability
+    const legend = document.createElement('div');
+    legend.style.cssText = 'background:#dbeafe;border-left:3px solid #2563eb;padding:8px 12px;margin:8px 16px;border-radius:4px;font-size:12px;color:#1e40af';
+    legend.innerHTML = '🔗 <b>Drill-down 已激活</b> — 全表 ticker 已可点击：<a href="chain/index.html" style="color:#1e40af;font-weight:700">蓝色实线 = ' + AVAILABLE.size + ' 个内部节点详情</a>，灰色虚线 = 跳 Yahoo Finance';
+    const container = document.querySelector('.container');
+    if (container) container.insertBefore(legend, container.firstChild);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
 </body>
 </html>
