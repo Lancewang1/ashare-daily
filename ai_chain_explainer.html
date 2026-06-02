@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI 全产业链图解 — 从电力到应用，每一层都在做什么？</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+     background:#f0f4f8;color:#1a202c;line-height:1.7;font-size:15px}
+.header{background:linear-gradient(135deg,#0f172a 0%,#1e293b 60%,#1e3a5f 100%);
+        color:white;padding:36px 24px 32px}
+.header h1{font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px}
+.header p{font-size:14px;color:#94a3b8;max-width:720px;line-height:1.6}
+.header .meta{margin-top:14px;font-size:12px;color:#64748b}
+.container{max-width:960px;margin:0 auto;padding:24px 20px 60px}
+
+/* intro */
+.intro-box{background:white;border-radius:12px;padding:20px 24px;margin-bottom:28px;
+           border-left:4px solid #6366f1;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.intro-box p{color:#374151;font-size:14px;line-height:1.8}
+
+/* group headers */
+.group-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+              color:#6b7280;margin:28px 0 10px;padding-left:4px}
+
+/* layer card */
+.card{background:white;border-radius:12px;margin-bottom:14px;
+      box-shadow:0 1px 3px rgba(0,0,0,0.06);overflow:hidden;
+      border:1px solid #e5e7eb;transition:box-shadow .15s}
+.card:hover{box-shadow:0 4px 14px rgba(0,0,0,0.10)}
+.card-head{display:flex;align-items:flex-start;gap:14px;padding:18px 20px 14px}
+.layer-badge{min-width:44px;height:44px;border-radius:10px;display:flex;align-items:center;
+             justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;
+             letter-spacing:0.5px}
+.card-title{flex:1}
+.card-title h2{font-size:16px;font-weight:800;color:#111827;margin-bottom:3px}
+.card-title .subtitle{font-size:12px;color:#6b7280;font-weight:500}
+.card-body{padding:0 20px 18px}
+.what-box{background:#f8fafc;border-radius:8px;padding:12px 14px;margin-bottom:12px;
+          border-left:3px solid #e5e7eb}
+.what-box .label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+                 color:#9ca3af;margin-bottom:4px}
+.what-box p{font-size:14px;color:#374151;line-height:1.7}
+.analogy{font-size:13px;color:#6b7280;font-style:italic;margin-top:6px;
+          padding-top:6px;border-top:1px solid #f0f0f0}
+.players-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+.players-label{font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:0.5px;
+                text-transform:uppercase;width:100%;margin-bottom:2px}
+.tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:12px;
+     font-weight:600;line-height:1.4}
+.tag-us{background:#dbeafe;color:#1d4ed8}
+.tag-tw{background:#fce7f3;color:#be185d}
+.tag-kr{background:#dcfce7;color:#166534}
+.tag-jp{background:#fef3c7;color:#92400e}
+.tag-cn{background:#fee2e2;color:#991b1b}
+.tag-nl{background:#ede9fe;color:#6d28d9}
+.tag-global{background:#f3f4f6;color:#374151}
+.bottleneck{display:inline-flex;align-items:center;gap:4px;background:#fff7ed;
+             color:#c2410c;border:1px solid #fed7aa;border-radius:6px;
+             padding:4px 10px;font-size:12px;font-weight:700;margin-bottom:10px}
+
+/* color themes per group */
+.g-infra .layer-badge{background:#e0f2fe;color:#0369a1}
+.g-chip  .layer-badge{background:#ede9fe;color:#6d28d9}
+.g-server .layer-badge{background:#d1fae5;color:#065f46}
+.g-cloud .layer-badge{background:#fef3c7;color:#92400e}
+.g-app   .layer-badge{background:#fce7f3;color:#be185d}
+
+.g-infra .card{border-top:3px solid #38bdf8}
+.g-chip  .card{border-top:3px solid #a78bfa}
+.g-server .card{border-top:3px solid #34d399}
+.g-cloud .card{border-top:3px solid #fbbf24}
+.g-app   .card{border-top:3px solid #f472b6}
+
+/* lead-lag note */
+.lag-note{font-size:12px;color:#6b7280;background:#f9fafb;
+           border-radius:6px;padding:8px 12px;margin-top:10px;
+           border:1px solid #f3f4f6}
+.lag-note strong{color:#374151}
+
+/* summary table */
+.summary{background:white;border-radius:12px;padding:20px 24px;margin-top:28px;
+          border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.summary h3{font-size:15px;font-weight:800;margin-bottom:14px;color:#111827}
+.flow-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.flow-box{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;white-space:nowrap}
+.arrow{color:#9ca3af;font-size:14px}
+footer{text-align:center;font-size:11px;color:#9ca3af;margin-top:32px;padding-top:16px;
+        border-top:1px solid #e5e7eb}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="max-width:960px;margin:0 auto">
+    <h1>AI 全产业链图解</h1>
+    <p>从地底的矿石到你手机里的 AI 助手 — 中间经历了 15 层、80 多家公司。这份报告用最简单的语言告诉你每一层在做什么、谁是关键玩家。</p>
+    <div class="meta">更新日期：2026-06-02 &nbsp;|&nbsp; 覆盖 L0–L14 共 15 层 &nbsp;|&nbsp; 配套报告：Supply Barrier v4 &amp; Chain Map DAG</div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="intro-box">
+  <p>AI 产业链不是一条线，而是一张网。每一层都是下一层的原材料或约束条件。理解这张网有两个用处：<strong>① 投资</strong>——当某一层卡脖子，往下所有层的利润都会受影响；<strong>② 研判</strong>——最上游的数据（比如台积电月度营收）往往比最终端的芯片出货早 1–6 个月出现。下面我们逐层拆解。</p>
+</div>
+
+<!-- ===== GROUP 1: 物理基础 ===== -->
+<div class="group-label">第一组 · L0–L3 &nbsp; 物理基础设施（建厂之前的一切）</div>
+
+<div class="g-infra">
+
+<!-- L0 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L0</div>
+    <div class="card-title">
+      <h2>⚡ 电力 — 数据中心的"水电站"</h2>
+      <div class="subtitle">发电 · 输配电 · 变压器</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="bottleneck">🔴 当前最被低估的瓶颈</div>
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>给 AI 数据中心供电。听起来简单，但一个大型 AI 数据中心耗电量相当于一个 10 万人口的小城市。NVIDIA 最新的 B200 单张 GPU 功耗高达 700W，一排服务器机柜就需要 120 千瓦。</p>
+      <p class="analogy">📐 类比：AI 数据中心就像一座超级工厂，在选址建厂之前，你必须先确认附近有足够的电。没电，再强的 GPU 也只是废铁。</p>
+    </div>
+    <div class="lag-note">⏱ <strong>为什么重要：</strong>美国电网 5 年没有显著扩容，新增大容量变压器的交期从 2020 年的 6 个月延长至 2024 年的约 2 年。变压器供应速度决定了新数据中心什么时候能通电，从而决定算力扩张上限。</div>
+    <div class="players-row">
+      <span class="players-label">关键玩家</span>
+      <span class="tag tag-us">CEG（Constellation Energy）— 核电龙头</span>
+      <span class="tag tag-us">VST（Vistra）— 核电+气电</span>
+      <span class="tag tag-us">TLN（Talen Energy）— 核电卖给亚马逊</span>
+      <span class="tag tag-us">ETN（Eaton）— 变压器+配电设备</span>
+      <span class="tag tag-us">GEV（GE Vernova）— 电网设备龙头</span>
+      <span class="tag tag-us">HUBB（Hubbell）— 电气元件</span>
+    </div>
+  </div>
+</div>
+
+<!-- L1 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L1</div>
+    <div class="card-title">
+      <h2>🧪 原材料 — 芯片的"食材"</h2>
+      <div class="subtitle">稀土 · 工业气体 · 光刻胶 · 特种化学品</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>提供芯片制造所需的各种消耗品。光刻胶涂在硅片上感光、刻出电路；工业气体（氦、氖、氢）用于蚀刻和清洁；稀土金属用于电机和磁铁。</p>
+      <p class="analogy">📐 类比：就像做饭需要油盐酱醋，芯片厂每天都要消耗大量化学品。某种原料断供，整个工厂可能停工。2022 年俄乌战争导致乌克兰氖气供应中断（乌克兰占全球半导体级氖气约 50%），全球先进制程芯片厂一度减产约 10%。</p>
+    </div>
+    <div class="players-row">
+      <span class="players-label">关键玩家</span>
+      <span class="tag tag-us">LIN（林德）— 工业气体全球第一</span>
+      <span class="tag tag-us">APD（空气产品）— 工业气体第二</span>
+      <span class="tag tag-us">MP（MP Materials）— 美国稀土唯一矿商</span>
+      <span class="tag tag-jp">JSR — 半导体光刻胶龙头</span>
+      <span class="tag tag-jp">信越化工（Shin-Etsu）— 光刻胶+硅片双料冠军</span>
+    </div>
+  </div>
+</div>
+
+<!-- L2 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L2</div>
+    <div class="card-title">
+      <h2>🟡 硅片 + 设计工具 + IP — 芯片的"白纸与蓝图"</h2>
+      <div class="subtitle">12寸硅片 · EDA软件 · 芯片IP授权</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p><strong>硅片</strong>是芯片生长的基底，就像白纸；<strong>EDA 软件</strong>（电子设计自动化）是工程师设计芯片电路的"画图软件"，没有它就像手工画纳米级电路图；<strong>IP 授权</strong>是可以直接买来用的功能模块，比如 ARM 的处理器核心，芯片公司直接购买授权集成到自己设计里。</p>
+      <p class="analogy">📐 类比：建房子需要地基（硅片）、建筑设计软件（EDA）、以及可以直接采购的标准预制构件（IP授权）。</p>
+    </div>
+    <div class="lag-note">⏱ EDA 公司的 license 营收领先芯片量产约 12–18 个月，因为工程师订阅软件的时间比芯片出货早。</div>
+    <div class="players-row">
+      <span class="players-label">关键玩家</span>
+      <span class="tag tag-tw">GlobalWafers — 硅片全球前三</span>
+      <span class="tag tag-jp">SUMCO — 硅片全球前三</span>
+      <span class="tag tag-us">CDNS（Cadence）— EDA 双寡头之一</span>
+      <span class="tag tag-us">SNPS（Synopsys）— EDA 双寡头之一</span>
+      <span class="tag tag-us">ARM — 全球 95%+ 移动处理器核心 IP 来源</span>
+    </div>
+  </div>
+</div>
+
+<!-- L3 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L3</div>
+    <div class="card-title">
+      <h2>🔬 半导体设备 — 造芯片的超精密机器</h2>
+      <div class="subtitle">光刻机 · 蚀刻机 · 沉积机 · 量测设备 · 测试设备</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="bottleneck">🔴 ASML = 全球唯一 EUV 光刻机供应商</div>
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>生产芯片用的超精密机器。最关键的是<strong>光刻机</strong>——用紫外线把电路图案"印"到硅片上，精度要达到纳米级（人类头发丝的 1/10000）。ASML 的 EUV 光刻机是全球唯一能制造 5nm 以下芯片的设备，一台售价约 2–3 亿美元。</p>
+      <p class="analogy">📐 类比：如果芯片厂是印刷厂，光刻机就是核心印刷机，没有它你什么也印不出来。ASML 就是全球唯一能造这种机器的工厂。</p>
+    </div>
+    <div class="lag-note">⏱ ASML 的订单延迟收入（deferred revenue）是整个 AI 链最干净的 3–6 个月领先信号之一，因为芯片厂订机器的时间比真正扩产早。</div>
+    <div class="players-row">
+      <span class="players-label">关键玩家</span>
+      <span class="tag tag-nl">ASML — EUV光刻机唯一供应商（荷兰）</span>
+      <span class="tag tag-us">AMAT（Applied Materials）— 沉积设备龙头</span>
+      <span class="tag tag-us">LRCX（Lam Research）— 蚀刻设备龙头</span>
+      <span class="tag tag-us">KLAC（KLA）— 量测检测设备龙头</span>
+      <span class="tag tag-jp">Tokyo Electron — 沉积+涂胶设备</span>
+      <span class="tag tag-kr">Hanmi Semiconductor — HBM 专用热压键合机</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- end g-infra -->
+
+<!-- ===== GROUP 2: 芯片制造 ===== -->
+<div class="group-label">第二组 · L4–L6 &nbsp; 芯片制造（真正造出芯片的地方）</div>
+
+<div class="g-chip">
+
+<!-- L4 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L4</div>
+    <div class="card-title">
+      <h2>💻 逻辑芯片 — 代工厂 + AI 芯片设计公司</h2>
+      <div class="subtitle">晶圆代工 · GPU / AI加速器 · 网络ASIC · 电源芯片</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="bottleneck">⭐ 整张图最核心的一层</div>
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>这一层分两类角色：</p>
+      <p>① <strong>代工厂（Foundry）</strong>：帮别人制造芯片。台积电（TSMC）是全球最大的独立芯片代工厂，帮 NVIDIA、AMD、Apple 等公司代工，自己不卖芯片。</p>
+      <p>② <strong>无晶圆厂设计公司（Fabless）</strong>：只设计芯片，交给台积电生产。NVIDIA 设计 GPU 但没有自己的工厂；Broadcom 设计网络芯片；谷歌、亚马逊的自研 AI 芯片（TPU/Trainium）也属于这类。</p>
+      <p class="analogy">📐 类比：代工厂像富士康（只管制造），无晶圆设计公司像苹果（只管设计），两者缺一不可。台积电的月度营收是整个 AI 链最早公布的高频数据，市场将其视为"AI 温度计"。</p>
+    </div>
+    <div class="lag-note">⏱ 台积电每月约 10 号公布上月营收，是整个 AI 供应链最早可看到的高频指标，领先 NVIDIA 季报约 1–3 个月。</div>
+    <div class="players-row">
+      <span class="players-label">关键玩家</span>
+      <span class="tag tag-tw">TSMC（台积电）— 全球最大代工厂，覆盖90%先进制程</span>
+      <span class="tag tag-us">NVDA（NVIDIA）— AI GPU绝对霸主，市占率>90%</span>
+      <span class="tag tag-us">AMD — GPU追赶者</span>
+      <span class="tag tag-us">AVGO（Broadcom）— 谷歌TPU/Meta自研芯片的制造合作方</span>
+      <span class="tag tag-us">MRVL（Marvell）— AWS Trainium的核心合作方</span>
+      <span class="tag tag-tw">Alchip — AWS芯片设计实现方，台湾小公司</span>
+      <span class="tag tag-cn">SMIC — 中国最大代工厂（受出口管制限制）</span>
+    </div>
+  </div>
+</div>
+
+<!-- L5 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L5</div>
+    <div class="card-title">
+      <h2>🧠 存储芯片 — AI 的"工作记忆"</h2>
+      <div class="subtitle">HBM高带宽内存 · DRAM · NAND闪存</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="bottleneck">🔴 HBM = AI芯片出货的硬上限</div>
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>存储芯片是 AI 运算的"工作记忆"。AI 训练和推理需要在极短时间内读写大量数据，普通内存不够快，所以出现了<strong>HBM（高带宽内存）</strong>——把多层 DRAM 垂直叠在一起，紧贴 GPU 旁边，数据传输速度是普通内存的 10–20 倍。</p>
+      <p>NVIDIA 每颗 H100/B200 GPU 都需要 6–8 个 HBM 堆叠封装，HBM 供应直接决定 NVIDIA 的出货量。三家公司（SK Hynix、三星、Micron）几乎垄断全球 HBM 产能，其中 SK Hynix 约占 50% 且技术最领先。</p>
+      <p class="analogy">📐 类比：HBM 是 GPU 的"大脑旁边的超快速记忆区"，没有足够的 HBM，再强的 GPU 核心也跑不起来。</p>
+    </div>
+    <div class="players-row">
+      <span class="players-label">关键玩家</span>
+      <span class="tag tag-kr">SK Hynix — HBM全球第一（约50%份额），NVIDIA首选</span>
+      <span class="tag tag-kr">Samsung（三星）— HBM第二，认证上曾多次延误</span>
+      <span class="tag tag-us">MU（Micron）— HBM第三，美国本土唯一选手</span>
+      <span class="tag tag-tw">Nanya（南亚科技）— 普通DRAM，是HBM周期的早期指示器</span>
+    </div>
+  </div>
+</div>
+
+<!-- L6 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L6</div>
+    <div class="card-title">
+      <h2>📦 高级封装 + 基板 — 把芯片"打包"在一起</h2>
+      <div class="subtitle">CoWoS封装 · OSAT封测 · ABF基板</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>现代 AI 芯片不是单一芯片，而是把 GPU 核心、HBM 内存、网络接口等多个芯片"打包"在同一个封装里，用超细的铜线连接。<strong>CoWoS</strong>（Chip on Wafer on Substrate）是台积电的独家先进封装技术，是 NVIDIA GPU 能有极高性能的关键之一。</p>
+      <p><strong>ABF 基板</strong>是承载这些芯片的"底板"，由特种材料制成，需要专门工厂生产。</p>
+      <p class="analogy">📐 类比：就像把多个零部件精密组装进一个机壳——封装技术的好坏直接影响芯片的性能和散热。</p>
+    </div>
+    <div class="players-row">
+      <span class="players-label">关键玩家</span>
+      <span class="tag tag-tw">ASE（日月光）— 全球最大封测公司</span>
+      <span class="tag tag-us">Amkor — 全球第二大封测公司</span>
+      <span class="tag tag-tw">Unimicron（欣兴电子）— ABF基板台湾龙头</span>
+      <span class="tag tag-jp">Ibiden — ABF基板日本龙头</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- end g-chip -->
+
+<!-- ===== GROUP 3: 服务器与数据中心建设 ===== -->
+<div class="group-label">第三组 · L7–L9 &nbsp; 服务器与数据中心建设（把芯片装进大楼）</div>
+
+<div class="g-server">
+
+<!-- L7 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L7</div>
+    <div class="card-title">
+      <h2>🖥 服务器整机 + 散热 + 电源 — 组装 AI 计算机</h2>
+      <div class="subtitle">ODM代工厂 · 品牌服务器 · 液冷系统 · 电源供应</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>把 GPU、内存、网卡等芯片组装成完整的服务器，再加上散热系统和电源，送进数据中心机架。AI 服务器远比普通服务器复杂：一台 NVIDIA GB200 NVL72 机柜重达数吨，发热量巨大，必须用<strong>液冷系统</strong>（直接把冷却液泵到服务器内部）才能散热。</p>
+      <p>台湾的 ODM 工厂（鸿海、广达等）承接了全球 80%+ 的 AI 服务器组装订单，月度营收是 hyperscaler（大云厂）资本开支的实时信号。</p>
+      <p class="analogy">📐 类比：ODM 工厂像组装工厂，把各种芯片模块装进机箱；Vertiv 提供散热；台达提供电源——就像电脑机箱、散热器和电源供应器的超大版本。</p>
+    </div>
+    <div class="players-row">
+      <span class="players-label">关键玩家</span>
+      <span class="tag tag-tw">Hon Hai（鸿海/富士康）— NVIDIA GB200主力ODM</span>
+      <span class="tag tag-tw">Quanta（广达）— Meta、Google主要供应商</span>
+      <span class="tag tag-tw">Wiwynn（威联通）— Meta专属服务器ODM</span>
+      <span class="tag tag-us">SMCI（超微电脑）— NVIDIA直接合作的服务器品牌</span>
+      <span class="tag tag-us">VRT（Vertiv）— 液冷散热系统龙头</span>
+      <span class="tag tag-tw">Delta（台达电子）— 33kW大功率电源，AI机柜专用</span>
+      <span class="tag tag-tw">AVC（奇鋐科技）— 散热模组</span>
+    </div>
+  </div>
+</div>
+
+<!-- L8 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L8</div>
+    <div class="card-title">
+      <h2>🔗 网络 + 光互联 — 让 GPU 互相"说话"</h2>
+      <div class="subtitle">数据中心交换机 · 800G/1.6T光模块</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>AI 训练通常需要成千上万个 GPU 同时工作，这些 GPU 之间需要实时交换海量数据。<strong>数据中心交换机</strong>是流量的"十字路口"；<strong>光模块</strong>则是把电信号转成光信号高速传输的"光纤收发器"。</p>
+      <p>每个 NVIDIA GPU 需要约 1500 美元的光模块配套，随着 AI 集群扩大，光模块需求爆炸式增长。中国厂商（如旭创）占据全球光模块超过 50% 的份额。</p>
+      <p class="analogy">📐 类比：如果 GPU 是工人，交换机是公司内网，光模块就是连接各楼层之间的光纤网线——网越快，工人协作效率越高。</p>
+    </div>
+    <div class="players-row">
+      <span class="players-label">关键玩家</span>
+      <span class="tag tag-us">ANET（Arista Networks）— 数据中心交换机龙头，Meta主要供应商</span>
+      <span class="tag tag-us">COHR（Coherent）— 光模块美国龙头</span>
+      <span class="tag tag-us">LITE（Lumentum）— 光器件龙头</span>
+      <span class="tag tag-cn">旭创科技（Innolight）— 全球光模块第一（A股）</span>
+    </div>
+  </div>
+</div>
+
+<!-- L9 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L9</div>
+    <div class="card-title">
+      <h2>🏢 数据中心 — 装服务器的"超级仓库"</h2>
+      <div class="subtitle">超大云厂自建DC · Neo-cloud租赁 · 机柜托管 · DC建设工程</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>建设和运营存放服务器的建筑群。微软、亚马逊、谷歌、Meta 这几家巨头正在史无前例地自建数据中心，2025 年合计资本开支预计超过 3000 亿美元。</p>
+      <p>真正动土建楼的是工程承包公司（Sterling、Comfort Systems），它们的订单积压（backlog）领先大云厂资本开支约 12–18 个月，是最长周期的领先信号。</p>
+      <p class="analogy">📐 类比：Hyperscaler（大云厂）是房东，工程公司是建筑队，Equinix 是出租固定机位的商业地产商，CoreWeave 是二房东（租 GPU 给其他公司）。</p>
+    </div>
+    <div class="lag-note">⏱ Sterling/Comfort Systems 的工程积压领先 12–18 个月；这是整个 AI 链里周期最长的领先信号。</div>
+    <div class="players-row">
+      <span class="players-label">关键玩家</span>
+      <span class="tag tag-us">MSFT（微软）— Azure + OpenAI合作方，DC开支最大</span>
+      <span class="tag tag-us">AMZN（亚马逊）— AWS，云计算第一</span>
+      <span class="tag tag-us">GOOG（谷歌）— GCP + DeepMind</span>
+      <span class="tag tag-us">META（Meta）— Llama模型自训练，自建DC</span>
+      <span class="tag tag-us">ORCL（Oracle）— Stargate JV联合OpenAI/SoftBank</span>
+      <span class="tag tag-us">CRWV（CoreWeave）— 租GPU算力给企业的"算力二房东"</span>
+      <span class="tag tag-us">EQIX（Equinix）— 最大的机柜托管REIT</span>
+      <span class="tag tag-us">STRL（Sterling Infrastructure）— DC机电工程承包商</span>
+      <span class="tag tag-us">FIX（Comfort Systems）— 暖通机电工程，DC建设主力</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- end g-server -->
+
+<!-- ===== GROUP 4: 云与模型 ===== -->
+<div class="group-label">第四组 · L10–L11 &nbsp; 云服务与大模型（把算力变成智能）</div>
+
+<div class="g-cloud">
+
+<!-- L10 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L10</div>
+    <div class="card-title">
+      <h2>☁️ 云平台 + AI 基础设施 — 把算力打包成服务</h2>
+      <div class="subtitle">IaaS云计算 · 向量数据库 · AI中间件</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>云平台把数据中心的原始算力打包成各种服务，让企业不用自己买服务器就能用上 AI 算力。你调用 OpenAI API，背后用的是微软 Azure 的服务器；你训练 AI 模型，可能用的是 AWS 的 GPU 实例。</p>
+      <p>向量数据库（MongoDB、Snowflake）是 AI 应用的"AI 记忆仓库"，负责存储和检索文本的语义向量，是 RAG（检索增强生成）应用的基础设施。</p>
+      <p class="analogy">📐 类比：数据中心是发电厂，云平台是国家电网，企业和开发者是终端用户——你按需付费用电，不需要自己建发电厂。</p>
+    </div>
+    <div class="players-row">
+      <span class="players-label">关键玩家</span>
+      <span class="tag tag-us">Azure（微软）— OpenAI专属云，AI服务第一</span>
+      <span class="tag tag-us">AWS（亚马逊）— 云计算市场份额第一</span>
+      <span class="tag tag-us">GCP（谷歌）— Gemini模型所在云</span>
+      <span class="tag tag-cn">阿里云（9988.HK）— 中国第一云</span>
+      <span class="tag tag-cn">腾讯云（0700.HK）— 中国第二云</span>
+      <span class="tag tag-us">MDB（MongoDB）— 向量数据库龙头</span>
+      <span class="tag tag-us">SNOW（Snowflake）— 数据平台+AI分析</span>
+    </div>
+  </div>
+</div>
+
+<!-- L11 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L11</div>
+    <div class="card-title">
+      <h2>🧬 基础大模型 — AI 的"大脑"</h2>
+      <div class="subtitle">前沿大语言模型 · 开源模型 · 多模态模型</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="bottleneck">⚠️ 这一层绝大多数公司是私有企业，无法直接投资</div>
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>研发和训练 GPT-4、Claude、Gemini 等"大脑"模型。这些模型用数百亿到数万亿个参数，通过消化互联网上的海量文本学会语言理解和推理能力。训练一个顶级大模型需要数万个 GPU 运行数月，耗资数亿美元。</p>
+      <p>这一层是 AI 产业链的"技术核心"，但大部分公司是私有企业，投资者只能通过它们绑定的云厂商（如 OpenAI → 微软，Anthropic → 亚马逊+谷歌）间接参与。</p>
+      <p class="analogy">📐 类比：大模型公司像汽车发动机研发商，云厂商像整车厂，应用公司像卖车的4S店——消费者买车，不需要直接接触发动机研发商。</p>
+    </div>
+    <div class="players-row">
+      <span class="players-label">关键玩家（多数私有）</span>
+      <span class="tag tag-us">OpenAI — ChatGPT，全球用户最多；通过微软融资</span>
+      <span class="tag tag-us">Anthropic — Claude，通过亚马逊+谷歌融资</span>
+      <span class="tag tag-us">Google DeepMind — Gemini，谷歌内部</span>
+      <span class="tag tag-us">Meta AI — Llama开源系列，Meta内部</span>
+      <span class="tag tag-us">xAI — Grok，马斯克创立</span>
+      <span class="tag tag-cn">DeepSeek — 中国最强开源模型，私有</span>
+      <span class="tag tag-cn">Qwen（通义）— 阿里内部</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- end g-cloud -->
+
+<!-- ===== GROUP 5: 应用与终端 ===== -->
+<div class="group-label">第五组 · L12–L14 &nbsp; 应用、设备与终端需求（AI 直接触达用户的地方）</div>
+
+<div class="g-app">
+
+<!-- L12 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L12</div>
+    <div class="card-title">
+      <h2>📱 AI 应用层 — 把 AI 变成产品卖给企业</h2>
+      <div class="subtitle">AI增强SaaS · 垂直行业AI · AI Agent</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>把大模型的能力包装成具体的软件产品，卖给企业或消费者。分两类：老牌软件公司给自己的产品加 AI（Salesforce 的 AI 销售助手 Agentforce，Adobe 的 AI 生图工具 Firefly）；以及原生 AI 应用（Cursor AI 编程、Glean 企业搜索、Harvey 法律 AI）。</p>
+      <p>这一层才是 AI 产业链最终的"变现端"，但大部分最有价值的原生 AI 应用目前还是私有公司。</p>
+      <p class="analogy">📐 类比：大模型是电，SaaS 应用是家电——同样的电，吹风机、洗衣机、冰箱各有不同用途，对应不同的行业应用。</p>
+    </div>
+    <div class="players-row">
+      <span class="players-label">关键玩家</span>
+      <span class="tag tag-us">CRM（Salesforce）— Agentforce AI销售/客服代理</span>
+      <span class="tag tag-us">ADBE（Adobe）— Firefly AI生图/视频</span>
+      <span class="tag tag-us">NOW（ServiceNow）— 企业IT流程AI自动化</span>
+      <span class="tag tag-us">PLTR（Palantir）— 政府+企业AI决策平台</span>
+      <span class="tag tag-us">Cursor（私有）— AI编程工具，开发者最爱</span>
+      <span class="tag tag-us">Harvey（私有）— 法律AI</span>
+    </div>
+  </div>
+</div>
+
+<!-- L13 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L13</div>
+    <div class="card-title">
+      <h2>📲 端侧 AI / 设备 AI — 在手机和汽车里跑 AI</h2>
+      <div class="subtitle">手机NPU · PC AI芯片 · 自动驾驶 · 机器人</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>让 AI 直接在设备上运行，不需要连接云端。iPhone 里的 Siri、手机上的实时翻译、汽车的辅助驾驶——这些都依靠设备内置的 AI 芯片（NPU，神经网络处理单元）本地处理，速度更快、隐私更好。</p>
+      <p>自动驾驶和人形机器人是这一层的长期增长点，但目前商业化仍在早期阶段。</p>
+      <p class="analogy">📐 类比：就像从"打电话订外卖"进化到"家里有个机器人厨师"——AI 从云端走进你手中的每个设备。</p>
+    </div>
+    <div class="players-row">
+      <span class="players-label">关键玩家</span>
+      <span class="tag tag-us">AAPL（苹果）— Apple Intelligence + A/M系列NPU</span>
+      <span class="tag tag-us">QCOM（高通）— Snapdragon 手机+PC AI芯片</span>
+      <span class="tag tag-tw">MTK（联发科）— Dimensity 中低端手机AI芯片</span>
+      <span class="tag tag-us">TSLA（特斯拉）— FSD自动驾驶 + Optimus机器人</span>
+      <span class="tag tag-global">Mobileye — 汽车辅助驾驶芯片</span>
+    </div>
+  </div>
+</div>
+
+<!-- L14 -->
+<div class="card">
+  <div class="card-head">
+    <div class="layer-badge">L14</div>
+    <div class="card-title">
+      <h2>👥 终端需求 — 最终为 AI 付钱的人</h2>
+      <div class="subtitle">企业IT预算 · 消费者订阅 · 开发者付费</div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="what-box">
+      <div class="label">这一层在做什么</div>
+      <p>这是整个产业链的资金来源。企业 IT 部门每年的预算、个人用户订阅 ChatGPT Plus 的月费、开发者购买 API 调用——这些消费汇总起来支撑了上面所有 14 层的存在。</p>
+      <p>这一层的数据（如 ChatGPT 月活用户数、企业 IT 采购调研）往往领先上游芯片需求 6–12 个月，但大部分是第三方调研数据，没有直接可投资的公司。</p>
+      <p class="analogy">📐 类比：这是整条产业链的"终端消费者"，就像汽车产业链最底端是买车的人。买车的人多了，轮胎厂、钢铁厂都会受益。</p>
+    </div>
+    <div class="players-row">
+      <span class="players-label">数据来源（非直接投资标的）</span>
+      <span class="tag tag-global">Gartner / IDC — 企业IT预算调研（领先6-12月）</span>
+      <span class="tag tag-global">SimilarWeb / SensorTower — ChatGPT/Claude月活数据</span>
+      <span class="tag tag-global">各云厂商 — API收入增速（间接反映需求）</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- end g-app -->
+
+<!-- 全链路流向图 -->
+<div class="summary">
+  <h3>🗺 全链路一张图：从矿石到 AI 应用</h3>
+  <p style="font-size:13px;color:#6b7280;margin-bottom:16px">从左（最上游）到右（最终端），颜色对应五大分组</p>
+
+  <div class="flow-row">
+    <div class="flow-box" style="background:#e0f2fe;color:#0369a1">⚡ L0 电力</div>
+    <span class="arrow">→</span>
+    <div class="flow-box" style="background:#e0f2fe;color:#0369a1">🧪 L1 原材料</div>
+    <span class="arrow">→</span>
+    <div class="flow-box" style="background:#e0f2fe;color:#0369a1">🟡 L2 硅片+EDA</div>
+    <span class="arrow">→</span>
+    <div class="flow-box" style="background:#e0f2fe;color:#0369a1">🔬 L3 半导体设备</div>
+  </div>
+  <div class="flow-row" style="margin-top:4px;padding-left:16px">
+    <span class="arrow">↓</span>
+    <span style="font-size:12px;color:#9ca3af;margin-left:8px">上游制约下游产能</span>
+  </div>
+  <div class="flow-row">
+    <div class="flow-box" style="background:#ede9fe;color:#6d28d9">💻 L4 逻辑芯片</div>
+    <span class="arrow">→</span>
+    <div class="flow-box" style="background:#ede9fe;color:#6d28d9">🧠 L5 存储HBM</div>
+    <span class="arrow">→</span>
+    <div class="flow-box" style="background:#ede9fe;color:#6d28d9">📦 L6 高级封装</div>
+  </div>
+  <div class="flow-row" style="margin-top:4px;padding-left:16px">
+    <span class="arrow">↓</span>
+    <span style="font-size:12px;color:#9ca3af;margin-left:8px">封装好的芯片进入服务器</span>
+  </div>
+  <div class="flow-row">
+    <div class="flow-box" style="background:#d1fae5;color:#065f46">🖥 L7 服务器+散热</div>
+    <span class="arrow">→</span>
+    <div class="flow-box" style="background:#d1fae5;color:#065f46">🔗 L8 网络+光互联</div>
+    <span class="arrow">→</span>
+    <div class="flow-box" style="background:#d1fae5;color:#065f46">🏢 L9 数据中心</div>
+  </div>
+  <div class="flow-row" style="margin-top:4px;padding-left:16px">
+    <span class="arrow">↓</span>
+    <span style="font-size:12px;color:#9ca3af;margin-left:8px">数据中心向上提供算力</span>
+  </div>
+  <div class="flow-row">
+    <div class="flow-box" style="background:#fef3c7;color:#92400e">☁️ L10 云平台</div>
+    <span class="arrow">→</span>
+    <div class="flow-box" style="background:#fef3c7;color:#92400e">🧬 L11 大模型</div>
+  </div>
+  <div class="flow-row" style="margin-top:4px;padding-left:16px">
+    <span class="arrow">↓</span>
+    <span style="font-size:12px;color:#9ca3af;margin-left:8px">模型能力向下赋能应用</span>
+  </div>
+  <div class="flow-row">
+    <div class="flow-box" style="background:#fce7f3;color:#be185d">📱 L12 AI应用</div>
+    <span class="arrow">→</span>
+    <div class="flow-box" style="background:#fce7f3;color:#be185d">📲 L13 端侧AI</div>
+    <span class="arrow">→</span>
+    <div class="flow-box" style="background:#fce7f3;color:#be185d">👥 L14 终端需求</div>
+  </div>
+
+  <div style="margin-top:20px;padding:14px;background:#f8fafc;border-radius:8px;font-size:13px;color:#374151;border:1px solid #e5e7eb">
+    <strong>📌 投资核心逻辑：</strong>当上游某一层出现瓶颈（比如 HBM 产能不足、变压器交期延长），所有下游公司的利润都受影响。反过来，当需求侧（L14）爆发，信号会逐层向上传导，但有时间差——TSMC 月度营收往往比 NVIDIA 季报早 1–3 个月出现拐点，Sterling 的订单积压比 DC 实际投入运营早 12–18 个月。这些时间差就是系统性投资的机会所在。
+  </div>
+</div>
+
+<footer>
+  AI 全产业链图解 v1 · 2026-06-02 · 配套文件：chain_map_walkthrough_zh.md / supply_barrier_report.html / chain_map.yaml<br>
+  Layer 定义参考：chain_map.yaml (Phase A v0) · 80+ 节点 · L0–L14
+</footer>
+
+</div><!-- container -->
+</body>
+</html>
