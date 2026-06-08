@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI股票隐含增长与估值拥挤度研究</title>
+  <style>
+:root {
+  --bg: #f5f7fb;
+  --paper: #ffffff;
+  --ink: #141922;
+  --muted: #5f6b7a;
+  --line: #dfe5ee;
+  --line-strong: #c6d0dd;
+  --blue: #1f5eff;
+  --green: #0e8f6e;
+  --amber: #c77a13;
+  --red: #c2413a;
+  --shadow: 0 18px 45px rgba(31, 42, 68, 0.10);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(180deg, #eef3fb 0%, #f7f8fb 340px, var(--bg) 100%);
+  color: var(--ink);
+  font-family:
+    "Inter", "SF Pro Display", "Segoe UI", "Microsoft YaHei",
+    "Noto Sans CJK SC", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.72;
+}
+
+a { color: inherit; }
+
+.page {
+  width: min(1180px, calc(100% - 32px));
+  margin: 28px auto 48px;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 34px 38px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.84)),
+    linear-gradient(135deg, rgba(31,94,255,0.18), rgba(14,143,110,0.12));
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(25,33,48,0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(25,33,48,0.055) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(90deg, transparent 0, #000 16%, #000 82%, transparent 100%);
+}
+
+.hero > * { position: relative; }
+
+.hero-blue { --accent: var(--blue); }
+.hero-green { --accent: var(--green); }
+.hero-amber { --accent: var(--amber); }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 760;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+.hero h1 {
+  max-width: 960px;
+  margin: 12px 0 10px;
+  font-size: clamp(30px, 4vw, 52px);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.deck {
+  max-width: 920px;
+  margin: 0;
+  color: #394456;
+  font-size: 17px;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.meta-pill {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+  color: #485365;
+  font-size: 12px;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.metric-card {
+  min-height: 118px;
+  padding: 14px 14px 13px;
+  border: 1px solid rgba(198,208,221,0.8);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.82);
+}
+
+.metric-label {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.metric-value {
+  margin-top: 9px;
+  color: var(--accent);
+  font-size: 27px;
+  font-weight: 780;
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.metric-note {
+  margin-top: 9px;
+  color: #596677;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+  margin-top: 22px;
+}
+
+.toc {
+  position: sticky;
+  top: 18px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.88);
+  box-shadow: 0 10px 24px rgba(31,42,68,0.06);
+}
+
+.toc-title {
+  margin-bottom: 10px;
+  color: #253044;
+  font-weight: 760;
+}
+
+.toc a {
+  display: block;
+  padding: 7px 0;
+  border-top: 1px solid #edf1f6;
+  color: #586476;
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.toc a:hover { color: var(--accent); }
+.toc .level-3 { padding-left: 12px; font-size: 12px; }
+
+.article {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.section {
+  padding: 30px 34px;
+  border-top: 1px solid #edf1f6;
+}
+
+.section:first-child { border-top: none; }
+
+.article h2,
+.article h3,
+.article h4 {
+  margin: 0 0 14px;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.article h2 {
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--line);
+  font-size: 25px;
+}
+
+.article h3 {
+  margin-top: 24px;
+  font-size: 19px;
+  color: #202a3c;
+}
+
+.article h4 { font-size: 16px; }
+
+.article p {
+  margin: 12px 0;
+  color: #2c3544;
+}
+
+.article strong { color: #111827; }
+
+.article ul,
+.article ol {
+  margin: 12px 0 12px 22px;
+  padding: 0;
+}
+
+.article li { margin: 7px 0; }
+
+.article code {
+  padding: 2px 5px;
+  border: 1px solid #e5e9f0;
+  border-radius: 5px;
+  background: #f6f8fb;
+  color: #253044;
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.88em;
+}
+
+.article pre {
+  overflow: auto;
+  padding: 16px;
+  border-radius: 8px;
+  background: #101827;
+  color: #f7fafc;
+}
+
+.article pre code {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.callout {
+  margin: 18px 0;
+  padding: 16px 17px;
+  border-left: 4px solid var(--accent);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--accent) 8%, white);
+}
+
+.table-wrap {
+  overflow: auto;
+  margin: 18px 0 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.42;
+}
+
+th,
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e9eef5;
+  vertical-align: top;
+  text-align: left;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f2f5fa;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 780;
+}
+
+tr:nth-child(even) td { background: #fbfcfe; }
+tr:hover td { background: #f5f8fd; }
+
+.barcell {
+  position: relative;
+  display: inline-flex;
+  min-width: 76px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.barcell::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--w, 0%);
+  z-index: -1;
+  background: rgba(31,94,255,0.12);
+}
+
+.barcell.neg::before { background: rgba(194,65,58,0.13); }
+.barcell.hot::before { background: rgba(199,122,19,0.16); }
+.barcell.pos { color: #155e4d; }
+.barcell.neg { color: #9b2f2a; }
+.barcell.hot { color: #8a510d; }
+
+.status {
+  display: inline-flex;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: #475569;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.status-risk {
+  background: rgba(194,65,58,0.11);
+  color: #9b2f2a;
+}
+
+.status-ok {
+  background: rgba(14,143,110,0.11);
+  color: #0b6f57;
+}
+
+.report-figure {
+  margin: 22px 0 28px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.report-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  background: white;
+}
+
+.report-figure figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+hr {
+  margin: 28px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.footer {
+  margin-top: 18px;
+  color: #697586;
+  font-size: 12px;
+}
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.index-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 330px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.9);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+
+.index-card:hover { border-color: var(--accent); }
+.index-card h2 { margin: 12px 0 10px; line-height: 1.18; }
+.index-card p { color: #536072; }
+.index-card .mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: auto;
+}
+.mini-metric {
+  padding: 10px;
+  border: 1px solid #e3e9f1;
+  border-radius: 7px;
+  background: #fbfcfe;
+}
+.mini-metric b {
+  display: block;
+  color: var(--accent);
+  font-size: 18px;
+  line-height: 1.1;
+}
+.mini-metric span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@supports not (background: color-mix(in srgb, red 10%, white)) {
+  .callout { background: #f6f8fb; }
+}
+
+@media (max-width: 980px) {
+  .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .layout { grid-template-columns: 1fr; }
+  .toc { position: relative; top: 0; }
+  .index-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .page { width: min(100% - 18px, 1180px); margin-top: 10px; }
+  .hero { padding: 24px 20px; }
+  .hero h1 { font-size: 30px; }
+  .deck { font-size: 15px; }
+  .metric-grid { grid-template-columns: 1fr; }
+  .section { padding: 24px 18px; }
+  table { min-width: 680px; }
+}
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero hero-amber">
+      <div class="eyebrow">Companion Note</div>
+      <h1>AI股票隐含增长与估值拥挤度研究</h1>
+      <p class="deck">AI 股票隐含增长与估值拥挤度研究：不用统一 EV/Sales，按 bucket-specific fair multiple 和 reverse DCF 检查容错率。</p>
+      <div class="meta-row">
+        <span class="meta-pill">日期：2026-06-06</span>
+        <span class="meta-pill">Source Markdown: AI_Priced_Growth_Valuation_Study_2026-06-06.md</span>
+        <span class="meta-pill"><a href="report_index_2026-06-06.html">Report index</a></span>
+      </div>
+      <div class="metric-grid"><div class="metric-card"><div class="metric-label">Compute IP premium</div><div class="metric-value">+249.7%</div><div class="metric-note">最拥挤 bucket</div></div><div class="metric-card"><div class="metric-label">Connectivity premium</div><div class="metric-value">+166.2%</div><div class="metric-note">容错率极低</div></div><div class="metric-card"><div class="metric-label">Hyperscaler premium</div><div class="metric-value">-11.4%</div><div class="metric-note">整体并非最贵区域</div></div><div class="metric-card"><div class="metric-label">Compute premium</div><div class="metric-value">-14.0%</div><div class="metric-note">terminal hurdle 不高</div></div><div class="metric-card"><div class="metric-label">Weakest name</div><div class="metric-value">MRVL -16.7%</div><div class="metric-note">6/5 event return</div></div><div class="metric-card"><div class="metric-label">Return vs FY1-FY3 CAGR</div><div class="metric-value">-0.52</div><div class="metric-note">增长 duration 被卖出</div></div></div>
+    </header>
+    <div class="layout">
+      <aside class="toc"><div class="toc-title">目录</div>
+<a class="level-2" href="#sec-1">结论</a>
+<a class="level-2" href="#sec-2-bucket">Bucket定价</a>
+<a class="level-2" href="#sec-3-6-5">6月5日事件验证</a>
+<a class="level-2" href="#sec-4">个股压力点</a>
+<a class="level-2" href="#sec-5">横截面统计</a>
+</aside>
+      <main class="article">
+        <section class="section">
+<p>日期：2026-06-06 定位：主报告附录</p>
+</section>
+<section class="section" id="sec-1">
+<h2>结论</h2>
+<p>AI股票的估值问题不能用统一EV/Sales回答。Hyperscaler和compute整体不是最拥挤的区域；compute IP、connectivity、equipment、power/data center和部分ASIC/networking的容错率最低。</p>
+</section>
+<section class="section" id="sec-2-bucket">
+<h2>Bucket定价</h2>
+<div class="table-wrap"><table><thead><tr><th>Bucket</th><th>Consensus FY1-FY3 sales CAGR</th><th>Current primary multiple</th><th>Fair primary multiple</th><th>Premium / discount</th><th>Post-FY3 implied CAGR</th><th>Reverse DCF implied CAGR</th></tr></thead><tbody><tr><td>Software Apps</td><td><span class="barcell pos" style="--w:44%">18.4%</span></td><td><span class="barcell hot" style="--w:16%">6.7x</span></td><td><span class="barcell hot" style="--w:35%">6.5x</span></td><td><span class="barcell hot" style="--w:6%">1.5%</span></td><td><span class="barcell neg" style="--w:6%">-2.8%</span></td><td><span class="barcell pos" style="--w:38%">10.7%</span></td></tr><tr><td>Hyperscaler</td><td><span class="barcell pos" style="--w:43%">18.2%</span></td><td><span class="barcell hot" style="--w:38%">15.7x</span></td><td><span class="barcell hot" style="--w:89%">16.8x</span></td><td><span class="barcell neg" style="--w:6%">-11.4%</span></td><td><span class="barcell pos" style="--w:19%">11.5%</span></td><td><span class="barcell pos" style="--w:52%">14.8%</span></td></tr><tr><td>Asic Networking</td><td><span class="barcell hot" style="--w:100%">42.1%</span></td><td><span class="barcell hot" style="--w:55%">22.3x</span></td><td><span class="barcell hot" style="--w:91%">17.2x</span></td><td><span class="barcell hot" style="--w:6%">10.3%</span></td><td><span class="barcell pos" style="--w:28%">17.4%</span></td><td><span class="barcell hot" style="--w:100%">28.2%</span></td></tr><tr><td>Compute</td><td><span class="barcell hot" style="--w:88%">36.9%</span></td><td><span class="barcell hot" style="--w:40%">16.3x</span></td><td><span class="barcell hot" style="--w:100%">18.8x</span></td><td><span class="barcell neg" style="--w:6%">-14.0%</span></td><td><span class="barcell pos" style="--w:8%">4.7%</span></td><td><span class="barcell pos" style="--w:68%">19.3%</span></td></tr><tr><td>Hbm Memory</td><td><span class="barcell pos" style="--w:59%">24.8%</span></td><td><span class="barcell hot" style="--w:9%">3.5x</span></td><td><span class="barcell hot" style="--w:27%">5.1x</span></td><td><span class="barcell neg" style="--w:12%">-28.9%</span></td><td><span class="barcell hot" style="--w:100%">61.7%</span></td><td><span class="barcell neg" style="--w:24%">-6.8%</span></td></tr><tr><td>Compute Ip</td><td><span class="barcell hot" style="--w:71%">30.1%</span></td><td><span class="barcell hot" style="--w:100%">40.8x</span></td><td><span class="barcell hot" style="--w:62%">11.7x</span></td><td><span class="barcell hot" style="--w:100%">249.7%</span></td><td><span class="barcell hot" style="--w:69%">42.7%</span></td><td><span class="status">n/a</span></td></tr><tr><td>Connectivity</td><td><span class="barcell hot" style="--w:83%">35.0%</span></td><td><span class="barcell hot" style="--w:66%">26.8x</span></td><td><span class="barcell hot" style="--w:54%">10.1x</span></td><td><span class="barcell hot" style="--w:67%">166.2%</span></td><td><span class="barcell hot" style="--w:57%">35.3%</span></td><td><span class="status">n/a</span></td></tr><tr><td>Datacenter Reit</td><td><span class="barcell pos" style="--w:25%">10.7%</span></td><td><span class="barcell hot" style="--w:47%">19.1x</span></td><td><span class="barcell hot" style="--w:71%">13.4x</span></td><td><span class="barcell hot" style="--w:17%">42.4%</span></td><td><span class="barcell pos" style="--w:6%">2.3%</span></td><td><span class="status">n/a</span></td></tr><tr><td>Equipment</td><td><span class="barcell pos" style="--w:46%">19.3%</span></td><td><span class="barcell hot" style="--w:65%">26.6x</span></td><td><span class="barcell hot" style="--w:100%">18.8x</span></td><td><span class="barcell hot" style="--w:15%">38.6%</span></td><td><span class="barcell hot" style="--w:47%">29.2%</span></td><td><span class="status">n/a</span></td></tr><tr><td>Foundry</td><td><span class="barcell pos" style="--w:27%">11.4%</span></td><td><span class="barcell hot" style="--w:28%">11.5x</span></td><td><span class="barcell hot" style="--w:61%">11.4x</span></td><td><span class="barcell hot" style="--w:6%">14.3%</span></td><td><span class="barcell pos" style="--w:27%">16.8%</span></td><td><span class="status">n/a</span></td></tr><tr><td>Power Infra</td><td><span class="barcell pos" style="--w:23%">9.7%</span></td><td><span class="barcell hot" style="--w:44%">17.8x</span></td><td><span class="barcell hot" style="--w:65%">12.3x</span></td><td><span class="barcell hot" style="--w:12%">29.8%</span></td><td><span class="barcell pos" style="--w:27%">16.6%</span></td><td><span class="status">n/a</span></td></tr></tbody></table></div>
+<figure class="report-figure"><img src="figures/fig_05_ai_bucket_priced_growth.png" alt="AI bucket priced growth"><figcaption>AI bucket priced growth</figcaption></figure>
+</section>
+<section class="section" id="sec-3-6-5">
+<h2>6月5日事件验证</h2>
+<div class="table-wrap"><table><thead><tr><th>Bucket</th><th>n</th><th>Median 6/5 return</th><th>Median fair premium</th><th>Above DCF count</th></tr></thead><tbody><tr><td>Compute Ip</td><td>1</td><td><span class="barcell neg" style="--w:100%">-12.8%</span></td><td><span class="barcell hot" style="--w:100%">249.7%</span></td><td>1</td></tr><tr><td>Connectivity</td><td>1</td><td><span class="barcell neg" style="--w:89%">-11.4%</span></td><td><span class="barcell hot" style="--w:67%">166.2%</span></td><td>1</td></tr><tr><td>Foundry</td><td>3</td><td><span class="barcell neg" style="--w:84%">-10.8%</span></td><td><span class="barcell hot" style="--w:6%">14.3%</span></td><td>3</td></tr><tr><td>Equipment</td><td>4</td><td><span class="barcell neg" style="--w:75%">-9.6%</span></td><td><span class="barcell hot" style="--w:15%">38.6%</span></td><td>4</td></tr><tr><td>Compute</td><td>2</td><td><span class="barcell neg" style="--w:66%">-8.5%</span></td><td><span class="barcell neg" style="--w:6%">-14.0%</span></td><td>0</td></tr><tr><td>Asic Networking</td><td>3</td><td><span class="barcell neg" style="--w:62%">-7.9%</span></td><td><span class="barcell hot" style="--w:6%">10.3%</span></td><td>2</td></tr><tr><td>Hbm Memory</td><td>3</td><td><span class="barcell neg" style="--w:48%">-6.1%</span></td><td><span class="barcell neg" style="--w:12%">-28.9%</span></td><td>1</td></tr><tr><td>Power Infra</td><td>5</td><td><span class="barcell neg" style="--w:42%">-5.4%</span></td><td><span class="barcell hot" style="--w:12%">29.8%</span></td><td>5</td></tr><tr><td>Software Apps</td><td>6</td><td><span class="barcell neg" style="--w:27%">-3.5%</span></td><td><span class="barcell hot" style="--w:6%">1.5%</span></td><td>2</td></tr><tr><td>Hyperscaler</td><td>5</td><td><span class="barcell neg" style="--w:24%">-3.1%</span></td><td><span class="barcell neg" style="--w:6%">-11.4%</span></td><td>0</td></tr><tr><td>Datacenter Reit</td><td>2</td><td><span class="barcell neg" style="--w:7%">-0.9%</span></td><td><span class="barcell hot" style="--w:17%">42.4%</span></td><td>2</td></tr></tbody></table></div>
+<figure class="report-figure"><img src="figures/fig_06_ai_bucket_event_returns.png" alt="AI bucket event returns"><figcaption>AI bucket event returns</figcaption></figure>
+</section>
+<section class="section" id="sec-4">
+<h2>个股压力点</h2>
+<div class="table-wrap"><table><thead><tr><th>Ticker</th><th>Bucket</th><th>6/5 return</th><th>Fair premium</th><th>Consensus CAGR</th><th>Post-FY3 implied CAGR</th><th>Reverse DCF</th></tr></thead><tbody><tr><td>MRVL</td><td>Asic Networking</td><td><span class="barcell neg" style="--w:100%">-16.7%</span></td><td><span class="barcell hot" style="--w:6%">10.3%</span></td><td><span class="barcell hot" style="--w:99%">42.1%</span></td><td><span class="barcell pos" style="--w:19%">17.4%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>MU</td><td>Hbm Memory</td><td><span class="barcell neg" style="--w:80%">-13.3%</span></td><td><span class="barcell hot" style="--w:12%">31.2%</span></td><td><span class="barcell hot" style="--w:67%">28.6%</span></td><td><span class="barcell hot" style="--w:100%">89.5%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>ARM</td><td>Compute Ip</td><td><span class="barcell neg" style="--w:77%">-12.8%</span></td><td><span class="barcell hot" style="--w:100%">249.7%</span></td><td><span class="barcell hot" style="--w:70%">30.1%</span></td><td><span class="barcell hot" style="--w:48%">42.7%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>ALAB</td><td>Connectivity</td><td><span class="barcell neg" style="--w:68%">-11.4%</span></td><td><span class="barcell hot" style="--w:67%">166.2%</span></td><td><span class="barcell hot" style="--w:82%">35.0%</span></td><td><span class="barcell hot" style="--w:39%">35.3%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>INTC</td><td>Foundry</td><td><span class="barcell neg" style="--w:68%">-11.3%</span></td><td><span class="barcell hot" style="--w:28%">69.2%</span></td><td><span class="barcell pos" style="--w:26%">11.0%</span></td><td><span class="barcell pos" style="--w:19%">16.8%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>STRL</td><td>Power Infra</td><td><span class="barcell neg" style="--w:67%">-11.2%</span></td><td><span class="barcell hot" style="--w:43%">107.1%</span></td><td><span class="barcell pos" style="--w:48%">20.6%</span></td><td><span class="barcell pos" style="--w:21%">18.7%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>AMD</td><td>Compute</td><td><span class="barcell neg" style="--w:65%">-10.9%</span></td><td><span class="barcell hot" style="--w:6%">11.5%</span></td><td><span class="barcell hot" style="--w:100%">42.7%</span></td><td><span class="barcell pos" style="--w:6%">4.9%</span></td><td><span class="status status-ok">solved</span></td></tr><tr><td>GFS</td><td>Foundry</td><td><span class="barcell neg" style="--w:65%">-10.8%</span></td><td><span class="barcell neg" style="--w:6%">-4.1%</span></td><td><span class="barcell pos" style="--w:27%">11.4%</span></td><td><span class="barcell pos" style="--w:6%">3.4%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>LRCX</td><td>Equipment</td><td><span class="barcell neg" style="--w:59%">-9.8%</span></td><td><span class="barcell hot" style="--w:18%">44.5%</span></td><td><span class="barcell pos" style="--w:53%">22.8%</span></td><td><span class="barcell hot" style="--w:34%">30.1%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>AMAT</td><td>Equipment</td><td><span class="barcell neg" style="--w:58%">-9.7%</span></td><td><span class="barcell hot" style="--w:6%">11.4%</span></td><td><span class="barcell pos" style="--w:50%">21.2%</span></td><td><span class="barcell pos" style="--w:20%">17.9%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>ORCL</td><td>Hyperscaler</td><td><span class="barcell neg" style="--w:57%">-9.6%</span></td><td><span class="barcell neg" style="--w:6%">-14.0%</span></td><td><span class="barcell hot" style="--w:92%">39.3%</span></td><td><span class="barcell pos" style="--w:13%">11.5%</span></td><td><span class="status status-ok">solved</span></td></tr><tr><td>KLAC</td><td>Equipment</td><td><span class="barcell neg" style="--w:57%">-9.5%</span></td><td><span class="barcell hot" style="--w:21%">52.7%</span></td><td><span class="barcell pos" style="--w:41%">17.4%</span></td><td><span class="barcell hot" style="--w:42%">37.7%</span></td><td><span class="status status-risk">above DCF range</span></td></tr></tbody></table></div>
+<figure class="report-figure"><img src="figures/fig_07_ai_return_vs_valuation_premium.png" alt="AI return vs valuation premium"><figcaption>AI return vs valuation premium</figcaption></figure>
+<figure class="report-figure"><img src="figures/fig_08_ai_reverse_dcf_status_by_bucket.png" alt="AI reverse DCF status"><figcaption>AI reverse DCF status</figcaption></figure>
+</section>
+<section class="section" id="sec-5">
+<h2>横截面统计</h2>
+<ul>
+<li>6/5回报 vs fair-premium：-0.43</li>
+<li>6/5回报 vs FY1-FY3 consensus CAGR：-0.52</li>
+<li>6/5回报 vs FY3 EV/Sales：-0.33</li>
+</ul>
+</section>
+      </main>
+    </div>
+    <div class="footer">
+      Rendered as a static HTML report from the 2026-06-06 Markdown output. Images and data tables remain local under the reports directory.
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>未来1年美国加息风险与AI股票隐含增长定价</title>
+  <style>
+:root {
+  --bg: #f5f7fb;
+  --paper: #ffffff;
+  --ink: #141922;
+  --muted: #5f6b7a;
+  --line: #dfe5ee;
+  --line-strong: #c6d0dd;
+  --blue: #1f5eff;
+  --green: #0e8f6e;
+  --amber: #c77a13;
+  --red: #c2413a;
+  --shadow: 0 18px 45px rgba(31, 42, 68, 0.10);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(180deg, #eef3fb 0%, #f7f8fb 340px, var(--bg) 100%);
+  color: var(--ink);
+  font-family:
+    "Inter", "SF Pro Display", "Segoe UI", "Microsoft YaHei",
+    "Noto Sans CJK SC", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.72;
+}
+
+a { color: inherit; }
+
+.page {
+  width: min(1180px, calc(100% - 32px));
+  margin: 28px auto 48px;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 34px 38px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.84)),
+    linear-gradient(135deg, rgba(31,94,255,0.18), rgba(14,143,110,0.12));
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(25,33,48,0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(25,33,48,0.055) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(90deg, transparent 0, #000 16%, #000 82%, transparent 100%);
+}
+
+.hero > * { position: relative; }
+
+.hero-blue { --accent: var(--blue); }
+.hero-green { --accent: var(--green); }
+.hero-amber { --accent: var(--amber); }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 760;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+.hero h1 {
+  max-width: 960px;
+  margin: 12px 0 10px;
+  font-size: clamp(30px, 4vw, 52px);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.deck {
+  max-width: 920px;
+  margin: 0;
+  color: #394456;
+  font-size: 17px;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.meta-pill {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+  color: #485365;
+  font-size: 12px;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.metric-card {
+  min-height: 118px;
+  padding: 14px 14px 13px;
+  border: 1px solid rgba(198,208,221,0.8);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.82);
+}
+
+.metric-label {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.metric-value {
+  margin-top: 9px;
+  color: var(--accent);
+  font-size: 27px;
+  font-weight: 780;
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.metric-note {
+  margin-top: 9px;
+  color: #596677;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+  margin-top: 22px;
+}
+
+.toc {
+  position: sticky;
+  top: 18px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.88);
+  box-shadow: 0 10px 24px rgba(31,42,68,0.06);
+}
+
+.toc-title {
+  margin-bottom: 10px;
+  color: #253044;
+  font-weight: 760;
+}
+
+.toc a {
+  display: block;
+  padding: 7px 0;
+  border-top: 1px solid #edf1f6;
+  color: #586476;
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.toc a:hover { color: var(--accent); }
+.toc .level-3 { padding-left: 12px; font-size: 12px; }
+
+.article {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.section {
+  padding: 30px 34px;
+  border-top: 1px solid #edf1f6;
+}
+
+.section:first-child { border-top: none; }
+
+.article h2,
+.article h3,
+.article h4 {
+  margin: 0 0 14px;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.article h2 {
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--line);
+  font-size: 25px;
+}
+
+.article h3 {
+  margin-top: 24px;
+  font-size: 19px;
+  color: #202a3c;
+}
+
+.article h4 { font-size: 16px; }
+
+.article p {
+  margin: 12px 0;
+  color: #2c3544;
+}
+
+.article strong { color: #111827; }
+
+.article ul,
+.article ol {
+  margin: 12px 0 12px 22px;
+  padding: 0;
+}
+
+.article li { margin: 7px 0; }
+
+.article code {
+  padding: 2px 5px;
+  border: 1px solid #e5e9f0;
+  border-radius: 5px;
+  background: #f6f8fb;
+  color: #253044;
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.88em;
+}
+
+.article pre {
+  overflow: auto;
+  padding: 16px;
+  border-radius: 8px;
+  background: #101827;
+  color: #f7fafc;
+}
+
+.article pre code {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.callout {
+  margin: 18px 0;
+  padding: 16px 17px;
+  border-left: 4px solid var(--accent);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--accent) 8%, white);
+}
+
+.table-wrap {
+  overflow: auto;
+  margin: 18px 0 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.42;
+}
+
+th,
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e9eef5;
+  vertical-align: top;
+  text-align: left;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f2f5fa;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 780;
+}
+
+tr:nth-child(even) td { background: #fbfcfe; }
+tr:hover td { background: #f5f8fd; }
+
+.barcell {
+  position: relative;
+  display: inline-flex;
+  min-width: 76px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.barcell::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--w, 0%);
+  z-index: -1;
+  background: rgba(31,94,255,0.12);
+}
+
+.barcell.neg::before { background: rgba(194,65,58,0.13); }
+.barcell.hot::before { background: rgba(199,122,19,0.16); }
+.barcell.pos { color: #155e4d; }
+.barcell.neg { color: #9b2f2a; }
+.barcell.hot { color: #8a510d; }
+
+.status {
+  display: inline-flex;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: #475569;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.status-risk {
+  background: rgba(194,65,58,0.11);
+  color: #9b2f2a;
+}
+
+.status-ok {
+  background: rgba(14,143,110,0.11);
+  color: #0b6f57;
+}
+
+.report-figure {
+  margin: 22px 0 28px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.report-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  background: white;
+}
+
+.report-figure figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+hr {
+  margin: 28px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.footer {
+  margin-top: 18px;
+  color: #697586;
+  font-size: 12px;
+}
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.index-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 330px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.9);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+
+.index-card:hover { border-color: var(--accent); }
+.index-card h2 { margin: 12px 0 10px; line-height: 1.18; }
+.index-card p { color: #536072; }
+.index-card .mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: auto;
+}
+.mini-metric {
+  padding: 10px;
+  border: 1px solid #e3e9f1;
+  border-radius: 7px;
+  background: #fbfcfe;
+}
+.mini-metric b {
+  display: block;
+  color: var(--accent);
+  font-size: 18px;
+  line-height: 1.1;
+}
+.mini-metric span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@supports not (background: color-mix(in srgb, red 10%, white)) {
+  .callout { background: #f6f8fb; }
+}
+
+@media (max-width: 980px) {
+  .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .layout { grid-template-columns: 1fr; }
+  .toc { position: relative; top: 0; }
+  .index-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .page { width: min(100% - 18px, 1180px); margin-top: 10px; }
+  .hero { padding: 24px 20px; }
+  .hero h1 { font-size: 30px; }
+  .deck { font-size: 15px; }
+  .metric-grid { grid-template-columns: 1fr; }
+  .section { padding: 24px 18px; }
+  table { min-width: 680px; }
+}
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero hero-blue">
+      <div class="eyebrow">Institutional Working Report</div>
+      <h1>未来1年美国加息风险与AI股票隐含增长定价</h1>
+      <p class="deck">未来一年美国加息右尾风险与 AI 股票 priced-growth 估值框架的综合版，把 native WIRP、Fed funds path、NFP 历史事件和 AI 链条横截面放在同一张风险图上。</p>
+      <div class="meta-row">
+        <span class="meta-pill">日期：2026-06-06</span>
+        <span class="meta-pill">Source Markdown: US_Rate_Hike_AI_Priced_Growth_Institutional_Report_2026-06-06.md</span>
+        <span class="meta-pill"><a href="report_index_2026-06-06.html">Report index</a></span>
+      </div>
+      <div class="metric-grid"><div class="metric-card"><div class="metric-label">12M path shift</div><div class="metric-value">+14.5bp</div><div class="metric-note">2026-06-05 NFP 当天远端路径上修</div></div><div class="metric-card"><div class="metric-label">Warsh-Fed start</div><div class="metric-value">2026-05-22</div><div class="metric-note">新主席信誉测试窗口</div></div><div class="metric-card"><div class="metric-label">WIRP Jun-27 hikes</div><div class="metric-value">+1.72</div><div class="metric-note">原生WIRP implied 25bp净加息</div></div><div class="metric-card"><div class="metric-label">Current U3</div><div class="metric-value">4.3%</div><div class="metric-note">高于2022/2023加息节点</div></div><div class="metric-card"><div class="metric-label">Core PCE</div><div class="metric-value">3.3%</div><div class="metric-note">仍高于2%目标</div></div><div class="metric-card"><div class="metric-label">SOX event return</div><div class="metric-value">-10.3%</div><div class="metric-note">real-yield / policy-path shock</div></div></div>
+    </header>
+    <div class="layout">
+      <aside class="toc"><div class="toc-title">目录</div>
+<a class="level-2" href="#sec-1">一页结论</a>
+<a class="level-2" href="#sec-2-1-1">1. 未来1年美国加息可能性</a>
+<a class="level-3" href="#sec-3-1-1-fed">1.1 官方事实与Fed反应函数</a>
+<a class="level-3" href="#sec-4-1-2-cut-removal">1.2 市场路径：不是近月加息，而是远端cut-removal</a>
+<a class="level-3" href="#sec-5-1-3-bbg-wirp">1.3 原生BBG WIRP校准：净加息不是尾部，而是路径中枢</a>
+<a class="level-3" href="#sec-6-1-4-kevin-warsh">1.4 Kevin Warsh反应函数：为什么同样的数据更容易被交易成右尾加息</a>
+<a class="level-3" href="#sec-7-1-5-2026-2022">1.5 与上一轮加息周期比较：油价让2026更像供给冲击再校准，不是2022式启动</a>
+<a class="level-3" href="#sec-8-1-6-fed">1.6 油价/地缘冲突如何改变Fed路径</a>
+<a class="level-3" href="#sec-9-1-7">1.7 美国现在有没有加息条件：有，但条件是有限的</a>
+<a class="level-3" href="#sec-10-1-8-ai">1.8 油价冲击对AI股票的额外影响</a>
+<a class="level-2" href="#sec-11-2-ai-price-in">2. AI股票目前price in多少增长，合理吗？</a>
+<a class="level-3" href="#sec-12-2-1-ev-sales-bucket-specific-valuati">2.1 方法：不用统一EV/Sales，用bucket-specific valuation</a>
+<a class="level-3" href="#sec-13-2-2-bucket">2.2 Bucket结论</a>
+<a class="level-3" href="#sec-14-2-3-6-5">2.3 6月5日事件验证</a>
+<a class="level-3" href="#sec-15-2-4-googl-mrvl">2.4 GOOGL与MRVL：两个不同问题</a>
+<a class="level-3" href="#sec-16-2-5">2.5 投资结论</a>
+<a class="level-2" href="#sec-17">数据真实性与限制</a>
+<a class="level-2" href="#sec-18-sources">Sources</a>
+</aside>
+      <main class="article">
+        <section class="section">
+<p>日期：2026-06-06 版本：institutional working report, native WIRP calibration added 2026-06-07 核心数据：Bloomberg BQuant / Bloomberg WIRP / Fed Funds futures / UST-TIPS-BE / BLS / BEA / FRED</p>
+</section>
+<section class="section" id="sec-1">
+<h2>一页结论</h2>
+<ol>
+<li><strong>未来1年再加息不是近月基准，但已经是必须定价的右尾风险。</strong> 6月5日NFP后，Fed Funds futures 的2027年6月隐含月均有效联邦基金利率为 4.070%，较2026年6月前端高 44.7bp，等价于约 1.8 个25bp政策动作；原生Bloomberg WIRP在2027年6月会议给出 4.053% 隐含利率、1.72 个25bp净加息。NFP当天12M futures path 上修 14.5bp，WIRP 2027年6月会议上修 13.5bp，而1M path只上修 0.5bp，说明冲击集中在6-12个月政策路径，而不是下一次会议立刻加息。</li>
+<li><strong>原生BBG WIRP把preliminary框架校准为“1-2次净加息已经进入路径中枢”。</strong> Pricing date 2026-06-05 的WIRP显示，2026年6月17日会议的边际行动字段为 -0.8%，几乎不定价立刻加息；但到2026年12月会议已经累积到 1.03 个25bp净加息，到2027年6月会议累积到 1.72 个25bp净加息。这个导出不是target-range分布矩阵，不能精确反推出“至少一次/两次”的闭式概率，但它明确高于此前45-60%的主观至少一次加息框架。</li>
+<li><strong>Warsh-Fed反应函数会把同样的数据解释得更鹰。</strong> Warsh在2026-05-22正式上任并成为FOMC主席；他的确认材料和公开表态强调Fed独立性、价格稳定、缩小Fed非核心任务和缩表。由于市场原本期待Trump-Warsh组合带来更低利率，6月NFP后的WIRP重定价本质上也是一次“Warsh credibility test”：若通胀高于目标且信用/风险资产太松，新主席需要证明不会为了增长或政治压力提前宽松。</li>
+<li><strong>和2022最大的相似点不是就业，而是油价/地缘供给冲击重新进入通胀核心。</strong> 2022是Russia/Ukraine把能源、食品、航运和通胀预期一起推高；2026当前是Hormuz/中东供给扰动让Brent、汽油、柴油和航空燃油重新成为Fed reaction function的前台变量。EIA 5月STEO显示，4月Brent均价约117美元/桶、4月7日触及138美元/桶，5-6月基准预测仍在约106美元/桶；BLS 4月CPI显示energy同比+17.9%、gasoline同比+28.4%。</li>
+<li><strong>和2022最大的不同是政策起点和需求背景。</strong> 2022首次加息前后是NFP +678k、失业率3.8%、core PCE约5.4%、政策利率接近零；2026当前是NFP +172k、失业率4.3%、core PCE 3.3%、有效联邦基金利率3.6%。所以这不是2022式behind-the-curve追赶周期，而是“供给冲击 + 通胀粘性 + 金融条件过松”共同驱动的再校准风险。</li>
+<li><strong>美国现在具备有限加息条件，但不具备无约束持续加息条件。</strong> 通胀、油价、信用利差和Warsh信誉给了加息理由；劳动力降温、Michigan sentiment 49.8、saving rate 2.6%、30Y mortgage 6.48%限制了连续紧缩空间。油价若维持高位，会先拿掉降息，再把higher-for-longer变成基准；只有当能源冲击进入核心服务、工资和通胀预期时，才会把1-2次再加息从右尾推成路径中枢。</li>
+<li><strong>6月5日当天仍是real-yield/policy-path shock，不是通胀预期失控交易。</strong> 2Y UST +10.4bp、2Y TIPS real yield +15.5bp、5Y breakeven -2.5bp；SOX -10.3%、SMH -9.2%。这说明NFP当天市场卖的是高久期现金流和拥挤估值。真正需要警惕的是后续油价/CPI把交易从real-yield shock切换成stagflation shock。</li>
+<li><strong>AI股票没有一个统一答案。</strong> Hyperscaler和compute在bucket-specific框架下不是最贵的区域；最拥挤的是compute IP、connectivity、部分equipment、power/data center和部分ASIC/networking。ARM/ALAB等需要FY3后仍保持很高增长和稀缺性溢价；GOOGL更像capex ROIC show-me story，不是典型AI泡沫。</li>
+<li><strong>横截面数据支持估值拥挤解释。</strong> 6月5日个股回报与fair-premium相关性约 -0.43，与FY1-FY3销售CAGR相关性约 -0.52，与FY3 EV/Sales相关性约 -0.33。跌幅集中在“高增长、高远期性、above-DCF-range”的AI链条。</li>
+</ol>
+<hr>
+</section>
+<section class="section" id="sec-2-1-1">
+<h2>1. 未来1年美国加息可能性</h2>
+<h3 id="sec-3-1-1-fed">1.1 官方事实与Fed反应函数</h3>
+<p>官方数据给出的组合是“足以拿掉降息、但尚不足以把持续加息作为基准”的宏观环境：</p>
+<ul>
+<li>BLS 2026-06-05就业报告：May NFP +172k，失业率4.3%，平均时薪同比3.4%。</li>
+<li>BEA 2026-05-29个人收入支出报告：4月PCE价格指数同比3.8%，核心PCE同比3.3%。这说明通胀仍高于Fed目标，且不是已经回到2%附近的环境。</li>
+<li>FOMC 2026-04-29声明维持联邦基金目标区间在3.50%-3.75%，并仍强调通胀“somewhat elevated”。</li>
+<li>4月FOMC纪要显示，会前期权价格曾暗示到2027年一季度前加息概率约30%；6月NFP后，Fed Funds futures的12M路径又向鹰派方向上修。</li>
+</ul>
+<p>消费和信用端没有显示衰退式破裂：</p>
+<ul>
+<li>30Y mortgage rate：6.48%，日期 2026-06-04。</li>
+<li>Michigan sentiment：49.8，非常弱。</li>
+<li>Personal saving rate：2.6%，缓冲垫偏薄。</li>
+<li>HY OAS：2.74%，IG OAS：0.74%，信用利差紧，金融条件没有压力。</li>
+</ul>
+<h3 id="sec-4-1-2-cut-removal">1.2 市场路径：不是近月加息，而是远端cut-removal</h3>
+<div class="table-wrap"><table><thead><tr><th>Contract</th><th>Month</th><th>2026-06-04 implied</th><th>2026-06-05 implied</th><th>NFP-day shift</th><th>Slope vs Jun-26 front</th></tr></thead><tbody><tr><td>FFM6 Comdty</td><td>2026-06</td><td><span class="barcell pos" style="--w:92%">3.618%</span></td><td><span class="barcell pos" style="--w:89%">3.623%</span></td><td><span class="barcell pos" style="--w:6%">+0.5bp</span></td><td><span class="barcell pos" style="--w:6%">+0.0bp</span></td></tr><tr><td>FFU6 Comdty</td><td>2026-09</td><td><span class="barcell pos" style="--w:93%">3.665%</span></td><td><span class="barcell pos" style="--w:91%">3.690%</span></td><td><span class="barcell pos" style="--w:17%">+2.5bp</span></td><td><span class="barcell pos" style="--w:15%">+6.7bp</span></td></tr><tr><td>FFZ6 Comdty</td><td>2026-12</td><td><span class="barcell pos" style="--w:96%">3.770%</span></td><td><span class="barcell pos" style="--w:95%">3.860%</span></td><td><span class="barcell pos" style="--w:62%">+9.0bp</span></td><td><span class="barcell pos" style="--w:53%">+23.7bp</span></td></tr><tr><td>FFH7 Comdty</td><td>2027-03</td><td><span class="barcell pos" style="--w:98%">3.855%</span></td><td><span class="barcell pos" style="--w:98%">3.980%</span></td><td><span class="barcell pos" style="--w:86%">+12.5bp</span></td><td><span class="barcell pos" style="--w:80%">+35.8bp</span></td></tr><tr><td>FFM7 Comdty</td><td>2027-06</td><td><span class="barcell pos" style="--w:100%">3.925%</span></td><td><span class="barcell pos" style="--w:100%">4.070%</span></td><td><span class="barcell pos" style="--w:100%">+14.5bp</span></td><td><span class="barcell pos" style="--w:100%">+44.7bp</span></td></tr></tbody></table></div>
+<p>图1-3：</p>
+<figure class="report-figure"><img src="figures/fig_01_rate_shock_decomposition.png" alt="Rate shock decomposition"><figcaption>Rate shock decomposition</figcaption></figure>
+<figure class="report-figure"><img src="figures/fig_02_ff_futures_path_shift.png" alt="Fed funds futures path shift"><figcaption>Fed funds futures path shift</figcaption></figure>
+<figure class="report-figure"><img src="figures/fig_03_nfp_surprise_revision_vs_12m_path.png" alt="NFP regression"><figcaption>NFP regression</figcaption></figure>
+<p>历史事件研究显示，6月5日的12M path shift是右尾事件：</p>
+<div class="table-wrap"><table><thead><tr><th>sample</th><th>metric</th><th>n</th><th>Event</th><th>Percentile</th></tr></thead><tbody><tr><td>all_available_path</td><td>d_rate_bp_1m</td><td>13</td><td><span class="barcell pos" style="--w:6%">+0.5bp</span></td><td><span class="barcell pos" style="--w:48%">46%</span></td></tr><tr><td>all_available_path</td><td>d_rate_bp_3m</td><td>15</td><td><span class="barcell pos" style="--w:17%">+2.5bp</span></td><td><span class="barcell pos" style="--w:66%">63%</span></td></tr><tr><td>all_available_path</td><td>d_rate_bp_6m</td><td>18</td><td><span class="barcell pos" style="--w:62%">+9.0bp</span></td><td><span class="barcell pos" style="--w:86%">83%</span></td></tr><tr><td>all_available_path</td><td>d_rate_bp_12m</td><td>24</td><td><span class="barcell pos" style="--w:100%">+14.5bp</span></td><td><span class="barcell pos" style="--w:89%">85%</span></td></tr><tr><td>all_available_path</td><td>path_twist_12m_minus_1m_bp</td><td>13</td><td><span class="barcell pos" style="--w:97%">+14.0bp</span></td><td><span class="barcell pos" style="--w:100%">96%</span></td></tr><tr><td>full_horizon_path</td><td>d_rate_bp_1m</td><td>13</td><td><span class="barcell pos" style="--w:6%">+0.5bp</span></td><td><span class="barcell pos" style="--w:48%">46%</span></td></tr><tr><td>full_horizon_path</td><td>d_rate_bp_3m</td><td>13</td><td><span class="barcell pos" style="--w:17%">+2.5bp</span></td><td><span class="barcell pos" style="--w:68%">65%</span></td></tr><tr><td>full_horizon_path</td><td>d_rate_bp_6m</td><td>13</td><td><span class="barcell pos" style="--w:62%">+9.0bp</span></td><td><span class="barcell pos" style="--w:89%">85%</span></td></tr><tr><td>full_horizon_path</td><td>d_rate_bp_12m</td><td>13</td><td><span class="barcell pos" style="--w:100%">+14.5bp</span></td><td><span class="barcell pos" style="--w:100%">96%</span></td></tr><tr><td>full_horizon_path</td><td>path_twist_12m_minus_1m_bp</td><td>13</td><td><span class="barcell pos" style="--w:97%">+14.0bp</span></td><td><span class="barcell pos" style="--w:100%">96%</span></td></tr><tr><td>full_horizon_with_nfp_surprise</td><td>d_rate_bp_1m</td><td>9</td><td><span class="barcell pos" style="--w:6%">+0.5bp</span></td><td><span class="barcell pos" style="--w:58%">56%</span></td></tr><tr><td>full_horizon_with_nfp_surprise</td><td>d_rate_bp_3m</td><td>9</td><td><span class="barcell pos" style="--w:17%">+2.5bp</span></td><td><span class="barcell pos" style="--w:64%">61%</span></td></tr><tr><td>full_horizon_with_nfp_surprise</td><td>d_rate_bp_6m</td><td>9</td><td><span class="barcell pos" style="--w:62%">+9.0bp</span></td><td><span class="barcell pos" style="--w:81%">78%</span></td></tr><tr><td>full_horizon_with_nfp_surprise</td><td>d_rate_bp_12m</td><td>9</td><td><span class="barcell pos" style="--w:100%">+14.5bp</span></td><td><span class="barcell pos" style="--w:98%">94%</span></td></tr><tr><td>full_horizon_with_nfp_surprise</td><td>path_twist_12m_minus_1m_bp</td><td>9</td><td><span class="barcell pos" style="--w:97%">+14.0bp</span></td><td><span class="barcell pos" style="--w:98%">94%</span></td></tr></tbody></table></div>
+<p>回归结果也说明，headline NFP surprise不是唯一变量；surprise + prior-month revision 对12M Fed path解释力更强。</p>
+<div class="table-wrap"><table><thead><tr><th>Sample</th><th>Predictor</th><th>n</th><th>Slope</th><th>R2</th><th>Corr</th></tr></thead><tbody><tr><td>12m_available_with_nfp</td><td>nfp_surprise_100k</td><td>20</td><td>+11.5bp / 100k</td><td>0.25</td><td>0.50</td></tr><tr><td>12m_available_with_nfp</td><td>revision_1m_100k</td><td>20</td><td>+18.1bp / 100k</td><td>0.22</td><td>0.47</td></tr><tr><td>12m_available_with_nfp</td><td>surprise_plus_revision_100k</td><td>20</td><td>+11.9bp / 100k</td><td>0.40</td><td>0.63</td></tr><tr><td>full_horizon_with_nfp</td><td>nfp_surprise_100k</td><td>9</td><td>+8.7bp / 100k</td><td>0.24</td><td>0.49</td></tr><tr><td>full_horizon_with_nfp</td><td>revision_1m_100k</td><td>9</td><td>+17.9bp / 100k</td><td>0.47</td><td>0.68</td></tr><tr><td>full_horizon_with_nfp</td><td>surprise_plus_revision_100k</td><td>9</td><td>+9.8bp / 100k</td><td>0.53</td><td>0.73</td></tr></tbody></table></div>
+<p>本次NFP的组合为：+84k headline surprise，加上+64k前月一修正，合计+148k。用full-horizon样本的简单回归，约对应15-16bp的12M path上修，和实际+14.5bp接近。</p>
+<h3 id="sec-5-1-3-bbg-wirp">1.3 原生BBG WIRP校准：净加息不是尾部，而是路径中枢</h3>
+<p><code>reports/WIRP.xlsx</code> 是Bloomberg WIRP原生导出，pricing date包括2026-06-04和2026-06-05，instrument为Fed Funds Futures。它不是此前无效的月均合成WIRP表；这里直接使用Bloomberg给出的<code>#Hikes/Cuts</code>、<code>%Hike/Cut</code>、<code>Imp. Rate ∆</code>和<code>Implied Rate</code>。</p>
+<p>核心读数：</p>
+<ul>
+<li>当前target rate：3.75%；effective rate：3.62%；2026-06-05 current implied O/N rate：3.622%。</li>
+<li>下一次2026-06-17会议：WIRP implied rate 3.620%，边际行动字段 -0.8%。这确认“不是近月加息恐慌”。</li>
+<li>2026-12-09会议：累积 1.03 个25bp净加息，implied rate 3.880%，边际行动字段 +40.0%。</li>
+<li>2027-06-09会议：累积 1.72 个25bp净加息，implied rate 4.053%；较2026-06-04同一会议上修 13.5bp、0.52 个25bp动作。这个数字与Fed Funds futures 2027年6月合约的+14.5bp重定价方向一致。</li>
+</ul>
+<div class="table-wrap"><table><thead><tr><th>Meeting</th><th>06/05 #Hikes/Cuts</th><th>06/05 marginal action</th><th>06/05 implied rate</th><th>1D rate shift</th><th>1D #H/C shift</th></tr></thead><tbody><tr><td>2026-06-17</td><td>-0.01</td><td><span class="barcell neg" style="--w:6%">-0.8%</span></td><td><span class="barcell pos" style="--w:89%">3.620%</span></td><td><span class="barcell neg" style="--w:6%">-0.1bp</span></td><td>-0.03</td></tr><tr><td>2026-07-29</td><td>0.14</td><td><span class="barcell pos" style="--w:38%">+15.0%</span></td><td><span class="barcell pos" style="--w:90%">3.658%</span></td><td><span class="barcell pos" style="--w:11%">+1.5bp</span></td><td>+0.04</td></tr><tr><td>2026-09-16</td><td>0.44</td><td><span class="barcell pos" style="--w:74%">+29.5%</span></td><td><span class="barcell pos" style="--w:92%">3.731%</span></td><td><span class="barcell pos" style="--w:34%">+4.6bp</span></td><td>+0.16</td></tr><tr><td>2026-10-28</td><td>0.63</td><td><span class="barcell pos" style="--w:49%">+19.5%</span></td><td><span class="barcell pos" style="--w:93%">3.780%</span></td><td><span class="barcell pos" style="--w:46%">+6.2bp</span></td><td>+0.23</td></tr><tr><td>2026-12-09</td><td>1.03</td><td><span class="barcell pos" style="--w:100%">+40.0%</span></td><td><span class="barcell pos" style="--w:96%">3.880%</span></td><td><span class="barcell pos" style="--w:71%">+9.6bp</span></td><td>+0.36</td></tr><tr><td>2027-01-27</td><td>1.24</td><td><span class="barcell pos" style="--w:52%">+21.0%</span></td><td><span class="barcell pos" style="--w:97%">3.933%</span></td><td><span class="barcell pos" style="--w:85%">+11.5bp</span></td><td>+0.44</td></tr><tr><td>2027-03-17</td><td>1.53</td><td><span class="barcell pos" style="--w:72%">+28.9%</span></td><td><span class="barcell pos" style="--w:99%">4.005%</span></td><td><span class="barcell pos" style="--w:91%">+12.3bp</span></td><td>+0.47</td></tr><tr><td>2027-04-28</td><td>1.68</td><td><span class="barcell pos" style="--w:38%">+15.1%</span></td><td><span class="barcell pos" style="--w:100%">4.043%</span></td><td><span class="barcell pos" style="--w:99%">+13.3bp</span></td><td>+0.51</td></tr><tr><td>2027-06-09</td><td>1.72</td><td><span class="barcell pos" style="--w:10%">+4.1%</span></td><td><span class="barcell pos" style="--w:100%">4.053%</span></td><td><span class="barcell pos" style="--w:100%">+13.5bp</span></td><td>+0.52</td></tr></tbody></table></div>
+<figure class="report-figure"><img src="figures/fig_09_wirp_implied_meeting_path.png" alt="WIRP implied meeting path"><figcaption>WIRP implied meeting path</figcaption></figure>
+<figure class="report-figure"><img src="figures/fig_10_wirp_marginal_action_by_meeting.png" alt="WIRP marginal action by meeting"><figcaption>WIRP marginal action by meeting</figcaption></figure>
+<p>校准后的判断：</p>
+<ul>
+<li>“未来12个月至少一次加息45-60%”不应再作为正式概率口径；native WIRP摘要导出显示，到2027年6月已经price in约1.7次净加息。更准确的说法是：市场路径中枢已从“是否加一次”移动到“加一次后是否还需要第二次”。</li>
+<li>精确的“至少一次/至少两次”概率仍需要Bloomberg WIRP target-range distribution矩阵；当前导出给的是期望动作数和每次会议的边际行动字段，不能把它伪装成完整概率分布。</li>
+<li>WIRP并不支持“马上进入连续加息周期”：6月会议几乎不动，风险主要堆在2026年9月至2027年3月；2027年9月会议边际字段转为-66.0%，说明市场也在定价远端路径可能回落。</li>
+</ul>
+<p><strong>交易含义：</strong> 债券市场最脆弱的位置不是“下次会议加息”，而是6-12M路径继续上修；权益市场最脆弱的位置不是AI需求证伪，而是高估值AI链条的折现率和终端增长假设被同时下调。</p>
+<h3 id="sec-6-1-4-kevin-warsh">1.4 Kevin Warsh反应函数：为什么同样的数据更容易被交易成右尾加息</h3>
+<p>Warsh不是这份报告里可以省略的背景变量，因为2026-06-05的市场反应发生在新主席刚上任后的信誉测试窗口。Federal Reserve官方履历显示，Kevin Warsh于2026-05-22出任Board Chairman，并担任FOMC主席；这意味着6月NFP之后的WIRP重定价已经是Warsh-Fed regime下的市场定价，而不是Powell末期的惯性定价。</p>
+<p>我的理解是，Warsh反应函数有四个市场含义：</p>
+<ol>
+<li><strong>price stability优先级更高。</strong> Senate Banking材料围绕稳定物价、最大就业和Fed独立性；Warsh的QFR答复也把通胀责任明确放回Fed，强调要改进货币政策执行以确保价格稳定。这会降低市场对“新主席为了配合降息预期而容忍3%+ core PCE”的信心。</li>
+<li><strong>AI/productivity叙事不等于可以无条件降息。</strong> Warsh此前更愿意承认AI带来的潜在供给侧改善，但确认问答里也承认会根据“best available data”评估通胀和劳动力市场。也就是说，AI productivity是中期框架，不是当下PCE 3.8%、core PCE 3.3%时的免死金牌。</li>
+<li><strong>缩表/窄化Fed职能让金融条件更重要。</strong> 如果Warsh倾向减少Fed资产负债表对金融市场的常态支持，那么信用利差太紧、风险资产太热时，政策利率路径更容易承担“重新收紧金融条件”的任务。</li>
+<li><strong>政治压力反而提高hawkish reaction的信号价值。</strong> 在白宫希望更低利率的背景下，新主席若面对通胀反弹仍然维持或上修路径，市场会把它解读为Fed independence和price-stability credibility的信号。这解释了为什么NFP不是近月hike scare，却能把2027年6月WIRP implied rate推到4.053%。</li>
+</ol>
+<p><strong>投资含义：</strong> Warsh-Fed下，单月就业/通胀数据的阈值不是“是否足以马上加息”，而是“是否足以迫使新主席放弃降息叙事、重新建立价格稳定信誉”。6月5日满足后者，但尚未满足前者。</p>
+<h3 id="sec-7-1-5-2026-2022">1.5 与上一轮加息周期比较：油价让2026更像供给冲击再校准，不是2022式启动</h3>
+<p>6月5日的NFP事件不能只看单月就业增量。和2022相比，当前最容易被低估的共同点不是劳动力过热，而是油价和地缘冲突重新把headline inflation、通胀预期和Fed信誉放到前台。不同点是政策利率起点、工资压力和消费者缓冲垫都显著弱于2022，因此它更像“供给冲击驱动的再校准风险”，不是从零利率追赶通胀的完整加息启动周期。</p>
+<div class="table-wrap"><table><thead><tr><th>Metric</th><th>2022-03 first-hike context</th><th>2023-07 last-hike context</th><th>2026-06 current event</th><th>Read-through</th></tr></thead><tbody><tr><td>NFP headline</td><td>+678k</td><td>+187k</td><td>+172k</td><td>当前就业增量接近2023最后一次加息附近，远低于2022启动周期的过热修复。</td></tr><tr><td>NFP surprise vs consensus</td><td><span class="status">n/a</span></td><td>-13k</td><td>+84k</td><td>当前hawkish shock来自surprise和前月上修，而不是绝对就业增量极端。</td></tr><tr><td>Unemployment rate</td><td><span class="barcell pos" style="--w:59%">3.8%</span></td><td><span class="barcell pos" style="--w:64%">3.5%</span></td><td><span class="barcell pos" style="--w:100%">4.3%</span></td><td>当前劳动力市场明显松于上一轮两个加息节点，不支持大幅连续加息作为基准。</td></tr><tr><td>Average hourly earnings YoY</td><td><span class="barcell pos" style="--w:80%">5.1%</span></td><td><span class="barcell pos" style="--w:80%">4.4%</span></td><td><span class="barcell pos" style="--w:79%">3.4%</span></td><td>工资通胀仍高于2%通胀兼容区间，但工资-价格螺旋压力弱于2022/2023。</td></tr><tr><td>Headline PCE YoY</td><td><span class="barcell pos" style="--w:100%">6.4%</span></td><td><span class="barcell pos" style="--w:60%">3.3%</span></td><td><span class="barcell pos" style="--w:88%">3.8%</span></td><td>当前headline PCE高于2023最后一次加息附近，说明能源冲击已经影响总通胀。</td></tr><tr><td>Core PCE YoY</td><td><span class="barcell pos" style="--w:84%">5.4%</span></td><td><span class="barcell pos" style="--w:76%">4.2%</span></td><td><span class="barcell pos" style="--w:77%">3.3%</span></td><td>核心通胀低于上一轮加息节点，但仍比目标高约1.3pp。</td></tr><tr><td>Oil / geopolitical shock</td><td>Russia/Ukraine后Brent一度升至120美元/桶以上</td><td>能源价格正常化，不是政策主线</td><td>EIA 5月STEO：4月Brent均价约117美元/桶，4月7日触及138美元/桶，5-6月基准预测约106美元/桶</td><td>这是最像2022的部分：供给冲击把headline和预期风险重新外生化。</td></tr><tr><td>Energy CPI / gasoline</td><td>gasoline和能源是2022 headline CPI的重要推手</td><td>能源项转为拖累/低基数</td><td>BLS 4月CPI：energy同比+17.9%，gasoline同比+28.4%、环比+5.4%</td><td>油价已通过汽油和能源项进入消费者可见通胀，Fed更难“看穿”headline。</td></tr><tr><td>Effective fed funds / policy rate</td><td>0.08-0.20%</td><td><span class="barcell pos" style="--w:93%">5.12%</span></td><td>3.62-3.63%</td><td>当前不是zero-rate behind-the-curve环境；加息是再校准，不是追赶式启动。</td></tr><tr><td>Michigan sentiment</td><td>62.8 / 59.4</td><td>71.5</td><td>49.8</td><td>当前家庭信心显著弱于上一轮，对连续加息构成政治和需求约束。</td></tr><tr><td>Personal saving rate</td><td>4.1% / 3.2%</td><td><span class="barcell pos" style="--w:100%">5.5%</span></td><td><span class="barcell pos" style="--w:60%">2.6%</span></td><td>消费缓冲垫更薄；油价上涨对实际消费的挤压比表面就业数据更重要。</td></tr><tr><td>HY OAS</td><td>n/a in local pull</td><td><span class="barcell pos" style="--w:69%">3.79%</span></td><td><span class="barcell pos" style="--w:64%">2.74%</span></td><td>信用利差比2023更紧，说明金融条件没有替Fed完成收紧。</td></tr></tbody></table></div>
+<figure class="report-figure"><img src="figures/fig_11_prior_cycle_macro_comparison.png" alt="Prior cycle macro comparison"><figcaption>Prior cycle macro comparison</figcaption></figure>
+<p>核心结论：</p>
+<ul>
+<li><strong>和2022相似的是油价和供给冲击，不是就业热度。</strong> 2022年3月启动时，劳动力市场处在疫情后重开和工资高增阶段，NFP +678k、AHE YoY 5.1%、core PCE 5.4%、政策利率仍接近零。当前就业和工资不支持同样的追赶式连续加息，但Hormuz/中东扰动让能源价格和headline inflation再次成为Fed信誉风险。</li>
+<li><strong>油价改变了“能不能降息”的门槛。</strong> 如果油价只是短期尖峰且breakeven/通胀预期稳定，Fed可以看穿一部分headline；但若Brent维持100美元/桶以上，汽油、柴油、航空燃油和物流成本会进入消费者预期、企业成本和部分核心服务，Fed就很难在headline PCE 3.8%、core PCE 3.3%时启动降息。</li>
+<li><strong>当前基准不是“重启加息周期”，而是“1-2次净加息进入路径中枢”。</strong> WIRP到2027年6月累积1.72次25bp净加息，和这个比较框架一致：市场在price in供给冲击和通胀粘性的再校准，而不是2022式连续追赶。</li>
+</ul>
+<h3 id="sec-8-1-6-fed">1.6 油价/地缘冲突如何改变Fed路径</h3>
+<p>油价冲击对Fed的约束有三层：</p>
+<ol>
+<li><strong>直接headline effect。</strong> 汽油、燃油、电力直接推高CPI/PCE headline，且消费者对加油站价格高度敏感。</li>
+<li><strong>成本传导。</strong> Diesel、jet fuel、冷链、包装、食品运输和航空票价会把能源冲击带入核心商品和服务。</li>
+<li><strong>通胀预期和工资谈判。</strong> 如果油价高位持续，消费者和企业看到的是生活成本再上台阶，而不是core PCE定义上的剔除项；这会迫使Fed更重视信誉。</li>
+</ol>
+<p>因此政策路径的顺序应当是：</p>
+<div class="table-wrap"><table><thead><tr><th>阶段</th><th>触发条件</th><th>Fed path含义</th></tr></thead><tbody><tr><td>第一阶段：拿掉降息</td><td>油价高位但core/预期尚未扩散</td><td>cut-removal，近月不加息但远端路径上修</td></tr><tr><td>第二阶段：higher-for-longer成为基准</td><td>Brent持续100美元/桶以上，gasoline/diesel高位，headline PCE维持3.5%+</td><td>6-12M path继续抬升，WIRP把1次加息作为中枢</td></tr><tr><td>第三阶段：真正re-hike</td><td>能源冲击进入core services、工资、UMich通胀预期或breakeven</td><td>1-2次再加息从右尾变成中心情景</td></tr></tbody></table></div>
+<p>6月5日当天仍更像第一阶段的就业驱动real-yield shock：5Y breakeven下行2.5bp，说明市场没有在当天交易通胀预期失控。但油价/地缘冲突使第二阶段和第三阶段的概率显著高于只看NFP时的判断。</p>
+<h3 id="sec-9-1-7">1.7 美国现在有没有加息条件：有，但条件是有限的</h3>
+<div class="table-wrap"><table><thead><tr><th>Condition</th><th>Current evidence</th><th>Score</th><th>Investment read</th></tr></thead><tbody><tr><td>通胀是否给加息理由</td><td>PCE 3.8%，core PCE 3.3%，均高于2%目标；WIRP到2027-06已price in 1.72次25bp净加息。</td><td>Yes</td><td>足以拿掉降息，并支持一次保险性加息或更长时间higher-for-longer。</td></tr><tr><td>油价/地缘供给冲击</td><td>EIA 5月STEO显示4月Brent均价约117美元/桶、4月7日触及138美元/桶；BLS 4月CPI显示energy同比+17.9%、gasoline同比+28.4%。</td><td>Yes</td><td>这是相对2022对比中最重要的新增鹰派变量；它提高headline和预期右尾。</td></tr><tr><td>劳动力是否过热</td><td>NFP +172k，U3 4.3%，AHE YoY 3.4%；比2022/2023加息节点松很多。</td><td>Mixed</td><td>就业不差，但不是2022式过热；不支持连续100bp+紧缩作为中心情景。</td></tr><tr><td>金融条件是否宽松</td><td>HY OAS 2.74%，IG OAS 0.74%；AI/semis此前估值拥挤，风险资产未表现出融资压力。</td><td>Yes</td><td>市场太松会削弱政策传导，增强Warsh-Fed维持鹰派路径的理由。</td></tr><tr><td>消费/资产负债表能否承受</td><td>Michigan sentiment 49.8，saving rate 2.6%，30Y mortgage 6.48%。</td><td>No/Mixed</td><td>油价上涨会进一步挤压实际消费；加息可以被讨论，但连续加息会迅速撞上消费和住房约束。</td></tr><tr><td>政策信誉和Warsh反应函数</td><td>Warsh 5/22/2026上任，强调独立、价格稳定、精简Fed remit和缩表；市场会把能源通胀反弹解读为新主席信誉测试。</td><td>Yes</td><td>同样的数据在Warsh-Fed下比Powell末期更容易被交易成右尾加息风险。</td></tr><tr><td>是否接近上一轮启动周期</td><td>2022首次加息时NFP +678k、U3 3.8%、core PCE 5.4%、政策利率约0；当前U3 4.3%、core PCE 3.3%、政策利率3.6%，但油价供给冲击更像2022。</td><td>Mixed</td><td>当前不是2022式落后曲线；但也不能被简化为普通cut-removal，因为油价让通胀分布右尾变厚。</td></tr></tbody></table></div>
+<figure class="report-figure"><img src="figures/fig_12_hike_conditions_dashboard.png" alt="Hike conditions dashboard"><figcaption>Hike conditions dashboard</figcaption></figure>
+<p>监控框架：</p>
+<div class="table-wrap"><table><thead><tr><th>变量</th><th>阈值</th><th>含义</th></tr></thead><tbody><tr><td>Brent</td><td>持续 &gt; 100美元/桶</td><td>Fed难以降息，headline risk常态化</td></tr><tr><td>Brent</td><td>&gt; 120美元/桶</td><td>市场会交易stagflation tail</td></tr><tr><td>Gasoline CPI</td><td>连续高MoM</td><td>消费者通胀预期风险</td></tr><tr><td>Diesel / distillate cracks</td><td>高位不回落</td><td>物流、食品、核心商品传导</td></tr><tr><td>5Y breakeven</td><td>明显上行</td><td>从real-yield shock转向inflation-expectation shock</td></tr><tr><td>UMich 1Y / 5-10Y expectations</td><td>上行</td><td>Fed无法看穿能源冲击</td></tr><tr><td>Core services ex shelter</td><td>不降反升</td><td>second-round pass-through成立</td></tr><tr><td>Payroll + wage</td><td>继续强</td><td>油价冲击下仍有再加息能力</td></tr><tr><td>HY OAS</td><td>仍紧</td><td>金融条件没有替Fed收紧</td></tr><tr><td>Consumer sentiment / saving rate</td><td>继续恶化</td><td>限制连续加息空间</td></tr></tbody></table></div>
+<p>综合判断：</p>
+<ul>
+<li><strong>支持加息/更鹰路径的条件：</strong> core PCE 3.3%仍显著高于2%；headline PCE 3.8%和能源CPI说明冲击不只是统计噪音；HY OAS 2.74%、IG OAS 0.74%说明金融条件没有自动收紧；WIRP已经把2026年9月至2027年3月作为主要风险窗口。</li>
+<li><strong>限制连续加息的条件：</strong> U3 4.3%且2025年7月以来维持在4.3%-4.5%区间，AHE YoY 3.4%低于2022/2023；Michigan sentiment 49.8、saving rate 2.6%、30Y mortgage 6.48%说明家庭部门承压；油价越高，真实消费越容易被挤压。</li>
+<li><strong>政策结论：</strong> 现在美国经济有“再加一次或两次”的条件，尤其如果未来1-2个月core PCE、工资、breakeven或UMich通胀预期重新走强；但没有足够条件把100bp+持续加息周期作为基准。市场最应该防的是6-12M路径继续上修，以及油价把交易从real-yield shock切换为stagflation shock。</li>
+</ul>
+<h3 id="sec-10-1-8-ai">1.8 油价冲击对AI股票的额外影响</h3>
+<p>油价/地缘冲突对AI不只是“利率上行所以估值下修”，还有四条额外通道：</p>
+<ol>
+<li><strong>折现率通道。</strong> Fed更难降息，5Y real yield更容易保持高位，长duration AI倍数承压。</li>
+<li><strong>能源成本通道。</strong> Data center power、backup fuel、grid cost、electricity price上行，提高AI infrastructure的长期WACC和operating cost。</li>
+<li><strong>融资通道。</strong> Power/data center/utility/project finance对10Y/30Y和credit spread更敏感，油价冲击若推升term premium，会直接压缩这些资产的DCF价值。</li>
+<li><strong>需求挤压通道。</strong> 汽油和食品价格占用消费者现金流，会影响广告、消费、云需求和企业IT预算的边际预期。</li>
+</ol>
+<p>因此bucket排序要加一层能源敏感度：hyperscaler现金流强但AI capex ROIC门槛更高；compute基本面强但multiple受real yield压制；power infra需求逻辑更强但WACC风险也更强；software/apps若面对企业预算和消费挤压，AI monetization更难被提前资本化。</p>
+<hr>
+</section>
+<section class="section" id="sec-11-2-ai-price-in">
+<h2>2. AI股票目前price in多少增长，合理吗？</h2>
+<h3 id="sec-12-2-1-ev-sales-bucket-specific-valuati">2.1 方法：不用统一EV/Sales，用bucket-specific valuation</h3>
+<p>本报告使用三层指标回答“price in多少增长”：</p>
+<ol>
+<li><strong>FY1-FY3 consensus sales CAGR</strong>：市场已经可见的近中期增长。</li>
+<li><strong>Post-FY3 implied CAGR from terminal multiple</strong>：若FY3后要回到bucket合理终端倍数，收入还需要增长多少。</li>
+<li><strong>Reverse DCF implied CAGR / above_dcf_range</strong>：在WACC、terminal growth、target margin、sales-to-capital假设下，当前EV是否能被测试区间内的FY3后增长解释。<code>above_dcf_range</code>不是缺数据，而是当前假设下价格高于测试DCF区间上限。</li>
+</ol>
+<h3 id="sec-13-2-2-bucket">2.2 Bucket结论</h3>
+<div class="table-wrap"><table><thead><tr><th>Bucket</th><th>Consensus FY1-FY3 sales CAGR</th><th>Current primary multiple</th><th>Fair primary multiple</th><th>Premium / discount</th><th>Post-FY3 implied CAGR</th><th>Reverse DCF implied CAGR</th></tr></thead><tbody><tr><td>Software Apps</td><td><span class="barcell pos" style="--w:44%">18.4%</span></td><td><span class="barcell hot" style="--w:16%">6.7x</span></td><td><span class="barcell hot" style="--w:35%">6.5x</span></td><td><span class="barcell hot" style="--w:6%">1.5%</span></td><td><span class="barcell neg" style="--w:6%">-2.8%</span></td><td><span class="barcell pos" style="--w:38%">10.7%</span></td></tr><tr><td>Hyperscaler</td><td><span class="barcell pos" style="--w:43%">18.2%</span></td><td><span class="barcell hot" style="--w:38%">15.7x</span></td><td><span class="barcell hot" style="--w:89%">16.8x</span></td><td><span class="barcell neg" style="--w:6%">-11.4%</span></td><td><span class="barcell pos" style="--w:19%">11.5%</span></td><td><span class="barcell pos" style="--w:52%">14.8%</span></td></tr><tr><td>Asic Networking</td><td><span class="barcell hot" style="--w:100%">42.1%</span></td><td><span class="barcell hot" style="--w:55%">22.3x</span></td><td><span class="barcell hot" style="--w:91%">17.2x</span></td><td><span class="barcell hot" style="--w:6%">10.3%</span></td><td><span class="barcell pos" style="--w:28%">17.4%</span></td><td><span class="barcell hot" style="--w:100%">28.2%</span></td></tr><tr><td>Compute</td><td><span class="barcell hot" style="--w:88%">36.9%</span></td><td><span class="barcell hot" style="--w:40%">16.3x</span></td><td><span class="barcell hot" style="--w:100%">18.8x</span></td><td><span class="barcell neg" style="--w:6%">-14.0%</span></td><td><span class="barcell pos" style="--w:8%">4.7%</span></td><td><span class="barcell pos" style="--w:68%">19.3%</span></td></tr><tr><td>Hbm Memory</td><td><span class="barcell pos" style="--w:59%">24.8%</span></td><td><span class="barcell hot" style="--w:9%">3.5x</span></td><td><span class="barcell hot" style="--w:27%">5.1x</span></td><td><span class="barcell neg" style="--w:12%">-28.9%</span></td><td><span class="barcell hot" style="--w:100%">61.7%</span></td><td><span class="barcell neg" style="--w:24%">-6.8%</span></td></tr><tr><td>Compute Ip</td><td><span class="barcell hot" style="--w:71%">30.1%</span></td><td><span class="barcell hot" style="--w:100%">40.8x</span></td><td><span class="barcell hot" style="--w:62%">11.7x</span></td><td><span class="barcell hot" style="--w:100%">249.7%</span></td><td><span class="barcell hot" style="--w:69%">42.7%</span></td><td><span class="status">n/a</span></td></tr><tr><td>Connectivity</td><td><span class="barcell hot" style="--w:83%">35.0%</span></td><td><span class="barcell hot" style="--w:66%">26.8x</span></td><td><span class="barcell hot" style="--w:54%">10.1x</span></td><td><span class="barcell hot" style="--w:67%">166.2%</span></td><td><span class="barcell hot" style="--w:57%">35.3%</span></td><td><span class="status">n/a</span></td></tr><tr><td>Datacenter Reit</td><td><span class="barcell pos" style="--w:25%">10.7%</span></td><td><span class="barcell hot" style="--w:47%">19.1x</span></td><td><span class="barcell hot" style="--w:71%">13.4x</span></td><td><span class="barcell hot" style="--w:17%">42.4%</span></td><td><span class="barcell pos" style="--w:6%">2.3%</span></td><td><span class="status">n/a</span></td></tr><tr><td>Equipment</td><td><span class="barcell pos" style="--w:46%">19.3%</span></td><td><span class="barcell hot" style="--w:65%">26.6x</span></td><td><span class="barcell hot" style="--w:100%">18.8x</span></td><td><span class="barcell hot" style="--w:15%">38.6%</span></td><td><span class="barcell hot" style="--w:47%">29.2%</span></td><td><span class="status">n/a</span></td></tr><tr><td>Foundry</td><td><span class="barcell pos" style="--w:27%">11.4%</span></td><td><span class="barcell hot" style="--w:28%">11.5x</span></td><td><span class="barcell hot" style="--w:61%">11.4x</span></td><td><span class="barcell hot" style="--w:6%">14.3%</span></td><td><span class="barcell pos" style="--w:27%">16.8%</span></td><td><span class="status">n/a</span></td></tr><tr><td>Power Infra</td><td><span class="barcell pos" style="--w:23%">9.7%</span></td><td><span class="barcell hot" style="--w:44%">17.8x</span></td><td><span class="barcell hot" style="--w:65%">12.3x</span></td><td><span class="barcell hot" style="--w:12%">29.8%</span></td><td><span class="barcell pos" style="--w:27%">16.6%</span></td><td><span class="status">n/a</span></td></tr></tbody></table></div>
+<figure class="report-figure"><img src="figures/fig_05_ai_bucket_priced_growth.png" alt="AI bucket priced growth"><figcaption>AI bucket priced growth</figcaption></figure>
+<p>解释：</p>
+<ul>
+<li>Hyperscaler：整体相对fair multiple折价约11%，FY3后隐含增长约11.5%，低于近中期共识增长。问题不是“AI泡沫”，而是AI capex能否转化为ROIC和FCF。</li>
+<li>Compute：当前主倍数低于模型fair multiple，post-FY3 terminal hurdle不高；真正风险是产品周期和客户capex节奏，而不是简单估值极端。</li>
+<li>Compute IP / Connectivity：最拥挤。Compute IP相对fair multiple溢价约250%，FY3后隐含CAGR约43%；Connectivity溢价约166%，FY3后隐含CAGR约35%。这些名字不是没有增长，而是容错率极低。</li>
+<li>Equipment / Power infra / Data center：需求真实，但估值给了长期capex周期和低WACC的双重资本化；若实际利率继续上行，估值对订单好消息的弹性会下降。</li>
+<li>HBM/memory：表面倍数不贵，但mid-cycle terminal multiple必须保守。不能把景气高点利润永久化。</li>
+</ul>
+<h3 id="sec-14-2-3-6-5">2.3 6月5日事件验证</h3>
+<div class="table-wrap"><table><thead><tr><th>Bucket</th><th>n</th><th>Median 6/5 return</th><th>Median fair premium</th><th>Above DCF count</th></tr></thead><tbody><tr><td>Compute Ip</td><td>1</td><td><span class="barcell neg" style="--w:100%">-12.8%</span></td><td><span class="barcell hot" style="--w:100%">249.7%</span></td><td>1</td></tr><tr><td>Connectivity</td><td>1</td><td><span class="barcell neg" style="--w:89%">-11.4%</span></td><td><span class="barcell hot" style="--w:67%">166.2%</span></td><td>1</td></tr><tr><td>Foundry</td><td>3</td><td><span class="barcell neg" style="--w:84%">-10.8%</span></td><td><span class="barcell hot" style="--w:6%">14.3%</span></td><td>3</td></tr><tr><td>Equipment</td><td>4</td><td><span class="barcell neg" style="--w:75%">-9.6%</span></td><td><span class="barcell hot" style="--w:15%">38.6%</span></td><td>4</td></tr><tr><td>Compute</td><td>2</td><td><span class="barcell neg" style="--w:66%">-8.5%</span></td><td><span class="barcell neg" style="--w:6%">-14.0%</span></td><td>0</td></tr><tr><td>Asic Networking</td><td>3</td><td><span class="barcell neg" style="--w:62%">-7.9%</span></td><td><span class="barcell hot" style="--w:6%">10.3%</span></td><td>2</td></tr><tr><td>Hbm Memory</td><td>3</td><td><span class="barcell neg" style="--w:48%">-6.1%</span></td><td><span class="barcell neg" style="--w:12%">-28.9%</span></td><td>1</td></tr><tr><td>Power Infra</td><td>5</td><td><span class="barcell neg" style="--w:42%">-5.4%</span></td><td><span class="barcell hot" style="--w:12%">29.8%</span></td><td>5</td></tr><tr><td>Software Apps</td><td>6</td><td><span class="barcell neg" style="--w:27%">-3.5%</span></td><td><span class="barcell hot" style="--w:6%">1.5%</span></td><td>2</td></tr><tr><td>Hyperscaler</td><td>5</td><td><span class="barcell neg" style="--w:24%">-3.1%</span></td><td><span class="barcell neg" style="--w:6%">-11.4%</span></td><td>0</td></tr><tr><td>Datacenter Reit</td><td>2</td><td><span class="barcell neg" style="--w:7%">-0.9%</span></td><td><span class="barcell hot" style="--w:17%">42.4%</span></td><td>2</td></tr></tbody></table></div>
+<figure class="report-figure"><img src="figures/fig_06_ai_bucket_event_returns.png" alt="AI bucket event returns"><figcaption>AI bucket event returns</figcaption></figure>
+<p>最弱个股如下：</p>
+<div class="table-wrap"><table><thead><tr><th>Ticker</th><th>Bucket</th><th>6/5 return</th><th>Fair premium</th><th>Consensus CAGR</th><th>Post-FY3 implied CAGR</th><th>Reverse DCF</th></tr></thead><tbody><tr><td>MRVL</td><td>Asic Networking</td><td><span class="barcell neg" style="--w:100%">-16.7%</span></td><td><span class="barcell hot" style="--w:6%">10.3%</span></td><td><span class="barcell hot" style="--w:99%">42.1%</span></td><td><span class="barcell pos" style="--w:19%">17.4%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>MU</td><td>Hbm Memory</td><td><span class="barcell neg" style="--w:80%">-13.3%</span></td><td><span class="barcell hot" style="--w:12%">31.2%</span></td><td><span class="barcell hot" style="--w:67%">28.6%</span></td><td><span class="barcell hot" style="--w:100%">89.5%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>ARM</td><td>Compute Ip</td><td><span class="barcell neg" style="--w:77%">-12.8%</span></td><td><span class="barcell hot" style="--w:100%">249.7%</span></td><td><span class="barcell hot" style="--w:70%">30.1%</span></td><td><span class="barcell hot" style="--w:48%">42.7%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>ALAB</td><td>Connectivity</td><td><span class="barcell neg" style="--w:68%">-11.4%</span></td><td><span class="barcell hot" style="--w:67%">166.2%</span></td><td><span class="barcell hot" style="--w:82%">35.0%</span></td><td><span class="barcell hot" style="--w:39%">35.3%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>INTC</td><td>Foundry</td><td><span class="barcell neg" style="--w:68%">-11.3%</span></td><td><span class="barcell hot" style="--w:28%">69.2%</span></td><td><span class="barcell pos" style="--w:26%">11.0%</span></td><td><span class="barcell pos" style="--w:19%">16.8%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>STRL</td><td>Power Infra</td><td><span class="barcell neg" style="--w:67%">-11.2%</span></td><td><span class="barcell hot" style="--w:43%">107.1%</span></td><td><span class="barcell pos" style="--w:48%">20.6%</span></td><td><span class="barcell pos" style="--w:21%">18.7%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>AMD</td><td>Compute</td><td><span class="barcell neg" style="--w:65%">-10.9%</span></td><td><span class="barcell hot" style="--w:6%">11.5%</span></td><td><span class="barcell hot" style="--w:100%">42.7%</span></td><td><span class="barcell pos" style="--w:6%">4.9%</span></td><td><span class="status status-ok">solved</span></td></tr><tr><td>GFS</td><td>Foundry</td><td><span class="barcell neg" style="--w:65%">-10.8%</span></td><td><span class="barcell neg" style="--w:6%">-4.1%</span></td><td><span class="barcell pos" style="--w:27%">11.4%</span></td><td><span class="barcell pos" style="--w:6%">3.4%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>LRCX</td><td>Equipment</td><td><span class="barcell neg" style="--w:59%">-9.8%</span></td><td><span class="barcell hot" style="--w:18%">44.5%</span></td><td><span class="barcell pos" style="--w:53%">22.8%</span></td><td><span class="barcell hot" style="--w:34%">30.1%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>AMAT</td><td>Equipment</td><td><span class="barcell neg" style="--w:58%">-9.7%</span></td><td><span class="barcell hot" style="--w:6%">11.4%</span></td><td><span class="barcell pos" style="--w:50%">21.2%</span></td><td><span class="barcell pos" style="--w:20%">17.9%</span></td><td><span class="status status-risk">above DCF range</span></td></tr><tr><td>ORCL</td><td>Hyperscaler</td><td><span class="barcell neg" style="--w:57%">-9.6%</span></td><td><span class="barcell neg" style="--w:6%">-14.0%</span></td><td><span class="barcell hot" style="--w:92%">39.3%</span></td><td><span class="barcell pos" style="--w:13%">11.5%</span></td><td><span class="status status-ok">solved</span></td></tr><tr><td>KLAC</td><td>Equipment</td><td><span class="barcell neg" style="--w:57%">-9.5%</span></td><td><span class="barcell hot" style="--w:21%">52.7%</span></td><td><span class="barcell pos" style="--w:41%">17.4%</span></td><td><span class="barcell hot" style="--w:42%">37.7%</span></td><td><span class="status status-risk">above DCF range</span></td></tr></tbody></table></div>
+<figure class="report-figure"><img src="figures/fig_07_ai_return_vs_valuation_premium.png" alt="AI return vs valuation premium"><figcaption>AI return vs valuation premium</figcaption></figure>
+<figure class="report-figure"><img src="figures/fig_08_ai_reverse_dcf_status_by_bucket.png" alt="AI reverse DCF status"><figcaption>AI reverse DCF status</figcaption></figure>
+<p>横截面结论：</p>
+<ul>
+<li>6/5回报 vs fair-premium：-0.43。估值溢价越高，跌幅越大。</li>
+<li>6/5回报 vs FY1-FY3 consensus CAGR：-0.52。市场卖的是增长duration和拥挤交易。</li>
+<li>6/5回报 vs FY3 EV/Sales：-0.33。单一EV/Sales有解释力，但弱于bucket fair-premium和增长duration组合。</li>
+</ul>
+<h3 id="sec-15-2-4-googl-mrvl">2.4 GOOGL与MRVL：两个不同问题</h3>
+<div class="callout"><strong>GOOGL：capex ROIC show-me，不是典型AI泡沫。</strong></div>
+<p>GOOGL FY3 EV/EBIT 17.82x，fair 16.84x，溢价约5.8%；FY1-FY3销售CAGR 19.7%，post-FY3 terminal implied CAGR 19.0%，reverse DCF implied CAGR 22.9%，状态<code>solved</code>。关键风险是AI capex是否能在Cloud、Search/YouTube monetization和长期FCF中兑现。</p>
+<div class="callout"><strong>MRVL：不是简单EV/Sales高，而是终端经济性和客户集中风险。</strong></div>
+<p>MRVL FY3 EV/EBITDA 23.49x，fair 21.30x，溢价约10.3%；FY1-FY3销售CAGR 42.1%，post-FY3 terminal implied CAGR 17.4%，但reverse DCF为<code>above_dcf_range</code>。市场并不只是price in未来两年高增长，而是在资本化custom silicon设计赢单的可持续性、客户集中度可控、margin和FCF转化可以长期维持。</p>
+<h3 id="sec-16-2-5">2.5 投资结论</h3>
+<ol>
+<li><strong>可持有/可逢回调优先研究：</strong> 现金流底座强、fair multiple不极端、AI capex ROIC有可验证路径的hyperscaler；已有FY3利润支撑且terminal hurdle不夸张的compute。</li>
+<li><strong>高质量但估值容错低：</strong> ARM、ALAB、ANET、MRVL、设备龙头和power/data center链。需要把收益来源拆成基本面兑现和估值压缩两部分。</li>
+<li><strong>周期性必须用mid-cycle：</strong> HBM/memory不能只看景气期EV/EBITDA或P/B，必须对终端倍数和库存/价格周期保守。</li>
+<li><strong>利率情景下的组合管理：</strong> 若12M Fed path继续上修，高duration AI要降低gross或用pair trade对冲；若WIRP显示加息概率没有继续上升，优先回补“现金流支撑强、6/5被动去杠杆”的AI名字。</li>
+</ol>
+<hr>
+</section>
+<section class="section" id="sec-17">
+<h2>数据真实性与限制</h2>
+<ul>
+<li>官方宏观数据：BLS Employment Situation 2026-06-05、BEA Personal Income and Outlays 2026-05-29、Federal Reserve 2026-04-29 FOMC声明和纪要、FRED mortgage/credit/consumer series。</li>
+<li>市场数据：Bloomberg BQuant日频输出，主要包括UST/TIPS/breakeven、Fed Funds futures、AI个股价格和Bloomberg consensus-derived valuation inputs。</li>
+<li>不使用此前无效的<code>FF_WIRP_LIKE_MEETING_PANEL_CSV</code>。本版已加入<code>reports/WIRP.xlsx</code>原生Bloomberg WIRP摘要导出；精确target-range概率仍需完整分布矩阵。</li>
+<li>NFP历史样本短，尤其完整1M/3M/6M/12M结构从2025-06起；因此回归只作方向性和量级验证，不作精确政策模型。</li>
+<li>AI reverse DCF依赖WACC、margin、sales-to-capital和terminal growth假设；它适合比较拥挤度，不等同于目标价。</li>
+</ul>
+</section>
+<section class="section" id="sec-18-sources">
+<h2>Sources</h2>
+<ul>
+<li>BLS Employment Situation, 2026-06-05: https://www.bls.gov/news.release/archives/empsit_06052026.htm</li>
+<li>BEA Personal Income and Outlays, April 2026: https://www.bea.gov/index.php/news/2026/personal-income-and-outlays-april-2026</li>
+<li>Federal Reserve FOMC statement, 2026-04-29: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260429a.htm</li>
+<li>Federal Reserve FOMC minutes, 2026-04-29: https://www.federalreserve.gov/monetarypolicy/fomcminutes20260429.htm</li>
+<li>FRED 30-Year Fixed Rate Mortgage Average: https://fred.stlouisfed.org/series/MORTGAGE30US</li>
+<li>Bloomberg WIRP export: <code>reports/WIRP.xlsx</code></li>
+<li>Local BQuant/FRED outputs: <code>bquant_outputs/*.csv</code></li>
+<li>Federal Reserve Board biography, Kevin Warsh: https://www.federalreserve.gov/aboutthefed/bios/board/warsh.htm</li>
+<li>Senate Banking Committee, Warsh nomination hearing materials, 2026-04-21: https://www.banking.senate.gov/newsroom/majority/chairman-scott-champions-kevin-warsh-as-next-chair-of-the-federal-reserve</li>
+<li>Senate Banking QFR responses from Warsh: https://www.banking.senate.gov/imo/media/doc/bhua_dems_combined_qfr_responses_from_warsh.pdf</li>
+<li>BLS Employment Situation, 2022-03-04 / 2023-08-04 / 2026-06-05 archived releases.</li>
+<li>BEA Personal Income and Outlays, February 2022 / July 2023 / April 2026.</li>
+<li>FRED series used for cycle comparison: FEDFUNDS, UMCSENT, PSAVERT, BAMLH0A0HYM2, PCEPI, PCEPILFE.</li>
+<li>EIA Short-Term Energy Outlook, May 2026 oil market disruption assumptions: https://www.eia.gov/outlooks/steo/report/</li>
+<li>IEA Oil Market Report, May 2026 supply disruption and inventory context: https://www.iea.org/reports/oil-market-report-may-2026</li>
+<li>BLS Consumer Price Index, April 2026 energy and gasoline components: https://www.bls.gov/news.release/cpi.htm</li>
+<li>Federal Reserve FEDS Notes, oil price shocks and inflation transmission: https://www.federalreserve.gov/econres/notes/feds-notes/oil-price-shocks-and-inflation-in-a-dsge-model-of-the-global-economy-20240802.html</li>
+</ul>
+</section>
+      </main>
+    </div>
+    <div class="footer">
+      Rendered as a static HTML report from the 2026-06-06 Markdown output. Images and data tables remain local under the reports directory.
+    </div>
+  </div>
+</body>
+</html>

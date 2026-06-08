@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2026-06-06 Visual Report Index</title>
+  <style>
+:root {
+  --bg: #f5f7fb;
+  --paper: #ffffff;
+  --ink: #141922;
+  --muted: #5f6b7a;
+  --line: #dfe5ee;
+  --line-strong: #c6d0dd;
+  --blue: #1f5eff;
+  --green: #0e8f6e;
+  --amber: #c77a13;
+  --red: #c2413a;
+  --shadow: 0 18px 45px rgba(31, 42, 68, 0.10);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(180deg, #eef3fb 0%, #f7f8fb 340px, var(--bg) 100%);
+  color: var(--ink);
+  font-family:
+    "Inter", "SF Pro Display", "Segoe UI", "Microsoft YaHei",
+    "Noto Sans CJK SC", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.72;
+}
+
+a { color: inherit; }
+
+.page {
+  width: min(1180px, calc(100% - 32px));
+  margin: 28px auto 48px;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 34px 38px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.84)),
+    linear-gradient(135deg, rgba(31,94,255,0.18), rgba(14,143,110,0.12));
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(25,33,48,0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(25,33,48,0.055) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(90deg, transparent 0, #000 16%, #000 82%, transparent 100%);
+}
+
+.hero > * { position: relative; }
+
+.hero-blue { --accent: var(--blue); }
+.hero-green { --accent: var(--green); }
+.hero-amber { --accent: var(--amber); }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 760;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+.hero h1 {
+  max-width: 960px;
+  margin: 12px 0 10px;
+  font-size: clamp(30px, 4vw, 52px);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.deck {
+  max-width: 920px;
+  margin: 0;
+  color: #394456;
+  font-size: 17px;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.meta-pill {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+  color: #485365;
+  font-size: 12px;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.metric-card {
+  min-height: 118px;
+  padding: 14px 14px 13px;
+  border: 1px solid rgba(198,208,221,0.8);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.82);
+}
+
+.metric-label {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.metric-value {
+  margin-top: 9px;
+  color: var(--accent);
+  font-size: 27px;
+  font-weight: 780;
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.metric-note {
+  margin-top: 9px;
+  color: #596677;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+  margin-top: 22px;
+}
+
+.toc {
+  position: sticky;
+  top: 18px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.88);
+  box-shadow: 0 10px 24px rgba(31,42,68,0.06);
+}
+
+.toc-title {
+  margin-bottom: 10px;
+  color: #253044;
+  font-weight: 760;
+}
+
+.toc a {
+  display: block;
+  padding: 7px 0;
+  border-top: 1px solid #edf1f6;
+  color: #586476;
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.toc a:hover { color: var(--accent); }
+.toc .level-3 { padding-left: 12px; font-size: 12px; }
+
+.article {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.section {
+  padding: 30px 34px;
+  border-top: 1px solid #edf1f6;
+}
+
+.section:first-child { border-top: none; }
+
+.article h2,
+.article h3,
+.article h4 {
+  margin: 0 0 14px;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.article h2 {
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--line);
+  font-size: 25px;
+}
+
+.article h3 {
+  margin-top: 24px;
+  font-size: 19px;
+  color: #202a3c;
+}
+
+.article h4 { font-size: 16px; }
+
+.article p {
+  margin: 12px 0;
+  color: #2c3544;
+}
+
+.article strong { color: #111827; }
+
+.article ul,
+.article ol {
+  margin: 12px 0 12px 22px;
+  padding: 0;
+}
+
+.article li { margin: 7px 0; }
+
+.article code {
+  padding: 2px 5px;
+  border: 1px solid #e5e9f0;
+  border-radius: 5px;
+  background: #f6f8fb;
+  color: #253044;
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.88em;
+}
+
+.article pre {
+  overflow: auto;
+  padding: 16px;
+  border-radius: 8px;
+  background: #101827;
+  color: #f7fafc;
+}
+
+.article pre code {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.callout {
+  margin: 18px 0;
+  padding: 16px 17px;
+  border-left: 4px solid var(--accent);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--accent) 8%, white);
+}
+
+.table-wrap {
+  overflow: auto;
+  margin: 18px 0 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.42;
+}
+
+th,
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e9eef5;
+  vertical-align: top;
+  text-align: left;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f2f5fa;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 780;
+}
+
+tr:nth-child(even) td { background: #fbfcfe; }
+tr:hover td { background: #f5f8fd; }
+
+.barcell {
+  position: relative;
+  display: inline-flex;
+  min-width: 76px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.barcell::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--w, 0%);
+  z-index: -1;
+  background: rgba(31,94,255,0.12);
+}
+
+.barcell.neg::before { background: rgba(194,65,58,0.13); }
+.barcell.hot::before { background: rgba(199,122,19,0.16); }
+.barcell.pos { color: #155e4d; }
+.barcell.neg { color: #9b2f2a; }
+.barcell.hot { color: #8a510d; }
+
+.status {
+  display: inline-flex;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: #475569;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.status-risk {
+  background: rgba(194,65,58,0.11);
+  color: #9b2f2a;
+}
+
+.status-ok {
+  background: rgba(14,143,110,0.11);
+  color: #0b6f57;
+}
+
+.report-figure {
+  margin: 22px 0 28px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.report-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  background: white;
+}
+
+.report-figure figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+hr {
+  margin: 28px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.footer {
+  margin-top: 18px;
+  color: #697586;
+  font-size: 12px;
+}
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.index-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 330px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.9);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+
+.index-card:hover { border-color: var(--accent); }
+.index-card h2 { margin: 12px 0 10px; line-height: 1.18; }
+.index-card p { color: #536072; }
+.index-card .mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: auto;
+}
+.mini-metric {
+  padding: 10px;
+  border: 1px solid #e3e9f1;
+  border-radius: 7px;
+  background: #fbfcfe;
+}
+.mini-metric b {
+  display: block;
+  color: var(--accent);
+  font-size: 18px;
+  line-height: 1.1;
+}
+.mini-metric span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@supports not (background: color-mix(in srgb, red 10%, white)) {
+  .callout { background: #f6f8fb; }
+}
+
+@media (max-width: 980px) {
+  .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .layout { grid-template-columns: 1fr; }
+  .toc { position: relative; top: 0; }
+  .index-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .page { width: min(100% - 18px, 1180px); margin-top: 10px; }
+  .hero { padding: 24px 20px; }
+  .hero h1 { font-size: 30px; }
+  .deck { font-size: 15px; }
+  .metric-grid { grid-template-columns: 1fr; }
+  .section { padding: 24px 18px; }
+  table { min-width: 680px; }
+}
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero hero-blue">
+      <div class="eyebrow">Visual HTML Package</div>
+      <h1>2026-06-06 报告渲染版</h1>
+      <p class="deck">
+        三份 Markdown 报告已转换为静态 HTML：综合报告、NFP-to-Fed-path 历史事件研究、AI priced-growth 估值研究。
+        每份 HTML 都包含关键指标卡、目录、可读表格和本地 PNG 图表。
+      </p>
+      <div class="meta-row">
+        <span class="meta-pill">Generated from reports/*.md</span>
+        <span class="meta-pill">No external CDN</span>
+      </div>
+    </header>
+    <section class="index-grid">
+      <a class="index-card hero-blue" href="US_Rate_Hike_AI_Priced_Growth_Institutional_Report_2026-06-06.html"><div class="eyebrow">Institutional Working Report</div><h2>未来1年美国加息风险与AI股票隐含增长定价</h2><p>未来一年美国加息右尾风险与 AI 股票 priced-growth 估值框架的综合版，把 native WIRP、Fed funds path、NFP 历史事件和 AI 链条横截面放在同一张风险图上。</p><div class="mini-grid"><div class="mini-metric"><b>+14.5bp</b><span>12M path shift</span></div><div class="mini-metric"><b>2026-05-22</b><span>Warsh-Fed start</span></div><div class="mini-metric"><b>+1.72</b><span>WIRP Jun-27 hikes</span></div><div class="mini-metric"><b>4.3%</b><span>Current U3</span></div></div></a><a class="index-card hero-green" href="NFP_Fed_Path_Historical_Event_Study_2026-06-06.html"><div class="eyebrow">Companion Note</div><h2>NFP-to-Fed Path历史事件研究</h2><p>NFP 到 Fed path 的历史事件研究：用 native WIRP 与固定期限 Fed Funds futures path 验证 2026-06-05 是远端 policy-path 右尾重定价。</p><div class="mini-grid"><div class="mini-metric"><b>+0.5bp</b><span>1M path</span></div><div class="mini-metric"><b>+14.5bp</b><span>12M path</span></div><div class="mini-metric"><b>+13.5bp</b><span>WIRP Jun-27 shift</span></div><div class="mini-metric"><b>+1.72</b><span>WIRP Jun-27 hikes</span></div></div></a><a class="index-card hero-amber" href="AI_Priced_Growth_Valuation_Study_2026-06-06.html"><div class="eyebrow">Companion Note</div><h2>AI股票隐含增长与估值拥挤度研究</h2><p>AI 股票隐含增长与估值拥挤度研究：不用统一 EV/Sales，按 bucket-specific fair multiple 和 reverse DCF 检查容错率。</p><div class="mini-grid"><div class="mini-metric"><b>+249.7%</b><span>Compute IP premium</span></div><div class="mini-metric"><b>+166.2%</b><span>Connectivity premium</span></div><div class="mini-metric"><b>-11.4%</b><span>Hyperscaler premium</span></div><div class="mini-metric"><b>-14.0%</b><span>Compute premium</span></div></div></a>
+    </section>
+    <div class="footer">Open any card to view the rendered report.</div>
+  </div>
+</body>
+</html>

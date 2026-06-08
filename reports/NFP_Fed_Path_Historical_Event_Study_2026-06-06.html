@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NFP-to-Fed Path历史事件研究</title>
+  <style>
+:root {
+  --bg: #f5f7fb;
+  --paper: #ffffff;
+  --ink: #141922;
+  --muted: #5f6b7a;
+  --line: #dfe5ee;
+  --line-strong: #c6d0dd;
+  --blue: #1f5eff;
+  --green: #0e8f6e;
+  --amber: #c77a13;
+  --red: #c2413a;
+  --shadow: 0 18px 45px rgba(31, 42, 68, 0.10);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(180deg, #eef3fb 0%, #f7f8fb 340px, var(--bg) 100%);
+  color: var(--ink);
+  font-family:
+    "Inter", "SF Pro Display", "Segoe UI", "Microsoft YaHei",
+    "Noto Sans CJK SC", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.72;
+}
+
+a { color: inherit; }
+
+.page {
+  width: min(1180px, calc(100% - 32px));
+  margin: 28px auto 48px;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 34px 38px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.84)),
+    linear-gradient(135deg, rgba(31,94,255,0.18), rgba(14,143,110,0.12));
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(25,33,48,0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(25,33,48,0.055) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(90deg, transparent 0, #000 16%, #000 82%, transparent 100%);
+}
+
+.hero > * { position: relative; }
+
+.hero-blue { --accent: var(--blue); }
+.hero-green { --accent: var(--green); }
+.hero-amber { --accent: var(--amber); }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 760;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+
+.hero h1 {
+  max-width: 960px;
+  margin: 12px 0 10px;
+  font-size: clamp(30px, 4vw, 52px);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.deck {
+  max-width: 920px;
+  margin: 0;
+  color: #394456;
+  font-size: 17px;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.meta-pill {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+  color: #485365;
+  font-size: 12px;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.metric-card {
+  min-height: 118px;
+  padding: 14px 14px 13px;
+  border: 1px solid rgba(198,208,221,0.8);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.82);
+}
+
+.metric-label {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.metric-value {
+  margin-top: 9px;
+  color: var(--accent);
+  font-size: 27px;
+  font-weight: 780;
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.metric-note {
+  margin-top: 9px;
+  color: #596677;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+  margin-top: 22px;
+}
+
+.toc {
+  position: sticky;
+  top: 18px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.88);
+  box-shadow: 0 10px 24px rgba(31,42,68,0.06);
+}
+
+.toc-title {
+  margin-bottom: 10px;
+  color: #253044;
+  font-weight: 760;
+}
+
+.toc a {
+  display: block;
+  padding: 7px 0;
+  border-top: 1px solid #edf1f6;
+  color: #586476;
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.toc a:hover { color: var(--accent); }
+.toc .level-3 { padding-left: 12px; font-size: 12px; }
+
+.article {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.section {
+  padding: 30px 34px;
+  border-top: 1px solid #edf1f6;
+}
+
+.section:first-child { border-top: none; }
+
+.article h2,
+.article h3,
+.article h4 {
+  margin: 0 0 14px;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.article h2 {
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--line);
+  font-size: 25px;
+}
+
+.article h3 {
+  margin-top: 24px;
+  font-size: 19px;
+  color: #202a3c;
+}
+
+.article h4 { font-size: 16px; }
+
+.article p {
+  margin: 12px 0;
+  color: #2c3544;
+}
+
+.article strong { color: #111827; }
+
+.article ul,
+.article ol {
+  margin: 12px 0 12px 22px;
+  padding: 0;
+}
+
+.article li { margin: 7px 0; }
+
+.article code {
+  padding: 2px 5px;
+  border: 1px solid #e5e9f0;
+  border-radius: 5px;
+  background: #f6f8fb;
+  color: #253044;
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.88em;
+}
+
+.article pre {
+  overflow: auto;
+  padding: 16px;
+  border-radius: 8px;
+  background: #101827;
+  color: #f7fafc;
+}
+
+.article pre code {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.callout {
+  margin: 18px 0;
+  padding: 16px 17px;
+  border-left: 4px solid var(--accent);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--accent) 8%, white);
+}
+
+.table-wrap {
+  overflow: auto;
+  margin: 18px 0 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.42;
+}
+
+th,
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e9eef5;
+  vertical-align: top;
+  text-align: left;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f2f5fa;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 780;
+}
+
+tr:nth-child(even) td { background: #fbfcfe; }
+tr:hover td { background: #f5f8fd; }
+
+.barcell {
+  position: relative;
+  display: inline-flex;
+  min-width: 76px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.barcell::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--w, 0%);
+  z-index: -1;
+  background: rgba(31,94,255,0.12);
+}
+
+.barcell.neg::before { background: rgba(194,65,58,0.13); }
+.barcell.hot::before { background: rgba(199,122,19,0.16); }
+.barcell.pos { color: #155e4d; }
+.barcell.neg { color: #9b2f2a; }
+.barcell.hot { color: #8a510d; }
+
+.status {
+  display: inline-flex;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: #475569;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.status-risk {
+  background: rgba(194,65,58,0.11);
+  color: #9b2f2a;
+}
+
+.status-ok {
+  background: rgba(14,143,110,0.11);
+  color: #0b6f57;
+}
+
+.report-figure {
+  margin: 22px 0 28px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+.report-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  background: white;
+}
+
+.report-figure figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+hr {
+  margin: 28px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.footer {
+  margin-top: 18px;
+  color: #697586;
+  font-size: 12px;
+}
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.index-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 330px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.9);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+
+.index-card:hover { border-color: var(--accent); }
+.index-card h2 { margin: 12px 0 10px; line-height: 1.18; }
+.index-card p { color: #536072; }
+.index-card .mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: auto;
+}
+.mini-metric {
+  padding: 10px;
+  border: 1px solid #e3e9f1;
+  border-radius: 7px;
+  background: #fbfcfe;
+}
+.mini-metric b {
+  display: block;
+  color: var(--accent);
+  font-size: 18px;
+  line-height: 1.1;
+}
+.mini-metric span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@supports not (background: color-mix(in srgb, red 10%, white)) {
+  .callout { background: #f6f8fb; }
+}
+
+@media (max-width: 980px) {
+  .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .layout { grid-template-columns: 1fr; }
+  .toc { position: relative; top: 0; }
+  .index-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .page { width: min(100% - 18px, 1180px); margin-top: 10px; }
+  .hero { padding: 24px 20px; }
+  .hero h1 { font-size: 30px; }
+  .deck { font-size: 15px; }
+  .metric-grid { grid-template-columns: 1fr; }
+  .section { padding: 24px 18px; }
+  table { min-width: 680px; }
+}
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero hero-green">
+      <div class="eyebrow">Companion Note</div>
+      <h1>NFP-to-Fed Path历史事件研究</h1>
+      <p class="deck">NFP 到 Fed path 的历史事件研究：用 native WIRP 与固定期限 Fed Funds futures path 验证 2026-06-05 是远端 policy-path 右尾重定价。</p>
+      <div class="meta-row">
+        <span class="meta-pill">日期：2026-06-06</span>
+        <span class="meta-pill">Source Markdown: NFP_Fed_Path_Historical_Event_Study_2026-06-06.md</span>
+        <span class="meta-pill"><a href="report_index_2026-06-06.html">Report index</a></span>
+      </div>
+      <div class="metric-grid"><div class="metric-card"><div class="metric-label">1M path</div><div class="metric-value">+0.5bp</div><div class="metric-note">近月路径几乎未动</div></div><div class="metric-card"><div class="metric-label">12M path</div><div class="metric-value">+14.5bp</div><div class="metric-note">远端路径显著上修</div></div><div class="metric-card"><div class="metric-label">WIRP Jun-27 shift</div><div class="metric-value">+13.5bp</div><div class="metric-note">原生WIRP 6/4至6/5</div></div><div class="metric-card"><div class="metric-label">WIRP Jun-27 hikes</div><div class="metric-value">+1.72</div><div class="metric-note">2026-06-05 pricing date</div></div><div class="metric-card"><div class="metric-label">Current NFP</div><div class="metric-value">+172k</div><div class="metric-note">接近2023最后一次加息附近</div></div><div class="metric-card"><div class="metric-label">Current U3</div><div class="metric-value">4.3%</div><div class="metric-note">明显松于上一轮加息节点</div></div></div>
+    </header>
+    <div class="layout">
+      <aside class="toc"><div class="toc-title">目录</div>
+<a class="level-2" href="#sec-1">结论</a>
+<a class="level-2" href="#sec-2">市场路径</a>
+<a class="level-2" href="#sec-3-wirp">原生WIRP校准</a>
+<a class="level-2" href="#sec-4">与上一轮加息周期比较</a>
+<a class="level-2" href="#sec-5">历史分位</a>
+<a class="level-2" href="#sec-6">回归摘要</a>
+<a class="level-2" href="#sec-7">方法与限制</a>
+</aside>
+      <main class="article">
+        <section class="section">
+<p>日期：2026-06-06 定位：主报告附录，native WIRP calibration added 2026-06-07</p>
+</section>
+<section class="section" id="sec-1">
+<h2>结论</h2>
+<p>6月5日NFP不是近月加息恐慌，而是远端政策路径上修。1M path只上修0.5bp，12M futures path上修14.5bp；原生BBG WIRP的2027年6月会议隐含利率上修13.5bp，pricing date 2026-06-05时已累积1.72个25bp净加息。</p>
+</section>
+<section class="section" id="sec-2">
+<h2>市场路径</h2>
+<div class="table-wrap"><table><thead><tr><th>Contract</th><th>Month</th><th>2026-06-04 implied</th><th>2026-06-05 implied</th><th>NFP-day shift</th><th>Slope vs Jun-26 front</th></tr></thead><tbody><tr><td>FFM6 Comdty</td><td>2026-06</td><td><span class="barcell pos" style="--w:92%">3.618%</span></td><td><span class="barcell pos" style="--w:89%">3.623%</span></td><td><span class="barcell pos" style="--w:6%">+0.5bp</span></td><td><span class="barcell pos" style="--w:6%">+0.0bp</span></td></tr><tr><td>FFU6 Comdty</td><td>2026-09</td><td><span class="barcell pos" style="--w:93%">3.665%</span></td><td><span class="barcell pos" style="--w:91%">3.690%</span></td><td><span class="barcell pos" style="--w:17%">+2.5bp</span></td><td><span class="barcell pos" style="--w:15%">+6.7bp</span></td></tr><tr><td>FFZ6 Comdty</td><td>2026-12</td><td><span class="barcell pos" style="--w:96%">3.770%</span></td><td><span class="barcell pos" style="--w:95%">3.860%</span></td><td><span class="barcell pos" style="--w:62%">+9.0bp</span></td><td><span class="barcell pos" style="--w:53%">+23.7bp</span></td></tr><tr><td>FFH7 Comdty</td><td>2027-03</td><td><span class="barcell pos" style="--w:98%">3.855%</span></td><td><span class="barcell pos" style="--w:98%">3.980%</span></td><td><span class="barcell pos" style="--w:86%">+12.5bp</span></td><td><span class="barcell pos" style="--w:80%">+35.8bp</span></td></tr><tr><td>FFM7 Comdty</td><td>2027-06</td><td><span class="barcell pos" style="--w:100%">3.925%</span></td><td><span class="barcell pos" style="--w:100%">4.070%</span></td><td><span class="barcell pos" style="--w:100%">+14.5bp</span></td><td><span class="barcell pos" style="--w:100%">+44.7bp</span></td></tr></tbody></table></div>
+<figure class="report-figure"><img src="figures/fig_02_ff_futures_path_shift.png" alt="Fed funds futures path shift"><figcaption>Fed funds futures path shift</figcaption></figure>
+</section>
+<section class="section" id="sec-3-wirp">
+<h2>原生WIRP校准</h2>
+<p>Bloomberg WIRP原生导出确认了Fed Funds futures事件研究的方向：近端会议没有明显加息压力，但6-12M路径明显上修。</p>
+<div class="table-wrap"><table><thead><tr><th>Meeting</th><th>06/05 #Hikes/Cuts</th><th>06/05 marginal action</th><th>06/05 implied rate</th><th>1D rate shift</th><th>1D #H/C shift</th></tr></thead><tbody><tr><td>2026-06-17</td><td>-0.01</td><td><span class="barcell neg" style="--w:6%">-0.8%</span></td><td><span class="barcell pos" style="--w:89%">3.620%</span></td><td><span class="barcell neg" style="--w:6%">-0.1bp</span></td><td>-0.03</td></tr><tr><td>2026-07-29</td><td>0.14</td><td><span class="barcell pos" style="--w:38%">+15.0%</span></td><td><span class="barcell pos" style="--w:90%">3.658%</span></td><td><span class="barcell pos" style="--w:11%">+1.5bp</span></td><td>+0.04</td></tr><tr><td>2026-09-16</td><td>0.44</td><td><span class="barcell pos" style="--w:74%">+29.5%</span></td><td><span class="barcell pos" style="--w:92%">3.731%</span></td><td><span class="barcell pos" style="--w:34%">+4.6bp</span></td><td>+0.16</td></tr><tr><td>2026-10-28</td><td>0.63</td><td><span class="barcell pos" style="--w:49%">+19.5%</span></td><td><span class="barcell pos" style="--w:93%">3.780%</span></td><td><span class="barcell pos" style="--w:46%">+6.2bp</span></td><td>+0.23</td></tr><tr><td>2026-12-09</td><td>1.03</td><td><span class="barcell pos" style="--w:100%">+40.0%</span></td><td><span class="barcell pos" style="--w:96%">3.880%</span></td><td><span class="barcell pos" style="--w:71%">+9.6bp</span></td><td>+0.36</td></tr><tr><td>2027-01-27</td><td>1.24</td><td><span class="barcell pos" style="--w:52%">+21.0%</span></td><td><span class="barcell pos" style="--w:97%">3.933%</span></td><td><span class="barcell pos" style="--w:85%">+11.5bp</span></td><td>+0.44</td></tr><tr><td>2027-03-17</td><td>1.53</td><td><span class="barcell pos" style="--w:72%">+28.9%</span></td><td><span class="barcell pos" style="--w:99%">4.005%</span></td><td><span class="barcell pos" style="--w:91%">+12.3bp</span></td><td>+0.47</td></tr><tr><td>2027-04-28</td><td>1.68</td><td><span class="barcell pos" style="--w:38%">+15.1%</span></td><td><span class="barcell pos" style="--w:100%">4.043%</span></td><td><span class="barcell pos" style="--w:99%">+13.3bp</span></td><td>+0.51</td></tr><tr><td>2027-06-09</td><td>1.72</td><td><span class="barcell pos" style="--w:10%">+4.1%</span></td><td><span class="barcell pos" style="--w:100%">4.053%</span></td><td><span class="barcell pos" style="--w:100%">+13.5bp</span></td><td>+0.52</td></tr></tbody></table></div>
+<figure class="report-figure"><img src="figures/fig_09_wirp_implied_meeting_path.png" alt="WIRP implied meeting path"><figcaption>WIRP implied meeting path</figcaption></figure>
+<figure class="report-figure"><img src="figures/fig_10_wirp_marginal_action_by_meeting.png" alt="WIRP marginal action by meeting"><figcaption>WIRP marginal action by meeting</figcaption></figure>
+<p>解读：</p>
+<ul>
+<li>2026-06-17会议边际行动字段为-0.8%，不支持“下一次会议立刻加息”。</li>
+<li>2026-12-09会议累积到1.03个25bp净加息；2027-06-09会议累积到1.72个25bp净加息。</li>
+<li>2027年6月WIRP implied rate从6月4日的3.918%升至6月5日的4.053%，单日上修13.5bp，和FFM7 futures +14.5bp的右尾重定价一致。</li>
+</ul>
+</section>
+<section class="section" id="sec-4">
+<h2>与上一轮加息周期比较</h2>
+<p>6月5日的NFP事件不能只看单月就业增量。和2022相比，当前最像2022的部分不是就业，而是油价和地缘冲突把headline inflation、通胀预期和Fed信誉风险重新推到前台；最不像2022的部分是政策利率起点、工资压力和消费者缓冲垫。</p>
+<div class="table-wrap"><table><thead><tr><th>Metric</th><th>2022-03 first-hike context</th><th>2023-07 last-hike context</th><th>2026-06 current event</th><th>Read-through</th></tr></thead><tbody><tr><td>NFP headline</td><td>+678k</td><td>+187k</td><td>+172k</td><td>当前就业增量接近2023最后一次加息附近，远低于2022启动周期的过热修复。</td></tr><tr><td>Unemployment rate</td><td><span class="barcell pos" style="--w:59%">3.8%</span></td><td><span class="barcell pos" style="--w:68%">3.5%</span></td><td><span class="barcell pos" style="--w:100%">4.3%</span></td><td>当前劳动力市场明显松于上一轮两个加息节点，不支持大幅连续加息作为基准。</td></tr><tr><td>Average hourly earnings YoY</td><td><span class="barcell pos" style="--w:80%">5.1%</span></td><td><span class="barcell pos" style="--w:86%">4.4%</span></td><td><span class="barcell pos" style="--w:79%">3.4%</span></td><td>工资通胀仍高于2%通胀兼容区间，但工资-价格螺旋压力弱于2022/2023。</td></tr><tr><td>Headline PCE YoY</td><td><span class="barcell pos" style="--w:100%">6.4%</span></td><td><span class="barcell pos" style="--w:64%">3.3%</span></td><td><span class="barcell pos" style="--w:88%">3.8%</span></td><td>当前headline PCE高于2023最后一次加息附近，说明能源冲击已经影响总通胀。</td></tr><tr><td>Core PCE YoY</td><td><span class="barcell pos" style="--w:84%">5.4%</span></td><td><span class="barcell pos" style="--w:82%">4.2%</span></td><td><span class="barcell pos" style="--w:77%">3.3%</span></td><td>核心通胀低于上一轮加息节点，但仍比目标高约1.3pp。</td></tr><tr><td>Oil / geopolitical shock</td><td>Russia/Ukraine后Brent一度升至120美元/桶以上</td><td>能源价格正常化，不是政策主线</td><td>EIA 5月STEO：4月Brent均价约117美元/桶，4月7日触及138美元/桶，5-6月基准预测约106美元/桶</td><td>这是最像2022的部分：供给冲击把headline和预期风险重新外生化。</td></tr><tr><td>Energy CPI / gasoline</td><td>gasoline和能源是2022 headline CPI的重要推手</td><td>能源项转为拖累/低基数</td><td>BLS 4月CPI：energy同比+17.9%，gasoline同比+28.4%、环比+5.4%</td><td>油价已通过汽油和能源项进入消费者可见通胀，Fed更难“看穿”headline。</td></tr><tr><td>Effective fed funds / policy rate</td><td>0.08-0.20%</td><td><span class="barcell pos" style="--w:100%">5.12%</span></td><td>3.62-3.63%</td><td>当前不是zero-rate behind-the-curve环境；加息是再校准，不是追赶式启动。</td></tr></tbody></table></div>
+<figure class="report-figure"><img src="figures/fig_11_prior_cycle_macro_comparison.png" alt="Prior cycle macro comparison"><figcaption>Prior cycle macro comparison</figcaption></figure>
+<p>结论：当前就业绝对增量接近2023年最后一次加息附近，但失业率明显更高、工资更低；同时油价和能源CPI使通胀风险更像2022的供给冲击。它支持WIRP把1-2次净加息纳入路径中枢，不支持把连续大幅加息作为基准。</p>
+</section>
+<section class="section" id="sec-5">
+<h2>历史分位</h2>
+<div class="table-wrap"><table><thead><tr><th>sample</th><th>metric</th><th>n</th><th>Event</th><th>Percentile</th></tr></thead><tbody><tr><td>all_available_path</td><td>d_rate_bp_1m</td><td>13</td><td><span class="barcell pos" style="--w:6%">+0.5bp</span></td><td><span class="barcell pos" style="--w:48%">46%</span></td></tr><tr><td>all_available_path</td><td>d_rate_bp_3m</td><td>15</td><td><span class="barcell pos" style="--w:17%">+2.5bp</span></td><td><span class="barcell pos" style="--w:66%">63%</span></td></tr><tr><td>all_available_path</td><td>d_rate_bp_6m</td><td>18</td><td><span class="barcell pos" style="--w:62%">+9.0bp</span></td><td><span class="barcell pos" style="--w:86%">83%</span></td></tr><tr><td>all_available_path</td><td>d_rate_bp_12m</td><td>24</td><td><span class="barcell pos" style="--w:100%">+14.5bp</span></td><td><span class="barcell pos" style="--w:89%">85%</span></td></tr><tr><td>all_available_path</td><td>path_twist_12m_minus_1m_bp</td><td>13</td><td><span class="barcell pos" style="--w:97%">+14.0bp</span></td><td><span class="barcell pos" style="--w:100%">96%</span></td></tr><tr><td>full_horizon_path</td><td>d_rate_bp_1m</td><td>13</td><td><span class="barcell pos" style="--w:6%">+0.5bp</span></td><td><span class="barcell pos" style="--w:48%">46%</span></td></tr><tr><td>full_horizon_path</td><td>d_rate_bp_3m</td><td>13</td><td><span class="barcell pos" style="--w:17%">+2.5bp</span></td><td><span class="barcell pos" style="--w:68%">65%</span></td></tr><tr><td>full_horizon_path</td><td>d_rate_bp_6m</td><td>13</td><td><span class="barcell pos" style="--w:62%">+9.0bp</span></td><td><span class="barcell pos" style="--w:89%">85%</span></td></tr><tr><td>full_horizon_path</td><td>d_rate_bp_12m</td><td>13</td><td><span class="barcell pos" style="--w:100%">+14.5bp</span></td><td><span class="barcell pos" style="--w:100%">96%</span></td></tr><tr><td>full_horizon_path</td><td>path_twist_12m_minus_1m_bp</td><td>13</td><td><span class="barcell pos" style="--w:97%">+14.0bp</span></td><td><span class="barcell pos" style="--w:100%">96%</span></td></tr><tr><td>full_horizon_with_nfp_surprise</td><td>d_rate_bp_1m</td><td>9</td><td><span class="barcell pos" style="--w:6%">+0.5bp</span></td><td><span class="barcell pos" style="--w:58%">56%</span></td></tr><tr><td>full_horizon_with_nfp_surprise</td><td>d_rate_bp_3m</td><td>9</td><td><span class="barcell pos" style="--w:17%">+2.5bp</span></td><td><span class="barcell pos" style="--w:64%">61%</span></td></tr><tr><td>full_horizon_with_nfp_surprise</td><td>d_rate_bp_6m</td><td>9</td><td><span class="barcell pos" style="--w:62%">+9.0bp</span></td><td><span class="barcell pos" style="--w:81%">78%</span></td></tr><tr><td>full_horizon_with_nfp_surprise</td><td>d_rate_bp_12m</td><td>9</td><td><span class="barcell pos" style="--w:100%">+14.5bp</span></td><td><span class="barcell pos" style="--w:98%">94%</span></td></tr><tr><td>full_horizon_with_nfp_surprise</td><td>path_twist_12m_minus_1m_bp</td><td>9</td><td><span class="barcell pos" style="--w:97%">+14.0bp</span></td><td><span class="barcell pos" style="--w:98%">94%</span></td></tr></tbody></table></div>
+<figure class="report-figure"><img src="figures/fig_03_nfp_surprise_revision_vs_12m_path.png" alt="NFP regression"><figcaption>NFP regression</figcaption></figure>
+</section>
+<section class="section" id="sec-6">
+<h2>回归摘要</h2>
+<div class="table-wrap"><table><thead><tr><th>Sample</th><th>Predictor</th><th>n</th><th>Slope</th><th>R2</th><th>Corr</th></tr></thead><tbody><tr><td>12m_available_with_nfp</td><td>nfp_surprise_100k</td><td>20</td><td>+11.5bp / 100k</td><td>0.25</td><td>0.50</td></tr><tr><td>12m_available_with_nfp</td><td>revision_1m_100k</td><td>20</td><td>+18.1bp / 100k</td><td>0.22</td><td>0.47</td></tr><tr><td>12m_available_with_nfp</td><td>surprise_plus_revision_100k</td><td>20</td><td>+11.9bp / 100k</td><td>0.40</td><td>0.63</td></tr><tr><td>full_horizon_with_nfp</td><td>nfp_surprise_100k</td><td>9</td><td>+8.7bp / 100k</td><td>0.24</td><td>0.49</td></tr><tr><td>full_horizon_with_nfp</td><td>revision_1m_100k</td><td>9</td><td>+17.9bp / 100k</td><td>0.47</td><td>0.68</td></tr><tr><td>full_horizon_with_nfp</td><td>surprise_plus_revision_100k</td><td>9</td><td>+9.8bp / 100k</td><td>0.53</td><td>0.73</td></tr></tbody></table></div>
+</section>
+<section class="section" id="sec-7">
+<h2>方法与限制</h2>
+<ul>
+<li>用Fed Funds futures固定期限路径，而不是反推WIRP概率。</li>
+<li>NFP surprise使用Bloomberg BQL <code>ACTUAL_RELEASE - BN_SURVEY_MEDIAN</code>。</li>
+<li>Revision使用<code>FIRST_REVISION</code>作为前月一修正代理，未包含<code>SECOND_REVISION</code>。</li>
+<li>已加入<code>reports/WIRP.xlsx</code>原生BBG WIRP摘要导出；精确target-range分布仍需Bloomberg完整概率矩阵。</li>
+</ul>
+</section>
+      </main>
+    </div>
+    <div class="footer">
+      Rendered as a static HTML report from the 2026-06-06 Markdown output. Images and data tables remain local under the reports directory.
+    </div>
+  </div>
+</body>
+</html>
