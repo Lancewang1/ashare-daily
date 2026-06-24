@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Research Dashboard — 2026-06-23</title>
+  <style>
+    :root {
+      --ink: #17212b; --muted: #5c6873; --line: #d7dde3; --soft: #f4f6f8;
+      --navy: #17324d; --blue: #2d6da3; --green: #20885a; --red: #b23b3b; --amber: #a86f12;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #edf1f4; color: var(--ink);
+           font-family: Inter, "Segoe UI", "Microsoft YaHei", Arial, sans-serif; font-size: 15px; line-height: 1.6; }
+    .page { width: min(1160px, calc(100% - 32px)); margin: 28px auto 56px; }
+    header { background: #fff; border: 1px solid var(--line); border-top: 5px solid var(--navy);
+              padding: 28px 36px; margin-bottom: 20px; }
+    header h1 { margin: 0 0 6px; color: var(--navy); font-size: 28px; }
+    header p { margin: 0; color: var(--muted); font-size: 13px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 20px 24px; }
+    .card h2 { margin: 0 0 4px; color: var(--navy); font-size: 17px; }
+    .card .sub { margin: 0 0 14px; color: var(--muted); font-size: 12px; text-transform: uppercase; }
+    .stat-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .stat { background: var(--soft); border-radius: 5px; padding: 9px 14px; flex: 1; min-width: 80px; }
+    .stat .lbl { color: var(--muted); font-size: 11px; text-transform: uppercase; }
+    .stat .val { font-size: 18px; font-weight: 700; margin-top: 2px; }
+    .pill { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; color: #fff; }
+    .pill-open { background: var(--green); }
+    .pill-watch { background: var(--amber); }
+    .pill-closed { background: var(--muted); }
+    .pill-veto { background: var(--red); }
+    .links { display: flex; gap: 10px; flex-wrap: wrap; }
+    .links a { padding: 7px 16px; background: var(--navy); color: #fff; border-radius: 4px;
+                font-size: 13px; font-weight: 600; text-decoration: none; }
+    .links a:hover { background: var(--blue); }
+    .links a.secondary { background: var(--soft); color: var(--navy); border: 1px solid var(--line); }
+    .links a.secondary:hover { background: var(--line); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Research Dashboard — 2026-06-23</h1>
+      <p>Watching: —</p>
+    </header>
+    <div class="grid">
+      <div class="card">
+        <h2>事件 Dashboard</h2>
+        <div class="sub">新闻 · KOL · 卖方研报</div>
+        <div class="stat-row">
+          <div class="stat"><div class="lbl">总事件数</div><div class="val">0</div></div>
+          <div class="stat"><div class="lbl">高优先级</div><div class="val" style="color:var(--red)">0</div></div>
+        </div>
+        <div class="links">
+          <a href="dashboard/index.html">查看完整仪表盘 →</a>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</body>
+</html>
