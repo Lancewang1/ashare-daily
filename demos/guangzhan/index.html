@@ -3,933 +3,367 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>你相信光吗？· A股资金博弈图 · Asymmetric IM</title>
+<title>你相信光吗？· A股资金博弈图</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
-  --bg:      #060b14;
-  --bg2:     #090f1c;
-  --card:    #0d1623;
-  --border:  #1a2838;
-  --fg:      #cdd9e8;
-  --dim:     #546678;
-  --gold:    #e3b341;
-  --gold2:   #f5c843;
-  --blue:    #4c9ef0;
-  --green:   #3fb950;
-  --red:     #f85149;
-  --orange:  #f0883e;
-  --purple:  #bc8cff;
-}
-
 body {
-  background: var(--bg);
-  color: var(--fg);
-  font-family: -apple-system, 'Microsoft YaHei', 'PingFang SC', 'Segoe UI', sans-serif;
-  min-height: 100vh;
+  background: #060b14;
+  color: #cdd9e8;
+  font-family: -apple-system, 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-}
-
-/* ── HEADER ── */
-.header {
-  padding: 28px 36px 22px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(135deg, #060b14 0%, #0c1628 100%);
-  position: relative;
   overflow: hidden;
-  flex-shrink: 0;
-}
-.header::after {
-  content: '';
-  position: absolute;
-  top: -60px; right: -60px;
-  width: 360px; height: 360px;
-  background: radial-gradient(circle, #e3b34118 0%, transparent 65%);
-  pointer-events: none;
-}
-.header-left { position: relative; z-index: 1; }
-.header-tag {
-  display: inline-block;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dim);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 3px 10px;
-  margin-bottom: 12px;
-  background: var(--card);
-}
-.main-title {
-  font-size: clamp(30px, 4.5vw, 50px);
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  margin-bottom: 8px;
-}
-.main-title .glow-char {
-  color: var(--gold);
-  text-shadow: 0 0 24px #e3b34166, 0 0 48px #e3b34130;
-  display: inline-block;
-  animation: gold-breathe 3s ease-in-out infinite;
-}
-@keyframes gold-breathe {
-  0%,100% { text-shadow: 0 0 20px #e3b34155, 0 0 40px #e3b34120; }
-  50%      { text-shadow: 0 0 32px #e3b34188, 0 0 64px #e3b34140; }
-}
-.header-sub {
-  color: var(--dim);
-  font-size: 13px;
-  line-height: 1.55;
 }
 
-/* ── FEAR/GREED MINI BADGE ── */
-.fg-badge {
-  position: relative; z-index: 1;
+/* HEADER */
+.hd {
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #1a2838;
   flex-shrink: 0;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 14px 18px 12px;
-  text-align: center;
-  cursor: pointer;
+}
+.hd-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+.hd-title .glow {
+  color: #e3b341;
+  text-shadow: 0 0 20px #e3b34155;
+  animation: breathe 3s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%,100% { text-shadow: 0 0 16px #e3b34144; }
+  50%      { text-shadow: 0 0 28px #e3b34177; }
+}
+.hd-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.hd-meta { font-size: 12px; color: #546678; }
+.hd-fg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0d1623;
+  border: 1px solid #1a2838;
+  border-radius: 20px;
+  padding: 5px 14px 5px 10px;
+  font-size: 12px;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  min-width: 120px;
+  transition: border-color 0.2s;
 }
-.fg-badge:hover {
-  border-color: var(--gold);
-  box-shadow: 0 0 16px #e3b34120;
-}
-.fg-arc-svg {
-  display: block;
-  margin: 0 auto 8px;
-  width: 72px; height: 42px;
+.hd-fg:hover { border-color: #e3b341; }
+.fg-num { font-size: 16px; font-weight: 900; color: #e3b341; }
+.fg-lbl { color: #546678; }
+.hd-gauge-mini {
+  width: 36px; height: 20px;
   overflow: visible;
 }
-.fg-num {
-  font-size: 26px;
-  font-weight: 900;
-  color: var(--gold);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.fg-label {
-  font-size: 11px;
-  color: var(--dim);
-  margin: 3px 0 6px;
-  letter-spacing: 0.05em;
-}
-.fg-cta {
-  font-size: 10.5px;
-  color: var(--gold);
-  opacity: 0.75;
-}
-.fg-cta:hover { opacity: 1; }
 
-/* ── CHART WRAPPER ── */
-.chart-wrapper {
+/* CHART */
+.chart-area {
   flex: 1;
-  position: relative;
   min-height: 0;
-  display: flex;
-  overflow: hidden;
-}
-.chart-svg-wrap {
-  flex: 1;
-  min-width: 0;
   position: relative;
 }
-#main-chart {
+#chart {
   width: 100%;
   height: 100%;
-  min-height: 520px;
+  display: block;
 }
 
-/* ── SECTOR PANEL ── */
-.sector-panel {
-  width: 0;
-  overflow: hidden;
-  transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-  background: var(--card);
-  border-left: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.sector-panel.open { width: 310px; }
-.panel-inner {
-  width: 310px;
-  height: 100%;
-  overflow-y: auto;
-  padding: 20px 18px 24px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
-.panel-close {
-  position: sticky;
-  top: 0;
-  float: right;
-  background: var(--border);
-  border: none;
-  color: var(--dim);
-  font-size: 14px;
-  cursor: pointer;
-  padding: 3px 8px;
-  border-radius: 6px;
-  margin-bottom: 8px;
-  z-index: 10;
-}
-.panel-close:hover { color: var(--fg); background: #2a3545; }
-
-.panel-qbadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 20px;
-  margin-bottom: 10px;
-  letter-spacing: 0.04em;
-}
-.panel-name {
-  font-size: 20px;
-  font-weight: 800;
-  margin-bottom: 3px;
-  line-height: 1.2;
-}
-.panel-ret {
-  font-size: 13px;
-  margin-bottom: 14px;
-}
-.panel-stats {
-  display: flex;
-  gap: 0;
-  background: #0a1325;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  margin-bottom: 14px;
-}
-.stat-col {
-  flex: 1;
-  text-align: center;
-  padding: 10px 6px;
-}
-.stat-col + .stat-col { border-left: 1px solid var(--border); }
-.stat-lbl {
-  font-size: 9.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--dim);
-  margin-bottom: 4px;
-}
-.stat-val {
-  font-size: 17px;
-  font-weight: 800;
-  line-height: 1;
-}
-.stat-sub {
-  font-size: 9px;
-  color: var(--dim);
-  margin-top: 3px;
-}
-.panel-desc {
-  font-size: 12px;
-  color: var(--dim);
-  line-height: 1.65;
-  padding: 11px 12px;
-  background: #0a1325;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  margin-bottom: 14px;
-}
-.section-hd {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 9px;
-}
-.stock-card {
-  background: #0a1325;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  padding: 11px 13px;
-  margin-bottom: 7px;
-  transition: border-color 0.18s;
-}
-.stock-card:hover { border-color: #2a3d54; }
-.sc-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 5px;
-}
-.sc-name { font-size: 13px; font-weight: 700; }
-.sc-code {
-  font-size: 10px;
-  color: var(--dim);
-  font-family: 'Courier New', monospace;
-  background: #141f30;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-.sc-reason {
-  font-size: 11.5px;
-  color: var(--dim);
-  line-height: 1.5;
-  margin-bottom: 7px;
-}
-.sc-bar-wrap {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-.sc-bar-bg {
-  flex: 1;
-  height: 3px;
-  background: #1a2838;
-  border-radius: 2px;
-  overflow: hidden;
-}
-.sc-bar-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.4s ease;
-}
-.sc-signal {
-  font-size: 9.5px;
-  font-weight: 700;
-  white-space: nowrap;
-  letter-spacing: 0.04em;
-}
-.panel-foot {
-  margin-top: 14px;
-  text-align: center;
-  font-size: 10.5px;
-  color: #374556;
-  line-height: 1.6;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-}
-
-/* ── BOTTOM BAR ── */
-.bottom-bar {
-  flex-shrink: 0;
+/* FOOTER */
+.ft {
+  padding: 8px 28px;
+  border-top: 1px solid #1a2838;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 9px 36px;
-  border-top: 1px solid var(--border);
-  background: var(--bg2);
-  font-size: 11.5px;
-  color: var(--dim);
+  flex-shrink: 0;
 }
-.legend-row {
+.ft-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 16px;
+  gap: 4px 14px;
 }
-.leg-item {
+.leg {
   display: flex;
   align-items: center;
   gap: 5px;
   font-size: 11px;
+  color: #546678;
 }
-.leg-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.bottom-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-shrink: 0;
-}
-.gauge-link {
-  color: var(--gold);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  border: 1px solid #e3b34140;
-  padding: 5px 12px;
-  border-radius: 20px;
-  transition: background 0.2s, border-color 0.2s;
-}
-.gauge-link:hover { background: #e3b34115; border-color: var(--gold); }
+.leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.ft-note { font-size: 11px; color: #374556; text-align: right; }
 
 /* SVG animations */
 @keyframes dash-pulse {
-  0%,100% { stroke-opacity: 0.28; }
-  50%      { stroke-opacity: 0.72; }
+  0%,100% { stroke-opacity: 0.25; }
+  50%      { stroke-opacity: 0.65; }
 }
 .tl-dash { animation: dash-pulse 2.8s ease-in-out infinite; }
 
-@keyframes sparkle {
-  0%,100% { opacity: 0.5; r: 1.5; }
-  50%      { opacity: 0.9; r: 2.5; }
-}
-
-/* Bubble hover handled in JS, but add cursor */
-.s-bubble { cursor: pointer; }
+.s-bubble { cursor: default; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-left">
-    <div class="header-tag">A股资金博弈图 · 2026-05-20 · Asymmetric IM</div>
-    <h1 class="main-title">你相信<span class="glow-char">光</span>吗？</h1>
-    <p class="header-sub">机构 vs 散户 · 10大板块今日定位 · 点击板块查看推荐 &amp; 避雷</p>
-  </div>
-  <a href="gauge.html" class="fg-badge">
-    <svg class="fg-arc-svg" viewBox="0 0 72 42">
-      <!-- background arc (half circle) -->
-      <path d="M 6 38 A 30 30 0 0 1 66 38"
-            fill="none" stroke="#1a2838" stroke-width="7" stroke-linecap="round"/>
-      <!-- blue segment 0-25 -->
-      <path d="M 6 38 A 30 30 0 0 1 16.5 14"
-            fill="none" stroke="#1d4ed8" stroke-width="7" stroke-linecap="round" opacity="0.9"/>
-      <!-- sky blue 25-45 -->
-      <path d="M 16.5 14 A 30 30 0 0 1 36 8"
-            fill="none" stroke="#0ea5e9" stroke-width="7" stroke-linecap="round" opacity="0.9"/>
-      <!-- amber 45-75: covers up to value 71 mark -->
-      <path d="M 36 8 A 30 30 0 0 1 60 17"
-            fill="none" stroke="#f59e0b" stroke-width="7" stroke-linecap="round" opacity="0.9"/>
-      <!-- needle at 71 (angle ~47° from horizontal) -->
-      <!-- value 71: angle = 180 - 71*180/100 = 180-127.8 = 52.2° -->
-      <!-- tip: 36 + 26*cos(52.2°) = 36+15.9=51.9, 38 - 26*sin(52.2°) = 38-20.5=17.5 -->
-      <line x1="36" y1="38" x2="52" y2="18" stroke="#e3b341" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="36" cy="38" r="3.5" fill="#e3b341"/>
-      <circle cx="36" cy="38" r="2" fill="#060b14"/>
-    </svg>
-    <div class="fg-num">71</div>
-    <div class="fg-label">贪婪</div>
-    <div class="fg-cta">完整分析 →</div>
-  </a>
-</div>
-
-<!-- CHART AREA -->
-<div class="chart-wrapper">
-  <div class="chart-svg-wrap">
-    <svg id="main-chart" viewBox="0 0 960 660" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <!-- TR: 站在光里 — gold radial glow from top-right -->
-        <radialGradient id="tr-fill" cx="95%" cy="5%" r="75%" gradientUnits="userSpaceOnUse"
-          x1="0" y1="0" x2="0" y2="0">
-          <stop offset="0%"   stop-color="#e3b341" stop-opacity="0.18"/>
-          <stop offset="45%"  stop-color="#f59e0b" stop-opacity="0.07"/>
-          <stop offset="100%" stop-color="#e3b341" stop-opacity="0"/>
-        </radialGradient>
-        <radialGradient id="tr-fill2" cx="100%" cy="0%" r="60%"
-          gradientUnits="userSpaceOnUse" x1="480" y1="62" x2="860" y2="62">
-          <stop offset="0%"   stop-color="#e3b341" stop-opacity="0.14"/>
-          <stop offset="100%" stop-color="#e3b341" stop-opacity="0"/>
-        </radialGradient>
-        <!-- TL: 踏进光里 — subtle blue -->
-        <linearGradient id="tl-fill" x1="100%" y1="100%" x2="0%" y2="0%">
-          <stop offset="0%"   stop-color="#4c9ef0" stop-opacity="0.04"/>
-          <stop offset="100%" stop-color="#4c9ef0" stop-opacity="0.10"/>
-        </linearGradient>
-        <!-- BR: 别光站在那里 — red glow -->
-        <radialGradient id="br-fill" cx="0%" cy="0%" r="70%"
-          gradientUnits="userSpaceOnUse" x1="480" y1="346" x2="860" y2="346">
-          <stop offset="0%"   stop-color="#f85149" stop-opacity="0.10"/>
-          <stop offset="100%" stop-color="#f85149" stop-opacity="0.02"/>
-        </radialGradient>
-        <!-- Glow filter for gold elements -->
-        <filter id="glow-gold" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
-          <feMerge>
-            <feMergeNode in="blur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-        <!-- Soft glow filter for bubbles -->
-        <filter id="bubble-glow" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
-          <feFlood flood-color="currentColor" flood-opacity="0.3" result="color"/>
-          <feComposite in="color" in2="blur" operator="in" result="shadow"/>
-          <feMerge>
-            <feMergeNode in="shadow"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-
-      <!-- ── QUADRANT BACKGROUNDS ── -->
-      <!-- BL: 光着站在那里 (darkest) -->
-      <rect x="100" y="62" width="380" height="284" fill="#050810" fill-opacity="0.85"/>
-      <!-- TL: 踏进光里 -->
-      <rect x="100" y="62" width="380" height="284" fill="url(#tl-fill)"/>
-      <!-- BR: 别光站在那里 -->
-      <rect x="480" y="346" width="380" height="282" fill="url(#br-fill)"/>
-      <!-- TR: 站在光里 (most premium) -->
-      <rect x="480" y="62" width="380" height="284" fill="#0e1a2a"/>
-      <rect x="480" y="62" width="380" height="284" fill="url(#tr-fill2)"/>
-
-      <!-- Gold sparkle particles in TR quadrant -->
-      <g id="sparkles" opacity="0.6">
-        <circle cx="730" cy="96" r="1.8" fill="#e3b341">
-          <animate attributeName="opacity" values="0.4;0.9;0.4" dur="2.1s" repeatCount="indefinite"/>
-          <animate attributeName="r" values="1.5;2.5;1.5" dur="2.1s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="780" cy="130" r="1.4" fill="#f5c843">
-          <animate attributeName="opacity" values="0.3;0.8;0.3" dur="3.2s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="820" cy="95" r="1.0" fill="#e3b341">
-          <animate attributeName="opacity" values="0.5;1.0;0.5" dur="1.8s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="690" cy="145" r="1.6" fill="#f5c843">
-          <animate attributeName="opacity" values="0.2;0.7;0.2" dur="2.7s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="845" cy="175" r="1.2" fill="#e3b341">
-          <animate attributeName="opacity" values="0.4;0.85;0.4" dur="3.5s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="610" cy="110" r="1.0" fill="#f5c843">
-          <animate attributeName="opacity" values="0.3;0.7;0.3" dur="2.4s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="760" cy="75" r="1.4" fill="#e3b341">
-          <animate attributeName="opacity" values="0.5;0.9;0.5" dur="1.6s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="850" cy="240" r="1.0" fill="#f5c843">
-          <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2.9s" repeatCount="indefinite"/>
-        </circle>
-      </g>
-
-      <!-- TL pulsing dashed border (opportunity signal) -->
-      <rect x="102" y="64" width="376" height="280"
-        fill="none" stroke="#4c9ef0" stroke-width="1.5"
-        stroke-dasharray="10 5" class="tl-dash"/>
-
-      <!-- BR danger corner brackets -->
-      <g stroke="#f85149" stroke-width="1.8" opacity="0.45">
-        <path d="M 480 346 l 18 0 M 480 346 l 0 18"/>
-        <path d="M 860 346 l -18 0 M 860 346 l 0 18"/>
-        <path d="M 480 628 l 18 0 M 480 628 l 0 -18"/>
-        <path d="M 860 628 l -18 0 M 860 628 l 0 -18"/>
-      </g>
-
-      <!-- ── AXIS LINES ── -->
-      <line x1="100" y1="346" x2="860" y2="346"
-        stroke="#1e3050" stroke-width="1.5" stroke-dasharray="5 3"/>
-      <line x1="480" y1="62" x2="480" y2="628"
-        stroke="#1e3050" stroke-width="1.5" stroke-dasharray="5 3"/>
-
-      <!-- ── QUADRANT LABELS ── -->
-      <!-- TL: 踏进光里 -->
-      <text x="290" y="104" text-anchor="middle"
-        font-family="Microsoft YaHei,PingFang SC,sans-serif"
-        font-size="17" font-weight="900" fill="#4c9ef0" fill-opacity="0.88">踏进光里</text>
-      <text x="290" y="124" text-anchor="middle"
-        font-family="Microsoft YaHei,PingFang SC,sans-serif"
-        font-size="10.5" fill="#4c9ef0" fill-opacity="0.42">机构悄悄进场 · 散户尚未发现 · 布局窗口</text>
-
-      <!-- TR: 站在光里 -->
-      <text x="670" y="104" text-anchor="middle"
-        font-family="Microsoft YaHei,PingFang SC,sans-serif"
-        font-size="19" font-weight="900" fill="#e3b341" filter="url(#glow-gold)">站在光里</text>
-      <text x="670" y="126" text-anchor="middle"
-        font-family="Microsoft YaHei,PingFang SC,sans-serif"
-        font-size="10.5" fill="#e3b341" fill-opacity="0.48">机构+散户共振 · 主升浪 · 最佳持仓区</text>
-
-      <!-- BL: 光着站在那里 -->
-      <text x="290" y="598" text-anchor="middle"
-        font-family="Microsoft YaHei,PingFang SC,sans-serif"
-        font-size="14" font-weight="800" fill="#3a4a5a">光着站在那里</text>
-      <text x="290" y="616" text-anchor="middle"
-        font-family="Microsoft YaHei,PingFang SC,sans-serif"
-        font-size="10" fill="#3a4a5a">双向撤退 · 资金真空 · 不要抄底</text>
-
-      <!-- BR: 别光站在那里 -->
-      <text x="670" y="598" text-anchor="middle"
-        font-family="Microsoft YaHei,PingFang SC,sans-serif"
-        font-size="15" font-weight="900" fill="#f85149" fill-opacity="0.88">别光站在那里</text>
-      <text x="670" y="616" text-anchor="middle"
-        font-family="Microsoft YaHei,PingFang SC,sans-serif"
-        font-size="10" fill="#f85149" fill-opacity="0.48">机构出货 · 散户追涨 · 高危接盘</text>
-
-      <!-- ── Y AXIS ── -->
-      <text x="62" y="204" text-anchor="middle"
-        font-family="Microsoft YaHei,PingFang SC,sans-serif"
-        font-size="10" fill="#3a4a5a"
-        transform="rotate(-90,62,204)">机构资金变化 (5日)</text>
-      <text x="68" y="86" text-anchor="middle"
-        font-family="sans-serif" font-size="10" fill="#3a4a5a">买入 ↑</text>
-      <text x="68" y="614" text-anchor="middle"
-        font-family="sans-serif" font-size="10" fill="#3a4a5a">减仓 ↓</text>
-
-      <!-- ── X AXIS ── -->
-      <text x="200" y="650" text-anchor="middle"
-        font-family="Microsoft YaHei,PingFang SC,sans-serif"
-        font-size="10" fill="#3a4a5a">← 散户减仓</text>
-      <text x="480" y="650" text-anchor="middle"
-        font-family="Microsoft YaHei,PingFang SC,sans-serif"
-        font-size="11" fill="#3a4a5a">散户资金变化 (5日)</text>
-      <text x="760" y="650" text-anchor="middle"
-        font-family="Microsoft YaHei,PingFang SC,sans-serif"
-        font-size="10" fill="#3a4a5a">散户加仓 →</text>
-
-      <!-- ── BUBBLES LAYER (filled by JS) ── -->
-      <g id="bubbles-layer"></g>
-
-    </svg>
-  </div>
-
-  <!-- SECTOR DETAIL PANEL -->
-  <div class="sector-panel" id="sector-panel">
-    <div class="panel-inner" id="panel-inner">
-      <button class="panel-close" onclick="closePanel()">✕ 关闭</button>
-      <div id="panel-content"></div>
-    </div>
+<div class="hd">
+  <div class="hd-title">你相信<span class="glow">光</span>吗？</div>
+  <div class="hd-right">
+    <span class="hd-meta">机构 vs 散户 · 10大板块 · 2026-05-20</span>
+    <a href="gauge.html" class="hd-fg">
+      <svg class="hd-gauge-mini" viewBox="0 0 36 20">
+        <path d="M 3 18 A 15 15 0 0 1 33 18" fill="none" stroke="#1a2838" stroke-width="4" stroke-linecap="round"/>
+        <path d="M 3 18 A 15 15 0 0 1 10 6"  fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
+        <path d="M 10 6 A 15 15 0 0 1 18 3"  fill="none" stroke="#0ea5e9" stroke-width="4" stroke-linecap="round"/>
+        <path d="M 18 3 A 15 15 0 0 1 29 9"  fill="none" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"/>
+        <line x1="18" y1="18" x2="27" y2="8" stroke="#e3b341" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="18" cy="18" r="2.5" fill="#e3b341"/>
+        <circle cx="18" cy="18" r="1.2" fill="#060b14"/>
+      </svg>
+      <span class="fg-num">71</span>
+      <span class="fg-lbl">贪婪 · 温度计 →</span>
+    </a>
   </div>
 </div>
 
-<!-- BOTTOM BAR -->
-<div class="bottom-bar">
-  <div class="legend-row" id="legend-row"></div>
-  <div class="bottom-right">
-    <span style="color:var(--dim);font-size:10.5px">气泡=成交量 · 箭头=5日方向 · 点击查看详情</span>
-    <a href="gauge.html" class="gauge-link">恐贪温度计 + 推荐/避雷表 →</a>
-  </div>
+<div class="chart-area">
+  <svg id="chart" viewBox="0 0 960 640" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <!-- TR gold glow -->
+      <radialGradient id="tr-g" cx="100%" cy="0%" r="65%" gradientUnits="userSpaceOnUse"
+        x1="480" y1="48" x2="860" y2="48">
+        <stop offset="0%"   stop-color="#e3b341" stop-opacity="0.16"/>
+        <stop offset="55%"  stop-color="#f59e0b" stop-opacity="0.06"/>
+        <stop offset="100%" stop-color="#e3b341" stop-opacity="0"/>
+      </radialGradient>
+      <!-- TL blue tint -->
+      <linearGradient id="tl-g" x1="100%" y1="100%" x2="0%" y2="0%">
+        <stop offset="0%"   stop-color="#4c9ef0" stop-opacity="0.03"/>
+        <stop offset="100%" stop-color="#4c9ef0" stop-opacity="0.09"/>
+      </linearGradient>
+      <!-- BR red tint -->
+      <radialGradient id="br-g" cx="0%" cy="0%" r="70%"
+        gradientUnits="userSpaceOnUse" x1="480" y1="332" x2="860" y2="332">
+        <stop offset="0%"   stop-color="#f85149" stop-opacity="0.09"/>
+        <stop offset="100%" stop-color="#f85149" stop-opacity="0.01"/>
+      </radialGradient>
+      <!-- Gold glow filter -->
+      <filter id="gf" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- QUADRANT FILLS -->
+    <rect x="96" y="48" width="384" height="284" fill="#050810" fill-opacity="0.8"/>
+    <rect x="96" y="48" width="384" height="284" fill="url(#tl-g)"/>
+    <rect x="480" y="48" width="384" height="284" fill="#0c1828"/>
+    <rect x="480" y="48" width="384" height="284" fill="url(#tr-g)"/>
+    <rect x="480" y="332" width="384" height="272" fill="url(#br-g)"/>
+
+    <!-- Gold sparkles in TR -->
+    <g opacity="0.55">
+      <circle cx="720" cy="80"  r="1.6" fill="#e3b341"><animate attributeName="opacity" values="0.3;0.8;0.3" dur="2.2s" repeatCount="indefinite"/></circle>
+      <circle cx="775" cy="115" r="1.2" fill="#f5c843"><animate attributeName="opacity" values="0.4;0.9;0.4" dur="3.1s" repeatCount="indefinite"/></circle>
+      <circle cx="820" cy="82"  r="0.9" fill="#e3b341"><animate attributeName="opacity" values="0.5;1.0;0.5" dur="1.7s" repeatCount="indefinite"/></circle>
+      <circle cx="685" cy="130" r="1.4" fill="#f5c843"><animate attributeName="opacity" values="0.2;0.7;0.2" dur="2.8s" repeatCount="indefinite"/></circle>
+      <circle cx="840" cy="170" r="1.0" fill="#e3b341"><animate attributeName="opacity" values="0.3;0.8;0.3" dur="3.4s" repeatCount="indefinite"/></circle>
+      <circle cx="760" cy="62"  r="1.3" fill="#e3b341"><animate attributeName="opacity" values="0.4;0.85;0.4" dur="1.9s" repeatCount="indefinite"/></circle>
+    </g>
+
+    <!-- TL pulsing border -->
+    <rect x="98" y="50" width="380" height="280"
+      fill="none" stroke="#4c9ef0" stroke-width="1.2"
+      stroke-dasharray="9 5" class="tl-dash"/>
+
+    <!-- BR danger brackets -->
+    <g stroke="#f85149" stroke-width="1.5" opacity="0.4">
+      <path d="M480 332 l16 0 M480 332 l0 16"/>
+      <path d="M864 332 l-16 0 M864 332 l0 16"/>
+      <path d="M480 604 l16 0 M480 604 l0 -16"/>
+      <path d="M864 604 l-16 0 M864 604 l0 -16"/>
+    </g>
+
+    <!-- AXES -->
+    <line x1="96" y1="332" x2="864" y2="332" stroke="#1e3050" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <line x1="480" y1="48"  x2="480" y2="604" stroke="#1e3050" stroke-width="1.2" stroke-dasharray="4 3"/>
+
+    <!-- QUADRANT LABELS -->
+    <text x="288" y="90" text-anchor="middle"
+      font-family="Microsoft YaHei,PingFang SC,sans-serif"
+      font-size="16" font-weight="900" fill="#4c9ef0" fill-opacity="0.82">踏进光里</text>
+    <text x="288" y="108" text-anchor="middle"
+      font-family="Microsoft YaHei,PingFang SC,sans-serif"
+      font-size="10" fill="#4c9ef0" fill-opacity="0.38">机构加仓 · 散户未跟 · 布局窗口</text>
+
+    <text x="672" y="90" text-anchor="middle"
+      font-family="Microsoft YaHei,PingFang SC,sans-serif"
+      font-size="18" font-weight="900" fill="#e3b341" filter="url(#gf)">站在光里</text>
+    <text x="672" y="110" text-anchor="middle"
+      font-family="Microsoft YaHei,PingFang SC,sans-serif"
+      font-size="10" fill="#e3b341" fill-opacity="0.42">机构+散户共振 · 主升浪</text>
+
+    <text x="288" y="580" text-anchor="middle"
+      font-family="Microsoft YaHei,PingFang SC,sans-serif"
+      font-size="14" font-weight="800" fill="#364555">光着站在那里</text>
+    <text x="288" y="597" text-anchor="middle"
+      font-family="Microsoft YaHei,PingFang SC,sans-serif"
+      font-size="9.5" fill="#364555">双向撤退 · 资金真空</text>
+
+    <text x="672" y="580" text-anchor="middle"
+      font-family="Microsoft YaHei,PingFang SC,sans-serif"
+      font-size="15" font-weight="900" fill="#f85149" fill-opacity="0.82">别光站在那里</text>
+    <text x="672" y="597" text-anchor="middle"
+      font-family="Microsoft YaHei,PingFang SC,sans-serif"
+      font-size="9.5" fill="#f85149" fill-opacity="0.42">机构出货 · 散户追涨</text>
+
+    <!-- AXIS LABELS -->
+    <text x="60" y="190" text-anchor="middle"
+      font-family="Microsoft YaHei,PingFang SC,sans-serif"
+      font-size="10" fill="#2a3a4a"
+      transform="rotate(-90,60,190)">机构资金变化</text>
+    <text x="66" y="70"  text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#2a3a4a">买入↑</text>
+    <text x="66" y="596" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#2a3a4a">减仓↓</text>
+    <text x="192" y="628" text-anchor="middle" font-family="Microsoft YaHei,PingFang SC,sans-serif" font-size="9.5" fill="#2a3a4a">← 散户减仓</text>
+    <text x="480" y="628" text-anchor="middle" font-family="Microsoft YaHei,PingFang SC,sans-serif" font-size="9.5" fill="#2a3a4a">散户资金变化</text>
+    <text x="768" y="628" text-anchor="middle" font-family="Microsoft YaHei,PingFang SC,sans-serif" font-size="9.5" fill="#2a3a4a">散户加仓 →</text>
+
+    <g id="bubbles"></g>
+  </svg>
+</div>
+
+<div class="ft">
+  <div class="ft-legend" id="legend"></div>
+  <div class="ft-note">气泡 = 成交量 &nbsp;·&nbsp; 箭头 = 5日方向 &nbsp;·&nbsp; 仅供参考，不构成投资建议 &nbsp;·&nbsp; © Asymmetric IM</div>
 </div>
 
 <script>
-// ── DATA ──────────────────────────────────────────────────────────
 const SECTORS = [
-  {
-    id: 'dajr', name: '大金融',
-    x: 0.28, y: 0.36, dx: 0.09, dy: 0.13,
-    vol: 1.8, ret5d: 1.2, color: '#4c9ef0', quadrant: 'tr',
-    inst: 79, instDir: '持续净买入', retail: 55, retailDir: '跟进中',
-    desc: '大金融是当前最确定的主升浪标的：机构北向资金连续流入，散户已开始跟进，两股合力形成共振。轨迹箭头清晰指向右上，动能持续增强。',
-    stocks: [
-      { name: '招商银行', code: '600036', signal: 'buy', strength: 85, reason: '北向连续8日净买入，机构席位龙虎榜领先' },
-      { name: '中信证券', code: '600030', signal: 'buy', strength: 78, reason: '券商轮动信号，估值历史低位，机构加速入场' },
-      { name: '工商银行', code: '601398', signal: 'watch', strength: 65, reason: '高股息防御标的，外资配置盘持续流入' },
-    ]
-  },
-  {
-    id: 'xny', name: '新能源车',
-    x: 0.20, y: 0.22, dx: 0.06, dy: 0.08,
-    vol: 1.3, ret5d: 3.2, color: '#3fb950', quadrant: 'tr',
-    inst: 71, instDir: '净买入', retail: 62, retailDir: '加仓',
-    desc: '新能源车进入主升浪。出口数据创新高为基本面背书，机构与散户同步做多，轨迹持续向右上运动，共振信号明确。',
-    stocks: [
-      { name: '宁德时代', code: '300750', signal: 'buy', strength: 82, reason: '机构仓位快速拉升，产业链数据向好' },
-      { name: '比亚迪',   code: '002594', signal: 'buy', strength: 75, reason: '海外订单创新高，外资持续深度配置' },
-      { name: '赣锋锂业', code: '002460', signal: 'watch', strength: 58, reason: '锂价回升初期，机构开始试探性买入' },
-    ]
-  },
-  {
-    id: 'ai', name: 'AI算力',
-    x: -0.16, y: 0.32, dx: 0.00, dy: 0.15,
-    vol: 1.5, ret5d: 7.8, color: '#f0883e', quadrant: 'tl',
-    inst: 58, instDir: '大举买入', retail: 22, retailDir: '尚未跟进',
-    desc: '今日核心机会：机构正在大举布局AI算力，但散户仓位仍极低。这是典型"踏进光里"窗口——价格已在上涨，散户追涨情绪尚未到来，布局空间仍在。',
-    stocks: [
-      { name: '海光信息', code: '688041', signal: 'buy', strength: 90, reason: '国产AI芯片核心标的，机构连续大额扫货3周' },
-      { name: '中际旭创', code: '300308', signal: 'buy', strength: 86, reason: '光模块龙头，AI算力需求直接受益，外资看多' },
-      { name: '寒武纪',   code: '688256', signal: 'watch', strength: 62, reason: '机构在买但RSI 82.9，追高需严控仓位' },
-    ]
-  },
-  {
-    id: 'bj', name: '消费白酒',
-    x: -0.12, y: 0.16, dx: -0.02, dy: 0.07,
-    vol: 1.0, ret5d: 1.8, color: '#e3b341', quadrant: 'tl',
-    inst: 60, instDir: '悄悄加仓', retail: 26, retailDir: '未关注',
-    desc: '白酒机构资金悄然回流，而散户注意力仍在科技板块。这种背离往往是板块轮动前兆——机构提前布局，等待散户入场推动第二段上涨。',
-    stocks: [
-      { name: '贵州茅台', code: '600519', signal: 'buy', strength: 80, reason: '估值回落至合理区间，北向资金低调增持' },
-      { name: '五粮液',   code: '000858', signal: 'buy', strength: 72, reason: '机构调仓白酒明显，动量指标开始转正' },
-    ]
-  },
-  {
-    id: 'cy', name: '创新药',
-    x: -0.08, y: 0.12, dx: -0.02, dy: 0.05,
-    vol: 0.9, ret5d: 0.9, color: '#bc8cff', quadrant: 'tl',
-    inst: 52, instDir: '温和买入', retail: 20, retailDir: '减仓中',
-    desc: '创新药处于踏进光里的早期阶段，机构温和布局，散户仍在撤退。信号偏弱，适合小仓位试探，等待政策催化剂出现后加仓。',
-    stocks: [
-      { name: '恒瑞医药', code: '600276', signal: 'buy', strength: 70, reason: '创新药政策红利持续，机构配置仓位上升' },
-      { name: '迈瑞医疗', code: '300760', signal: 'buy', strength: 68, reason: '医疗出海逻辑顺畅，外资持续增持' },
-    ]
-  },
-  {
-    id: 'bdc', name: '半导体',
-    x: 0.34, y: -0.10, dx: 0.13, dy: -0.06,
-    vol: 1.4, ret5d: 4.5, color: '#58a6ff', quadrant: 'br',
-    inst: 32, instDir: '悄悄减仓', retail: 90, retailDir: '狂热追涨',
-    desc: '高危预警：半导体出现典型"别光站在那里"形态。机构已在悄悄离场，散户融资买入激增。RSI 82.9，历史上类似形态后15个交易日平均回调 -12%。',
-    stocks: [
-      { name: '北方华创', code: '002371', signal: 'sell', strength: 90, reason: 'RSI 82.9严重超买，机构龙虎榜从买转卖' },
-      { name: '兆易创新', code: '603986', signal: 'sell', strength: 82, reason: '散户融资余额暴增30%，历史高位信号' },
-      { name: '韦尔股份', code: '603501', signal: 'sell', strength: 75, reason: '短期涨幅过大，机构高位派发迹象明显' },
-    ]
-  },
-  {
-    id: 'dlsb', name: '电力设备',
-    x: 0.14, y: -0.17, dx: 0.06, dy: -0.09,
-    vol: 0.9, ret5d: 2.1, color: '#56d364', quadrant: 'br',
-    inst: 38, instDir: '减仓', retail: 64, retailDir: '追涨',
-    desc: '电力设备散户追涨热情高涨，但机构已在减仓。这种背离在板块涨幅较大后出现，是机构向散户转移筹码的典型信号。',
-    stocks: [
-      { name: '阳光电源', code: '300274', signal: 'sell', strength: 72, reason: '机构减仓明显，散户融资接盘风险高' },
-      { name: '特变电工', code: '600089', signal: 'sell', strength: 65, reason: '板块高位资金外流，追高性价比低' },
-    ]
-  },
-  {
-    id: 'gfn', name: '光伏储能',
-    x: -0.20, y: -0.22, dx: -0.09, dy: -0.09,
-    vol: 0.7, ret5d: -1.2, color: '#ffa657', quadrant: 'bl',
-    inst: 28, instDir: '持续减仓', retail: 18, retailDir: '出逃',
-    desc: '光伏储能双向撤退，处于资金真空阶段。轨迹箭头持续向左下，机构与散户均无护盘意愿。产业链库存压力未解，不建议抄底。',
-    stocks: [
-      { name: '隆基绿能', code: '601012', signal: 'avoid', strength: 85, reason: '机构散户齐撤，产业链库存压力待消化' },
-      { name: '晶科能源', code: '688223', signal: 'avoid', strength: 78, reason: '双向减仓趋势延续，飞刀接不得' },
-    ]
-  },
-  {
-    id: 'tmhl', name: '传媒互联网',
-    x: -0.14, y: -0.27, dx: -0.06, dy: -0.11,
-    vol: 0.6, ret5d: -2.9, color: '#ff7b6b', quadrant: 'bl',
-    inst: 21, instDir: '大幅减仓', retail: 16, retailDir: '恐慌出逃',
-    desc: '传媒互联网资金全面撤退，处于"光着站在那里"深处。基本面承压，轨迹持续向左下延伸，缺乏反转信号。',
-    stocks: [
-      { name: '分众传媒', code: '002027', signal: 'avoid', strength: 80, reason: '资金双向撤退，广告景气度持续下行' },
-      { name: '科大讯飞', code: '002230', signal: 'avoid', strength: 75, reason: '机构出货信号明显，等待企稳再考虑' },
-    ]
-  },
-  {
-    id: 'dc', name: '地产链',
-    x: -0.08, y: -0.33, dx: -0.02, dy: -0.09,
-    vol: 0.5, ret5d: -3.5, color: '#f85149', quadrant: 'bl',
-    inst: 18, instDir: '全面撤退', retail: 10, retailDir: '恐慌性出逃',
-    desc: '地产链是当前市场"光着站在那里"最深的板块。机构持续大幅减仓，散户恐慌出逃，轨迹持续向下。政策预期落空风险高，不建议参与。',
-    stocks: [
-      { name: '万科A',   code: '000002', signal: 'avoid', strength: 92, reason: '机构持续撤退，债务问题悬而未决' },
-      { name: '招商蛇口', code: '001979', signal: 'avoid', strength: 85, reason: '底部信号未现，不建议抄底' },
-    ]
-  },
+  { name:'大金融',    x:0.28, y:0.36, dx:0.09, dy:0.13, vol:1.8, ret5d:1.2,  color:'#4c9ef0' },
+  { name:'新能源车',  x:0.20, y:0.22, dx:0.06, dy:0.08, vol:1.3, ret5d:3.2,  color:'#3fb950' },
+  { name:'AI算力',   x:-0.16,y:0.32, dx:0.00, dy:0.15, vol:1.5, ret5d:7.8,  color:'#f0883e' },
+  { name:'消费白酒',  x:-0.12,y:0.16, dx:-0.02,dy:0.07, vol:1.0, ret5d:1.8,  color:'#e3b341' },
+  { name:'创新药',    x:-0.08,y:0.12, dx:-0.02,dy:0.05, vol:0.9, ret5d:0.9,  color:'#bc8cff' },
+  { name:'半导体',    x:0.34, y:-0.10,dx:0.13, dy:-0.06,vol:1.4, ret5d:4.5,  color:'#58a6ff' },
+  { name:'电力设备',  x:0.14, y:-0.17,dx:0.06, dy:-0.09,vol:0.9, ret5d:2.1,  color:'#56d364' },
+  { name:'光伏储能',  x:-0.20,y:-0.22,dx:-0.09,dy:-0.09,vol:0.7, ret5d:-1.2, color:'#ffa657' },
+  { name:'传媒互联网',x:-0.14,y:-0.27,dx:-0.06,dy:-0.11,vol:0.6, ret5d:-2.9, color:'#ff7b6b' },
+  { name:'地产链',    x:-0.08,y:-0.33,dx:-0.02,dy:-0.09,vol:0.5, ret5d:-3.5, color:'#f85149' },
 ];
 
-const Q_CONFIG = {
-  tr: { label: '站在光里',    color: '#e3b341', bg: '#e3b34122', border: '#e3b34150' },
-  tl: { label: '踏进光里',    color: '#4c9ef0', bg: '#4c9ef022', border: '#4c9ef050' },
-  br: { label: '别光站在那里', color: '#f85149', bg: '#f8514922', border: '#f8514950' },
-  bl: { label: '光着站在那里', color: '#5a6a7a', bg: '#3a4a5a22', border: '#3a4a5a50' },
-};
-
-const SIG = {
-  buy:   { label: '推荐买入', color: '#3fb950' },
-  watch: { label: '关注布局', color: '#e3b341' },
-  sell:  { label: '建议减仓', color: '#f0883e' },
-  avoid: { label: '避开',    color: '#f85149' },
-};
-
-// ── COORDINATE TRANSFORM ──────────────────────────────────────────
-const VB = { l: 100, r: 860, t: 62, b: 628 };
-const CX = (VB.l + VB.r) / 2; // 480
-const CY = (VB.t + VB.b) / 2; // 345
+// Coordinate transform
+const VB = { l:96, r:864, t:48, b:604 };
 const XR = 0.54, YR = 0.48;
-
 function toSVG(dx, dy) {
   return {
-    x: VB.l + (dx + XR) / (2 * XR) * (VB.r - VB.l),
-    y: VB.t + (1 - (dy + YR) / (2 * YR)) * (VB.b - VB.t),
+    x: VB.l + (dx + XR) / (2*XR) * (VB.r - VB.l),
+    y: VB.t + (1 - (dy + YR) / (2*YR)) * (VB.b - VB.t),
   };
 }
 
-// ── RENDER BUBBLES ────────────────────────────────────────────────
-const layer = document.getElementById('bubbles-layer');
-const svgEl = document.getElementById('main-chart');
-const defs  = svgEl.querySelector('defs');
+const svgEl  = document.getElementById('chart');
+const defs   = svgEl.querySelector('defs');
+const layer  = document.getElementById('bubbles');
 
-SECTORS.forEach(s => {
-  // Arrow marker per sector
-  const mk = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
-  mk.setAttribute('id', 'arr-' + s.id);
-  mk.setAttribute('markerWidth', '7'); mk.setAttribute('markerHeight', '7');
-  mk.setAttribute('refX', '6'); mk.setAttribute('refY', '3');
-  mk.setAttribute('orient', 'auto');
-  const mkp = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  mkp.setAttribute('d', 'M 0 0 L 7 3 L 0 6 Z');
-  mkp.setAttribute('fill', s.color); mkp.setAttribute('opacity', '0.75');
+SECTORS.forEach((s, i) => {
+  // Arrow marker
+  const mk  = document.createElementNS('http://www.w3.org/2000/svg','marker');
+  const mid = 'a' + i;
+  mk.setAttribute('id', mid);
+  mk.setAttribute('markerWidth','7'); mk.setAttribute('markerHeight','7');
+  mk.setAttribute('refX','6'); mk.setAttribute('refY','3');
+  mk.setAttribute('orient','auto');
+  const mkp = document.createElementNS('http://www.w3.org/2000/svg','path');
+  mkp.setAttribute('d','M 0 0 L 7 3 L 0 6 Z');
+  mkp.setAttribute('fill', s.color); mkp.setAttribute('opacity','0.7');
   mk.appendChild(mkp); defs.appendChild(mk);
 
   const cur = toSVG(s.x, s.y);
   const old = toSVG(s.x - s.dx, s.y - s.dy);
-  const r   = 20 + s.vol * 12;
+  const r   = 18 + s.vol * 12;
+  const g   = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('class','s-bubble');
 
-  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  g.setAttribute('class', 's-bubble');
-  g.addEventListener('click', () => openPanel(s));
-
-  // Ghost dot
-  const ghost = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  // Ghost
+  const ghost = document.createElementNS('http://www.w3.org/2000/svg','circle');
   ghost.setAttribute('cx', old.x); ghost.setAttribute('cy', old.y);
-  ghost.setAttribute('r', r * 0.32);
-  ghost.setAttribute('fill', s.color); ghost.setAttribute('fill-opacity', '0.16');
+  ghost.setAttribute('r', r * 0.3);
+  ghost.setAttribute('fill', s.color); ghost.setAttribute('fill-opacity','0.15');
   g.appendChild(ghost);
 
-  // Trajectory line
-  const dist = Math.hypot(cur.x - old.x, cur.y - old.y);
-  if (dist > 5) {
-    const shrink = r + 5;
-    const t1 = 0.15, t2 = Math.max(0, (dist - shrink) / dist);
-    const sx = old.x + (cur.x - old.x) * t1, sy = old.y + (cur.y - old.y) * t1;
-    const ex = old.x + (cur.x - old.x) * t2, ey = old.y + (cur.y - old.y) * t2;
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', sx); line.setAttribute('y1', sy);
-    line.setAttribute('x2', ex); line.setAttribute('y2', ey);
-    line.setAttribute('stroke', s.color); line.setAttribute('stroke-width', '1.8');
-    line.setAttribute('stroke-opacity', '0.55');
-    line.setAttribute('marker-end', 'url(#arr-' + s.id + ')');
+  // Trajectory
+  const dist = Math.hypot(cur.x-old.x, cur.y-old.y);
+  if (dist > 4) {
+    const shrink = r + 4;
+    const t1 = 0.18, t2 = Math.max(0, (dist - shrink) / dist);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', old.x + (cur.x-old.x)*t1);
+    line.setAttribute('y1', old.y + (cur.y-old.y)*t1);
+    line.setAttribute('x2', old.x + (cur.x-old.x)*t2);
+    line.setAttribute('y2', old.y + (cur.y-old.y)*t2);
+    line.setAttribute('stroke', s.color);
+    line.setAttribute('stroke-width','1.6');
+    line.setAttribute('stroke-opacity','0.5');
+    line.setAttribute('marker-end','url(#'+mid+')');
     g.appendChild(line);
   }
 
-  // Outer glow ring
-  const glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  // Glow ring
+  const glow = document.createElementNS('http://www.w3.org/2000/svg','circle');
   glow.setAttribute('cx', cur.x); glow.setAttribute('cy', cur.y);
   glow.setAttribute('r', r * 1.5);
-  glow.setAttribute('fill', s.color); glow.setAttribute('fill-opacity', '0.07');
-  glow.id = 'glow-' + s.id;
+  glow.setAttribute('fill', s.color); glow.setAttribute('fill-opacity','0.07');
   g.appendChild(glow);
 
-  // Main bubble
-  const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  // Bubble
+  const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
   c.setAttribute('cx', cur.x); c.setAttribute('cy', cur.y); c.setAttribute('r', r);
-  c.setAttribute('fill', s.color); c.setAttribute('fill-opacity', '0.88');
-  c.setAttribute('stroke', s.color); c.setAttribute('stroke-width', '2.2');
-  c.id = 'bbl-' + s.id;
+  c.setAttribute('fill', s.color); c.setAttribute('fill-opacity','0.88');
+  c.setAttribute('stroke', s.color); c.setAttribute('stroke-width','2');
   g.appendChild(c);
 
-  // Sector name
-  const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  // Name
+  const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
   txt.setAttribute('x', cur.x); txt.setAttribute('y', cur.y + 4);
-  txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('dominant-baseline', 'middle');
-  txt.setAttribute('font-family', 'Microsoft YaHei,PingFang SC,sans-serif');
-  txt.setAttribute('font-size', r > 30 ? '11' : '10');
-  txt.setAttribute('font-weight', '800');
-  txt.setAttribute('fill', '#ffffff'); txt.setAttribute('fill-opacity', '0.95');
-  txt.setAttribute('pointer-events', 'none');
+  txt.setAttribute('text-anchor','middle'); txt.setAttribute('dominant-baseline','middle');
+  txt.setAttribute('font-family','Microsoft YaHei,PingFang SC,sans-serif');
+  txt.setAttribute('font-size', r > 28 ? '11' : '10');
+  txt.setAttribute('font-weight','800');
+  txt.setAttribute('fill','#fff'); txt.setAttribute('fill-opacity','0.95');
+  txt.setAttribute('pointer-events','none');
   txt.textContent = s.name;
   g.appendChild(txt);
 
-  // Return label
-  const ret = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  // Return
+  const ret = document.createElementNS('http://www.w3.org/2000/svg','text');
   ret.setAttribute('x', cur.x); ret.setAttribute('y', cur.y + r + 13);
-  ret.setAttribute('text-anchor', 'middle');
-  ret.setAttribute('font-family', 'Microsoft YaHei,PingFang SC,sans-serif');
-  ret.setAttribute('font-size', '9'); ret.setAttribute('font-weight', '700');
+  ret.setAttribute('text-anchor','middle');
+  ret.setAttribute('font-family','Microsoft YaHei,PingFang SC,sans-serif');
+  ret.setAttribute('font-size','9'); ret.setAttribute('font-weight','700');
   ret.setAttribute('fill', s.ret5d >= 0 ? '#3fb950' : '#f85149');
-  ret.setAttribute('pointer-events', 'none');
+  ret.setAttribute('pointer-events','none');
   ret.textContent = (s.ret5d >= 0 ? '+' : '') + s.ret5d + '%';
   g.appendChild(ret);
-
-  // Hover
-  g.addEventListener('mouseenter', () => {
-    document.getElementById('bbl-' + s.id).setAttribute('fill-opacity', '1');
-    const g2 = document.getElementById('glow-' + s.id);
-    g2.setAttribute('fill-opacity', '0.16'); g2.setAttribute('r', r * 2.0);
-  });
-  g.addEventListener('mouseleave', () => {
-    document.getElementById('bbl-' + s.id).setAttribute('fill-opacity', '0.88');
-    const g2 = document.getElementById('glow-' + s.id);
-    g2.setAttribute('fill-opacity', '0.07'); g2.setAttribute('r', r * 1.5);
-  });
 
   layer.appendChild(g);
 });
 
-// ── LEGEND ───────────────────────────────────────────────────────
-const legRow = document.getElementById('legend-row');
+// Legend
+const legEl = document.getElementById('legend');
 SECTORS.forEach(s => {
-  const item = document.createElement('div');
-  item.className = 'leg-item';
-  item.innerHTML = `<div class="leg-dot" style="background:${s.color}"></div>${s.name}`;
-  item.style.cursor = 'pointer';
-  item.addEventListener('click', () => openPanel(s));
-  legRow.appendChild(item);
-});
-
-// ── PANEL ─────────────────────────────────────────────────────────
-const panelEl   = document.getElementById('sector-panel');
-const panelBody = document.getElementById('panel-content');
-
-function openPanel(s) {
-  const q = Q_CONFIG[s.quadrant];
-  const stocksHTML = s.stocks.map(st => {
-    const sig = SIG[st.signal];
-    return `
-    <div class="stock-card">
-      <div class="sc-top">
-        <span class="sc-name">${st.name}</span>
-        <span class="sc-code">${st.code}</span>
-      </div>
-      <div class="sc-reason">${st.reason}</div>
-      <div class="sc-bar-wrap">
-        <div class="sc-bar-bg"><div class="sc-bar-fill" style="width:${st.strength}%;background:${sig.color}"></div></div>
-        <span class="sc-signal" style="color:${sig.color}">${sig.label}</span>
-      </div>
-    </div>`;
-  }).join('');
-
-  const sectionLabel = ['buy','watch'].includes(s.stocks[0]?.signal) ? '今日推荐' : '今日避雷';
-  const sectionColor = ['buy','watch'].includes(s.stocks[0]?.signal) ? '#3fb950' : '#f85149';
-
-  panelBody.innerHTML = `
-    <div style="margin-bottom:14px;">
-      <span class="panel-qbadge" style="background:${q.bg};color:${q.color};border:1px solid ${q.border}">
-        ${q.label}
-      </span>
-    </div>
-    <div class="panel-name">${s.name}</div>
-    <div class="panel-ret" style="color:${s.ret5d >= 0 ? '#3fb950' : '#f85149'}">
-      5日涨跌幅：${s.ret5d >= 0 ? '+' : ''}${s.ret5d}%
-    </div>
-    <div class="panel-stats">
-      <div class="stat-col">
-        <div class="stat-lbl">机构强度</div>
-        <div class="stat-val" style="color:${s.inst > 50 ? '#3fb950' : '#f0883e'}">${s.inst}%</div>
-        <div class="stat-sub">${s.instDir}</div>
-      </div>
-      <div class="stat-col">
-        <div class="stat-lbl">散户热度</div>
-        <div class="stat-val" style="color:${s.retail > 55 ? '#f0883e' : '#546678'}">${s.retail}%</div>
-        <div class="stat-sub">${s.retailDir}</div>
-      </div>
-    </div>
-    <div class="panel-desc">${s.desc}</div>
-    <div class="section-hd" style="color:${sectionColor}">${sectionLabel}</div>
-    ${stocksHTML}
-    <div class="panel-foot">
-      数据：Wind · 龙虎榜 · 北向资金<br>
-      仅供参考，不构成投资建议
-    </div>`;
-
-  panelEl.classList.add('open');
-}
-
-function closePanel() {
-  panelEl.classList.remove('open');
-}
-
-svgEl.addEventListener('click', e => {
-  if (!e.target.closest('.s-bubble')) closePanel();
+  const d = document.createElement('div');
+  d.className = 'leg';
+  d.innerHTML = `<div class="leg-dot" style="background:${s.color}"></div>${s.name}`;
+  legEl.appendChild(d);
 });
 </script>
 </body>

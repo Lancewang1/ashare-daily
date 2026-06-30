@@ -3,555 +3,320 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>恐贪温度计 · 今日推荐 &amp; 避雷 · Asymmetric IM</title>
+<title>恐贪温度计 · 2026-05-20</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg:     #060b14;
-  --bg2:    #090f1c;
-  --card:   #0d1623;
-  --border: #1a2838;
-  --fg:     #cdd9e8;
-  --dim:    #546678;
-  --gold:   #e3b341;
-  --blue:   #4c9ef0;
-  --green:  #3fb950;
-  --red:    #f85149;
-  --orange: #f0883e;
-}
+
 body {
-  background: var(--bg);
-  color: var(--fg);
-  font-family: -apple-system,'Microsoft YaHei','PingFang SC','Segoe UI',sans-serif;
+  background: #060b14;
+  color: #cdd9e8;
+  font-family: -apple-system, 'Microsoft YaHei', 'PingFang SC', sans-serif;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* HEADER */
-.header {
-  padding: 22px 36px 18px;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(135deg,#060b14,#0c1628);
+.hd {
+  padding: 14px 28px;
+  border-bottom: 1px solid #1a2838;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: relative;
-  overflow: hidden;
+  flex-shrink: 0;
 }
-.header::after {
-  content:'';position:absolute;top:-60px;right:-60px;
-  width:300px;height:300px;
-  background:radial-gradient(circle,#e3b34115 0%,transparent 65%);
-  pointer-events:none;
-}
-.hd-left { position:relative;z-index:1; }
+.hd-title { font-size: 18px; font-weight: 800; }
+.hd-title .gold { color: #e3b341; }
 .back-link {
-  display:inline-flex;align-items:center;gap:5px;
-  color:var(--dim);font-size:11.5px;text-decoration:none;
-  border:1px solid var(--border);border-radius:20px;
-  padding:4px 12px;margin-bottom:12px;background:var(--card);
-  transition:color 0.2s,border-color 0.2s;
+  font-size: 12px; color: #546678;
+  text-decoration: none;
+  border: 1px solid #1a2838;
+  border-radius: 20px;
+  padding: 4px 12px;
+  background: #0d1623;
+  transition: color 0.2s, border-color 0.2s;
 }
-.back-link:hover { color:var(--fg);border-color:#2a3d54; }
-.page-title {
-  font-size:clamp(22px,3vw,34px);font-weight:900;
-  letter-spacing:-0.02em;line-height:1.2;margin-bottom:6px;
-}
-.page-title .gold { color:var(--gold);text-shadow:0 0 20px #e3b34155; }
-.page-sub { color:var(--dim);font-size:13px; }
+.back-link:hover { color: #cdd9e8; border-color: #2a3d54; }
 
-/* DATE BADGE */
-.date-pill {
-  flex-shrink:0;position:relative;z-index:1;
-  background:var(--card);border:1px solid var(--border);
-  border-radius:12px;padding:10px 18px;text-align:center;
-}
-.dp-date { font-size:11px;color:var(--dim);margin-bottom:3px; }
-.dp-val { font-size:22px;font-weight:900;color:var(--gold);line-height:1; }
-.dp-lbl { font-size:11px;color:var(--dim);margin-top:2px; }
-
-/* MAIN LAYOUT */
-.main { max-width:1280px;margin:0 auto;padding:32px 24px 60px; }
-
-/* GAUGE SECTION */
-.gauge-section {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:24px;
-  margin-bottom:36px;
-}
-@media(max-width:760px){ .gauge-section{grid-template-columns:1fr;} }
-
-.gauge-card {
-  background:var(--card);border:1px solid var(--border);
-  border-radius:18px;padding:28px 24px 24px;
-  position:relative;overflow:hidden;
-}
-.gauge-card::before {
-  content:'';position:absolute;top:-80px;right:-80px;
-  width:260px;height:260px;
-  background:radial-gradient(circle,#e3b34112 0%,transparent 60%);
-  pointer-events:none;
+/* MAIN */
+.main {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 40px;
+  padding: 36px 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
 }
 
-/* SVG gauge */
-#gauge-svg { display:block;width:100%;max-width:380px;margin:0 auto; }
+/* GAUGE PANEL */
+.gauge-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+#gauge-svg { display: block; width: 340px; }
 
-.gauge-bottom {
-  text-align:center;margin-top:16px;
+.gauge-score {
+  text-align: center;
 }
-.gauge-val {
-  font-size:60px;font-weight:900;line-height:1;
-  color:var(--gold);text-shadow:0 0 24px #e3b34144;
-  display:block;
+.score-num {
+  font-size: 72px;
+  font-weight: 900;
+  color: #e3b341;
+  line-height: 1;
+  text-shadow: 0 0 24px #e3b34144;
+  display: block;
 }
-.gauge-zone {
-  font-size:18px;font-weight:700;
-  color:var(--gold);margin:4px 0 8px;letter-spacing:0.05em;
+.score-zone {
+  font-size: 20px;
+  font-weight: 700;
+  color: #e3b341;
+  letter-spacing: 0.06em;
+  margin: 4px 0 8px;
 }
-.gauge-delta {
-  font-size:12px;color:var(--dim);
+.score-delta {
+  font-size: 12px;
+  color: #546678;
 }
-.gauge-delta span { font-weight:700; }
+.score-delta b { font-weight: 700; }
 
-/* COMPONENTS */
-.comp-card {
-  background:var(--card);border:1px solid var(--border);
-  border-radius:18px;padding:24px;
+/* HISTORY BOX */
+.history-box {
+  width: 100%;
+  background: #0a1325;
+  border: 1px solid #1a2838;
+  border-radius: 12px;
+  padding: 14px 16px;
 }
+.hb-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #546678;
+  margin-bottom: 10px;
+}
+.hb-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #101e30;
+  font-size: 11.5px;
+}
+.hb-row:last-child { border-bottom: none; }
+.hb-cond { color: #546678; }
+.hb-val  { font-weight: 700; }
+
+/* COMPONENTS PANEL */
+.comp-wrap { flex: 1; min-width: 0; }
 .comp-title {
-  font-size:13px;font-weight:700;color:var(--fg);
-  margin-bottom:6px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
 }
 .comp-sub {
-  font-size:11px;color:var(--dim);margin-bottom:18px;
+  font-size: 11px;
+  color: #546678;
+  margin-bottom: 22px;
 }
 .comp-row {
-  display:flex;align-items:center;gap:10px;
-  margin-bottom:14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
 }
-.comp-row:last-child { margin-bottom:0; }
-.cr-label {
-  font-size:12px;color:var(--dim);
-  flex-shrink:0;width:74px;
-}
-.cr-val {
-  font-size:13px;font-weight:800;
-  flex-shrink:0;width:28px;text-align:right;
-}
+.cr-lbl { font-size: 12px; color: #546678; flex-shrink: 0; width: 76px; }
+.cr-val { font-size: 14px; font-weight: 800; flex-shrink: 0; width: 28px; text-align: right; }
 .cr-bar-bg {
-  flex:1;height:6px;background:#1a2838;border-radius:3px;overflow:hidden;
+  flex: 1;
+  height: 6px;
+  background: #1a2838;
+  border-radius: 3px;
+  overflow: hidden;
 }
-.cr-bar {
-  height:100%;border-radius:3px;
-  transition:width 0.6s ease;
-}
-.cr-note {
-  font-size:10.5px;color:var(--dim);flex-shrink:0;
-  width:90px;text-align:right;
-}
-
-/* STAT BOX */
-.stat-box {
-  margin-top:18px;background:#0a1325;
-  border:1px solid var(--border);border-radius:12px;padding:14px 16px;
-}
-.stat-box-title {
-  font-size:10px;font-weight:700;letter-spacing:0.1em;
-  text-transform:uppercase;color:var(--dim);margin-bottom:10px;
-}
-.stat-row {
-  display:flex;justify-content:space-between;align-items:center;
-  padding:6px 0;border-bottom:1px solid #12213a;
-}
-.stat-row:last-child { border-bottom:none; }
-.sr-cond { font-size:11.5px;color:var(--dim); }
-.sr-result { font-size:12px;font-weight:700; }
-
-/* TABLES SECTION */
-.tables-grid {
-  display:grid;grid-template-columns:1fr 1fr;gap:24px;
-  margin-top:8px;
-}
-@media(max-width:760px){ .tables-grid{grid-template-columns:1fr;} }
-
-.table-card {
-  background:var(--card);border:1px solid var(--border);
-  border-radius:18px;overflow:hidden;
-}
-.table-hd {
-  padding:16px 20px 14px;
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:10px;
-}
-.table-hd-icon {
-  width:32px;height:32px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;font-weight:900;flex-shrink:0;
-}
-.th-title { font-size:15px;font-weight:800; }
-.th-sub   { font-size:11px;color:var(--dim);margin-top:1px; }
-
-.stock-row {
-  display:flex;align-items:center;gap:12px;
-  padding:12px 20px;
-  border-bottom:1px solid #0f1e30;
-  transition:background 0.15s;
-}
-.stock-row:last-child { border-bottom:none; }
-.stock-row:hover { background:#0a1325; }
-
-.sr-rank {
-  font-size:11px;font-weight:700;color:var(--dim);
-  flex-shrink:0;width:16px;text-align:center;
-}
-.sr-qdot {
-  width:8px;height:8px;border-radius:50%;flex-shrink:0;
-}
-.sr-info { flex:1;min-width:0; }
-.sr-name { font-size:13px;font-weight:700;margin-bottom:2px; }
-.sr-sector { font-size:10.5px;color:var(--dim); }
-.sr-reason { font-size:10.5px;color:var(--dim);margin-top:3px;line-height:1.4; }
-.sr-right { flex-shrink:0;text-align:right; }
-.sr-code {
-  font-size:10px;color:var(--dim);font-family:monospace;
-  background:#141f30;padding:2px 5px;border-radius:4px;
-  display:block;margin-bottom:5px;
-}
-.sr-signal {
-  font-size:10.5px;font-weight:700;
-  padding:2px 8px;border-radius:10px;
-}
-
-.section-label {
-  font-size:11px;font-weight:700;letter-spacing:0.12em;
-  text-transform:uppercase;color:var(--dim);
-  padding:10px 20px 8px;
-  border-bottom:1px solid #0f1e30;
-  background:#080f1a;
-}
+.cr-bar { height: 100%; border-radius: 3px; }
+.cr-note { font-size: 10.5px; color: #546678; flex-shrink: 0; width: 100px; text-align: right; }
 
 /* FOOTER */
-.page-footer {
-  text-align:center;padding:24px;
-  border-top:1px solid var(--border);
-  color:var(--dim);font-size:11.5px;line-height:1.8;margin-top:16px;
+.ft {
+  padding: 12px 28px;
+  border-top: 1px solid #1a2838;
+  text-align: center;
+  font-size: 11px;
+  color: #374556;
 }
-.page-footer a { color:var(--blue);text-decoration:none; }
-.page-footer a:hover { text-decoration:underline; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="hd-left">
-    <a href="index.html" class="back-link">← 返回光图</a>
-    <div class="page-title">今日<span class="gold">恐贪</span>温度计</div>
-    <p class="page-sub">综合7项A股情绪指标 · 推荐进光名单 &amp; 避雷名单</p>
-  </div>
-  <div class="date-pill">
-    <div class="dp-date">2026-05-20</div>
-    <div class="dp-val">71</div>
-    <div class="dp-lbl">贪婪</div>
-  </div>
+<div class="hd">
+  <div class="hd-title">A股<span class="gold">恐贪</span>温度计 &nbsp;·&nbsp; 2026-05-20</div>
+  <a href="index.html" class="back-link">← 返回象限图</a>
 </div>
 
 <div class="main">
 
-  <!-- ── GAUGE + COMPONENTS ── -->
-  <div class="gauge-section">
+  <!-- GAUGE -->
+  <div class="gauge-wrap">
+    <svg id="gauge-svg" viewBox="0 0 340 210"></svg>
 
-    <!-- LEFT: Speedometer -->
-    <div class="gauge-card">
-      <svg id="gauge-svg" viewBox="0 0 400 240"></svg>
-      <div class="gauge-bottom">
-        <span class="gauge-val">71</span>
-        <div class="gauge-zone">贪婪</div>
-        <div class="gauge-delta">
-          昨日 <span>65</span> &nbsp;→&nbsp; 今日 <span style="color:var(--red)">71</span>
-          &nbsp;<span style="color:var(--red)">+6 ↑ 贪婪加剧</span>
-        </div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-box-title">历史规律（2015-2026）</div>
-        <div class="stat-row">
-          <span class="sr-cond">指数 &gt;75（极度贪婪）</span>
-          <span class="sr-result" style="color:var(--red)">持有一月  均 -4.1%</span>
-        </div>
-        <div class="stat-row">
-          <span class="sr-cond">指数 55-75（贪婪区间）</span>
-          <span class="sr-result" style="color:var(--orange)">持有一月  均 -2.3%</span>
-        </div>
-        <div class="stat-row">
-          <span class="sr-cond">指数 &lt;30（恐惧区间）</span>
-          <span class="sr-result" style="color:var(--green)">持有一月  均 +5.8%</span>
-        </div>
-      </div>
+    <div class="gauge-score">
+      <span class="score-num">71</span>
+      <div class="score-zone">贪婪</div>
+      <div class="score-delta">昨日 <b>65</b> &nbsp;→&nbsp; 今日 <b style="color:#f59e0b">71</b> &nbsp;<b style="color:#f85149">+6 贪婪加剧</b></div>
     </div>
 
-    <!-- RIGHT: Components -->
-    <div class="comp-card">
-      <div class="comp-title">分项指标拆解</div>
-      <div class="comp-sub">综合得分 71/100 · 贪婪区间</div>
-      <div id="comp-rows"></div>
+    <div class="history-box">
+      <div class="hb-title">历史规律（2015–2026）</div>
+      <div class="hb-row">
+        <span class="hb-cond">指数 &gt; 75（极度贪婪）</span>
+        <span class="hb-val" style="color:#f85149">持有一月  均 −4.1%</span>
+      </div>
+      <div class="hb-row">
+        <span class="hb-cond">指数 55–75（贪婪）</span>
+        <span class="hb-val" style="color:#f59e0b">持有一月  均 −2.3%</span>
+      </div>
+      <div class="hb-row">
+        <span class="hb-cond">指数 &lt; 30（恐惧）</span>
+        <span class="hb-val" style="color:#3fb950">持有一月  均 +5.8%</span>
+      </div>
     </div>
-
   </div>
 
-  <!-- ── RECOMMENDATION + WARNING TABLES ── -->
-  <div class="tables-grid">
-
-    <!-- 进光名单 -->
-    <div class="table-card">
-      <div class="table-hd">
-        <div class="table-hd-icon" style="background:#3fb95020;color:#3fb950">进</div>
-        <div>
-          <div class="th-title" style="color:var(--green)">今日进光名单</div>
-          <div class="th-sub">踏进光里 &amp; 站在光里板块推荐标的</div>
-        </div>
-      </div>
-      <div class="section-label" style="color:#4c9ef080">踏进光里 — 布局窗口</div>
-      <div id="buy-rows-tl"></div>
-      <div class="section-label" style="color:#e3b34180">站在光里 — 主升浪持有</div>
-      <div id="buy-rows-tr"></div>
-    </div>
-
-    <!-- 避雷名单 -->
-    <div class="table-card">
-      <div class="table-hd">
-        <div class="table-hd-icon" style="background:#f8514920;color:#f85149">雷</div>
-        <div>
-          <div class="th-title" style="color:var(--red)">今日避雷名单</div>
-          <div class="th-sub">别光站在那里 &amp; 光着站在那里风险标的</div>
-        </div>
-      </div>
-      <div class="section-label" style="color:#f8514980">别光站在那里 — 机构出货警报</div>
-      <div id="sell-rows-br"></div>
-      <div class="section-label" style="color:#3a4a5a">光着站在那里 — 双向撤退，避开</div>
-      <div id="sell-rows-bl"></div>
-    </div>
-
+  <!-- COMPONENTS -->
+  <div class="comp-wrap">
+    <div class="comp-title">分项指标</div>
+    <div class="comp-sub">综合得分 71 / 100</div>
+    <div id="comp-rows"></div>
   </div>
 
-</div><!-- /main -->
+</div>
 
-<div class="page-footer">
-  <div><a href="index.html">← 返回资金博弈图</a></div>
-  <div style="margin-top:4px">
-    指标：RSI超买度 · 融资杠杆 · 成交热度 · 北向资金 · 市场广度 · 价格动量 · 波动率
-  </div>
-  <div>数据：Wind · 龙虎榜 · 北向资金 · 仅供参考，不构成投资建议 · © Asymmetric IM</div>
+<div class="ft">
+  指标：RSI超买度 · 融资杠杆 · 成交热度 · 北向资金 · 市场广度 · 价格动量 · 波动率 &nbsp;·&nbsp;
+  数据：Wind · 龙虎榜 · 仅供参考，不构成投资建议 · © Asymmetric IM
 </div>
 
 <script>
 // ── GAUGE ─────────────────────────────────────────────────────────
 const TODAY = 71;
-const gsvg = document.getElementById('gauge-svg');
-const ns = 'http://www.w3.org/2000/svg';
-const CX = 200, CY = 195, OR = 155, IR = 95;
+const ns    = 'http://www.w3.org/2000/svg';
+const gsvg  = document.getElementById('gauge-svg');
+const CX = 170, CY = 168, OR = 138, IR = 82;
 
-// val → angle in radians (standard math: 195° start, 210° span, going CW)
-function angle(v) { return (195 - v / 100 * 210) * Math.PI / 180; }
-function arcPt(r, v) {
-  const a = angle(v);
-  return { x: CX + r * Math.cos(a), y: CY - r * Math.sin(a) };
-}
+function angle(v) { return (195 - v/100*210) * Math.PI / 180; }
+function pt(r, v) { const a = angle(v); return { x: CX + r*Math.cos(a), y: CY - r*Math.sin(a) }; }
 
-function addArc(parent, v0, v1, color) {
-  const p1o = arcPt(OR, v0), p2o = arcPt(OR, v1);
-  const p1i = arcPt(IR, v0), p2i = arcPt(IR, v1);
-  const span = (v1 - v0) / 100 * 210;
-  const lg = span > 180 ? 1 : 0;
-  const path = document.createElementNS(ns, 'path');
+function addArc(v0, v1, color) {
+  const p1o = pt(OR,v0), p2o = pt(OR,v1);
+  const p1i = pt(IR,v0), p2i = pt(IR,v1);
+  const span = (v1-v0)/100*210;
+  const lg   = span > 180 ? 1 : 0;
+  const path = document.createElementNS(ns,'path');
   path.setAttribute('d',
-    `M ${p1o.x} ${p1o.y}
-     A ${OR} ${OR} 0 ${lg} 1 ${p2o.x} ${p2o.y}
-     L ${p2i.x} ${p2i.y}
-     A ${IR} ${IR} 0 ${lg} 0 ${p1i.x} ${p1i.y} Z`
-  );
-  path.setAttribute('fill', color); path.setAttribute('fill-opacity', '0.88');
-  path.setAttribute('stroke', '#060b14'); path.setAttribute('stroke-width', '1.5');
-  parent.appendChild(path);
+    `M ${p1o.x} ${p1o.y} A ${OR} ${OR} 0 ${lg} 1 ${p2o.x} ${p2o.y}
+     L ${p2i.x} ${p2i.y} A ${IR} ${IR} 0 ${lg} 0 ${p1i.x} ${p1i.y} Z`);
+  path.setAttribute('fill', color); path.setAttribute('fill-opacity','0.9');
+  path.setAttribute('stroke','#060b14'); path.setAttribute('stroke-width','1.5');
+  gsvg.appendChild(path);
 }
 
-// Background ring
-const bgPath = document.createElementNS(ns, 'path');
-const p0 = arcPt(OR, 0), p100 = arcPt(OR, 100);
-const p0i = arcPt(IR, 0), p100i = arcPt(IR, 100);
-bgPath.setAttribute('d',
-  `M ${p0.x} ${p0.y} A ${OR} ${OR} 0 1 1 ${p100.x} ${p100.y}
-   L ${p100i.x} ${p100i.y} A ${IR} ${IR} 0 1 0 ${p0i.x} ${p0i.y} Z`
-);
-bgPath.setAttribute('fill', '#111e2e');
-gsvg.appendChild(bgPath);
+// Background
+const bg = document.createElementNS(ns,'path');
+const s0 = pt(OR,0), s100 = pt(OR,100), s0i = pt(IR,0), s100i = pt(IR,100);
+bg.setAttribute('d', `M ${s0.x} ${s0.y} A ${OR} ${OR} 0 1 1 ${s100.x} ${s100.y}
+  L ${s100i.x} ${s100i.y} A ${IR} ${IR} 0 1 0 ${s0i.x} ${s0i.y} Z`);
+bg.setAttribute('fill','#101e2e'); gsvg.appendChild(bg);
 
-// Color segments
-[
-  [0,  25, '#1d4ed8'],
-  [25, 45, '#0ea5e9'],
-  [45, 55, '#4b5563'],
-  [55, 75, '#f59e0b'],
-  [75,100, '#dc2626'],
-].forEach(([v0,v1,c]) => addArc(gsvg, v0, v1, c));
+// Segments
+[[0,25,'#1d4ed8'],[25,45,'#0ea5e9'],[45,55,'#4b5563'],[55,75,'#f59e0b'],[75,100,'#dc2626']]
+  .forEach(([v0,v1,c]) => addArc(v0,v1,c));
 
-// Tick marks
+// Ticks
 for (let v = 0; v <= 100; v += 10) {
   const major = v % 25 === 0;
-  const r1 = major ? OR - 12 : OR - 7;
-  const r2 = OR + 4;
+  const r1 = major ? OR-10 : OR-6;
   const a  = angle(v);
-  const x1 = CX + r1 * Math.cos(a), y1 = CY - r1 * Math.sin(a);
-  const x2 = CX + r2 * Math.cos(a), y2 = CY - r2 * Math.sin(a);
-  const tick = document.createElementNS(ns, 'line');
-  tick.setAttribute('x1',x1);tick.setAttribute('y1',y1);
-  tick.setAttribute('x2',x2);tick.setAttribute('y2',y2);
+  const tick = document.createElementNS(ns,'line');
+  tick.setAttribute('x1', CX + r1*Math.cos(a));   tick.setAttribute('y1', CY - r1*Math.sin(a));
+  tick.setAttribute('x2', CX + (OR+3)*Math.cos(a)); tick.setAttribute('y2', CY - (OR+3)*Math.sin(a));
   tick.setAttribute('stroke','#cdd9e8');
-  tick.setAttribute('stroke-width', major ? '2' : '1');
-  tick.setAttribute('stroke-opacity', major ? '0.6' : '0.3');
+  tick.setAttribute('stroke-width', major ? '1.8' : '0.9');
+  tick.setAttribute('stroke-opacity', major ? '0.55' : '0.25');
   gsvg.appendChild(tick);
   if (major) {
-    const lr = OR + 18;
-    const tx = document.createElementNS(ns, 'text');
-    tx.setAttribute('x', CX + lr * Math.cos(a));
-    tx.setAttribute('y', CY - lr * Math.sin(a) + 4);
-    tx.setAttribute('text-anchor','middle');
-    tx.setAttribute('font-family','sans-serif');
-    tx.setAttribute('font-size','12');
-    tx.setAttribute('fill','#546678');
-    tx.textContent = v;
-    gsvg.appendChild(tx);
+    const lr = OR + 16;
+    const t = document.createElementNS(ns,'text');
+    t.setAttribute('x', CX + lr*Math.cos(a)); t.setAttribute('y', CY - lr*Math.sin(a) + 4);
+    t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-family','sans-serif'); t.setAttribute('font-size','11');
+    t.setAttribute('fill','#546678'); t.textContent = v;
+    gsvg.appendChild(t);
   }
 }
 
-// Zone labels on inner arc
-[
-  [12,'极度恐惧','#60a5fa'],
-  [35,'恐惧',    '#38bdf8'],
-  [50,'中性',    '#6b7280'],
-  [65,'贪婪',    '#fbbf24'],
-  [88,'极度贪婪','#ef4444'],
-].forEach(([v,txt,c]) => {
-  const r = (OR + IR) / 2;
-  const a = angle(v);
-  const t = document.createElementNS(ns, 'text');
-  t.setAttribute('x', CX + r * Math.cos(a));
-  t.setAttribute('y', CY - r * Math.sin(a) + 4);
+// Zone labels
+[[12,'极度恐惧','#60a5fa'],[35,'恐惧','#38bdf8'],[50,'中性','#6b7280'],
+ [65,'贪婪','#fbbf24'],[88,'极度贪婪','#ef4444']]
+.forEach(([v,txt,c]) => {
+  const r = (OR+IR)/2, a = angle(v);
+  const t = document.createElementNS(ns,'text');
+  t.setAttribute('x', CX + r*Math.cos(a)); t.setAttribute('y', CY - r*Math.sin(a) + 4);
   t.setAttribute('text-anchor','middle');
   t.setAttribute('font-family','Microsoft YaHei,PingFang SC,sans-serif');
-  t.setAttribute('font-size','10');
-  t.setAttribute('fill',c);
-  t.setAttribute('fill-opacity','0.7');
-  t.textContent = txt;
-  gsvg.appendChild(t);
+  t.setAttribute('font-size','9.5'); t.setAttribute('fill',c); t.setAttribute('fill-opacity','0.65');
+  t.textContent = txt; gsvg.appendChild(t);
 });
 
-// Needle shadow
-const na = angle(TODAY);
-const nx = CX + (OR - 8) * Math.cos(na), ny = CY - (OR - 8) * Math.sin(na);
-const shadow = document.createElementNS(ns, 'line');
-shadow.setAttribute('x1', CX + 2); shadow.setAttribute('y1', CY + 2);
-shadow.setAttribute('x2', nx + 2); shadow.setAttribute('y2', ny + 2);
-shadow.setAttribute('stroke','#00000066'); shadow.setAttribute('stroke-width','5');
-shadow.setAttribute('stroke-linecap','round');
-gsvg.appendChild(shadow);
-
 // Needle
-const needle = document.createElementNS(ns, 'line');
+const na = angle(TODAY);
+const nx = CX + (OR-6)*Math.cos(na), ny = CY - (OR-6)*Math.sin(na);
+const shadow = document.createElementNS(ns,'line');
+shadow.setAttribute('x1',CX+1.5); shadow.setAttribute('y1',CY+1.5);
+shadow.setAttribute('x2',nx+1.5); shadow.setAttribute('y2',ny+1.5);
+shadow.setAttribute('stroke','#00000055'); shadow.setAttribute('stroke-width','5');
+shadow.setAttribute('stroke-linecap','round'); gsvg.appendChild(shadow);
+const needle = document.createElementNS(ns,'line');
 needle.setAttribute('x1',CX); needle.setAttribute('y1',CY);
 needle.setAttribute('x2',nx); needle.setAttribute('y2',ny);
 needle.setAttribute('stroke','#f0f6fc'); needle.setAttribute('stroke-width','4');
-needle.setAttribute('stroke-linecap','round');
-gsvg.appendChild(needle);
-
-// Pivot
-[9,'#f0f6fc'],[5.5,'#060b14'],[3,'#e3b341']
-.forEach(([r,c]) => {
+needle.setAttribute('stroke-linecap','round'); gsvg.appendChild(needle);
+[[8,'#f0f6fc'],[5,'#060b14'],[3,'#e3b341']].forEach(([r,c]) => {
   const ci = document.createElementNS(ns,'circle');
-  ci.setAttribute('cx',CX);ci.setAttribute('cy',CY);ci.setAttribute('r',r);
-  ci.setAttribute('fill',c);
+  ci.setAttribute('cx',CX); ci.setAttribute('cy',CY); ci.setAttribute('r',r); ci.setAttribute('fill',c);
   gsvg.appendChild(ci);
 });
 
 // ── COMPONENTS ────────────────────────────────────────────────────
-const COMPONENTS = [
-  { label:'RSI超买度',  val:79, note:'半导体 82.9',   color:'#dc2626' },
-  { label:'融资杠杆',   val:82, note:'+1,295亿/月',   color:'#f59e0b' },
-  { label:'成交热度',   val:75, note:'2.86万亿',       color:'#f59e0b' },
-  { label:'北向资金',   val:58, note:'+35.3亿',        color:'#9ca3af' },
-  { label:'市场广度',   val:62, note:'7/10板块正收益', color:'#9ca3af' },
-  { label:'价格动量',   val:65, note:'CSI300 +1.8%',  color:'#9ca3af' },
-  { label:'波动率',     val:67, note:'VIX当量偏低',   color:'#9ca3af' },
+const COMPS = [
+  { label:'RSI超买度', val:79, note:'半导体 82.9',    color:'#dc2626' },
+  { label:'融资杠杆',  val:82, note:'+1,295亿/月',    color:'#f59e0b' },
+  { label:'成交热度',  val:75, note:'2.86万亿',        color:'#f59e0b' },
+  { label:'北向资金',  val:58, note:'+35.3亿',         color:'#9ca3af' },
+  { label:'市场广度',  val:62, note:'7/10板块正收益',  color:'#9ca3af' },
+  { label:'价格动量',  val:65, note:'CSI300 +1.8%',   color:'#9ca3af' },
+  { label:'波动率',    val:67, note:'VIX当量偏低',    color:'#9ca3af' },
 ];
-const compContainer = document.getElementById('comp-rows');
-COMPONENTS.forEach(c => {
+
+const container = document.getElementById('comp-rows');
+COMPS.forEach(c => {
   const row = document.createElement('div');
   row.className = 'comp-row';
   row.innerHTML = `
-    <div class="cr-label">${c.label}</div>
+    <div class="cr-lbl">${c.label}</div>
     <div class="cr-val" style="color:${c.color}">${c.val}</div>
     <div class="cr-bar-bg">
       <div class="cr-bar" style="width:${c.val}%;background:linear-gradient(90deg,${c.color},${c.color}88)"></div>
     </div>
     <div class="cr-note">${c.note}</div>`;
-  compContainer.appendChild(row);
+  container.appendChild(row);
 });
-
-// ── TABLE DATA ─────────────────────────────────────────────────────
-const BUY_TL = [
-  { name:'海光信息', code:'688041', sector:'AI算力', quad:'tl', signal:'推荐买入', sc:'#3fb950', reason:'机构大举扫货，散户尚未跟进，布局黄金期' },
-  { name:'中际旭创', code:'300308', sector:'AI算力', quad:'tl', signal:'推荐买入', sc:'#3fb950', reason:'AI算力光模块龙头，北向资金持续增持' },
-  { name:'贵州茅台', code:'600519', sector:'消费白酒', quad:'tl', signal:'推荐买入', sc:'#3fb950', reason:'机构悄然回流，散户仍在看科技，轮动前兆' },
-  { name:'恒瑞医药', code:'600276', sector:'创新药', quad:'tl', signal:'关注布局', sc:'#e3b341', reason:'机构温和买入，创新药政策窗口期' },
-  { name:'五粮液',   code:'000858', sector:'消费白酒', quad:'tl', signal:'关注布局', sc:'#e3b341', reason:'北向悄悄流入，散户注意力仍在科技' },
-];
-const BUY_TR = [
-  { name:'招商银行', code:'600036', sector:'大金融', quad:'tr', signal:'推荐买入', sc:'#3fb950', reason:'主升浪核心标的，北向连续净买入8日' },
-  { name:'宁德时代', code:'300750', sector:'新能源车', quad:'tr', signal:'推荐买入', sc:'#3fb950', reason:'双向共振做多，产业链数据持续向好' },
-  { name:'比亚迪',   code:'002594', sector:'新能源车', quad:'tr', signal:'推荐买入', sc:'#3fb950', reason:'海外订单创新高，机构深度配置不减仓' },
-  { name:'中信证券', code:'600030', sector:'大金融', quad:'tr', signal:'推荐买入', sc:'#3fb950', reason:'估值历史低位，机构加速建仓' },
-];
-const SELL_BR = [
-  { name:'北方华创', code:'002371', sector:'半导体', quad:'br', signal:'建议减仓', sc:'#f0883e', reason:'RSI 82.9，机构龙虎榜从买方转卖方' },
-  { name:'兆易创新', code:'603986', sector:'半导体', quad:'br', signal:'建议减仓', sc:'#f0883e', reason:'散户融资余额暴增30%，历史顶部信号' },
-  { name:'阳光电源', code:'300274', sector:'电力设备', quad:'br', signal:'建议减仓', sc:'#f0883e', reason:'机构减仓明显，散户融资接盘风险高' },
-  { name:'韦尔股份', code:'603501', sector:'半导体', quad:'br', signal:'建议减仓', sc:'#f0883e', reason:'短期涨幅过大，机构高位派发迹象' },
-];
-const SELL_BL = [
-  { name:'隆基绿能', code:'601012', sector:'光伏储能',  quad:'bl', signal:'避开', sc:'#f85149', reason:'机构散户双向撤退，库存压力待消化' },
-  { name:'万科A',   code:'000002', sector:'地产链',   quad:'bl', signal:'避开', sc:'#f85149', reason:'机构全面撤退，债务问题悬而未决' },
-  { name:'分众传媒', code:'002027', sector:'传媒互联网', quad:'bl', signal:'避开', sc:'#f85149', reason:'资金真空，广告景气度持续下行' },
-  { name:'招商蛇口', code:'001979', sector:'地产链',   quad:'bl', signal:'避开', sc:'#f85149', reason:'地产底部信号未现，不建议抄底' },
-];
-
-const QUAD_CLR = {
-  tl: '#4c9ef0', tr: '#e3b341', br: '#f0883e', bl: '#546678'
-};
-
-function renderRows(containerId, rows) {
-  const c = document.getElementById(containerId);
-  rows.forEach((r, i) => {
-    const row = document.createElement('div');
-    row.className = 'stock-row';
-    row.innerHTML = `
-      <div class="sr-rank">${i+1}</div>
-      <div class="sr-qdot" style="background:${QUAD_CLR[r.quad]}"></div>
-      <div class="sr-info">
-        <div class="sr-name">${r.name}</div>
-        <div class="sr-sector" style="color:${QUAD_CLR[r.quad]}">${r.sector}</div>
-        <div class="sr-reason">${r.reason}</div>
-      </div>
-      <div class="sr-right">
-        <span class="sr-code">${r.code}</span>
-        <span class="sr-signal" style="background:${r.sc}22;color:${r.sc};border:1px solid ${r.sc}44">${r.signal}</span>
-      </div>`;
-    c.appendChild(row);
-  });
-}
-
-renderRows('buy-rows-tl',  BUY_TL);
-renderRows('buy-rows-tr',  BUY_TR);
-renderRows('sell-rows-br', SELL_BR);
-renderRows('sell-rows-bl', SELL_BL);
 </script>
 </body>
 </html>
