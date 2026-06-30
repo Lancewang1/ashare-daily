@@ -260,6 +260,48 @@
 <!-- MAIN -->
 <div class="main">
 
+  <!-- CARD 0: 你相信光吗？ (FEATURED) -->
+  <div class="demo-card" style="border-color:#e3b34140;box-shadow:0 0 0 1px #e3b34115,0 8px 32px #00000044;">
+    <div class="card-header" style="background:linear-gradient(135deg,#0d1623 0%,#141e2e 100%);">
+      <div class="card-num" style="color:var(--gold)">00</div>
+      <div class="card-title-block">
+        <h2 style="color:var(--gold);text-shadow:0 0 20px #e3b34144">
+          你相信光吗？ <span class="card-badge" style="background:#e3b34122;color:var(--gold);border:1px solid #e3b34140">互动图表</span>
+        </h2>
+        <p>A股资金博弈四象限 — <strong style="color:var(--fg)">站在光里 / 踏进光里 / 别光站在那里 / 光着站在那里</strong><br>
+           机构 vs 散户资金变化 · 10大板块今日定位 · 点击板块查看推荐 &amp; 避雷 · 附恐贪温度计</p>
+      </div>
+    </div>
+    <div class="card-img-wrap" style="cursor:pointer;" onclick="location.href='guangzhan/index.html'">
+      <div style="background:linear-gradient(135deg,#060b14 0%,#0d1623 100%);
+                  padding:60px 40px;text-align:center;min-height:220px;
+                  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+        <div style="font-size:48px;font-weight:900;color:#e3b341;
+                    text-shadow:0 0 32px #e3b34166,0 0 60px #e3b34130;letter-spacing:-0.02em;">
+          你相信光吗？
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+          <span style="background:#e3b34118;color:#e3b341;border:1px solid #e3b34140;
+                       padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;">站在光里</span>
+          <span style="background:#4c9ef018;color:#4c9ef0;border:1px solid #4c9ef040;
+                       padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;">踏进光里</span>
+          <span style="background:#f8514918;color:#f85149;border:1px solid #f8514940;
+                       padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;">别光站在那里</span>
+          <span style="background:#3a4a5a18;color:#546678;border:1px solid #3a4a5a40;
+                       padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;">光着站在那里</span>
+        </div>
+        <div style="color:#546678;font-size:13px;">点击进入互动图表 →</div>
+      </div>
+      <div class="zoom-hint" style="opacity:1;background:#e3b34120;color:#e3b341;border-color:#e3b34140;">点击进入</div>
+    </div>
+    <div class="card-footer">
+      <div class="feature-pill"><div class="dot" style="background:var(--gold)"></div>4象限机构/散户资金定位</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--green)"></div>点击板块 → 今日推荐股票</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--red)"></div>点击板块 → 今日避雷预警</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--gold)"></div>附恐贪温度计 71 · 贪婪</div>
+    </div>
+  </div>
+
   <!-- CARD 1: 韭菜探测器 -->
   <div class="demo-card">
     <div class="card-header">
@@ -279,28 +321,6 @@
       <div class="feature-pill"><div class="dot" style="background:var(--blue)"></div>气泡大小 = 市值</div>
       <div class="feature-pill"><div class="dot" style="background:var(--green)"></div>边框绿 = 近5日涨逾3%</div>
       <div class="feature-pill"><div class="dot" style="background:var(--dim)"></div>数据：Wind · 龙虎榜 · 沪深港通</div>
-    </div>
-  </div>
-
-  <!-- CARD 2: 供应链先知 -->
-  <div class="demo-card">
-    <div class="card-header">
-      <div class="card-num">02</div>
-      <div class="card-title-block">
-        <h2>供应链先知™ <span class="card-badge badge-gold">最高壁垒</span></h2>
-        <p>NVDA 产业链传导雷达 — 当上游超大规模云资本开支公布，下游哪些股票会在3-6个月内联动？<br>
-           数据：Chain Map v0.1 · 14层供应链 · 55节点 · 45条传导边（已验证：NVDA→HBM 相关系数 ρ=0.93）</p>
-      </div>
-    </div>
-    <div class="card-img-wrap" onclick="openLb(this)">
-      <img src="demo_supply_chain_oracle.png" alt="供应链先知" loading="lazy">
-      <div class="zoom-hint">点击放大</div>
-    </div>
-    <div class="card-footer">
-      <div class="feature-pill"><div class="dot" style="background:var(--green)"></div>绿色箭头 = NVDA 带动下游</div>
-      <div class="feature-pill"><div class="dot" style="background:var(--red)"></div>红色箭头 = 超前 NVDA 的领先指标</div>
-      <div class="feature-pill"><div class="dot" style="background:var(--gold)"></div>箭头粗细 = 置信度</div>
-      <div class="feature-pill"><div class="dot" style="background:var(--dim)"></div>标注数字 = 滞后月数</div>
     </div>
   </div>
 
