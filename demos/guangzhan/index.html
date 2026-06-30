@@ -3,356 +3,731 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>你相信光吗？· A股资金博弈图</title>
+<title>你相信光吗？· A股资金博弈图 · 2026-05-20</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+:root {
+  --bg:    #040810;
+  --card:  #0a1220;
+  --bdr:   #162030;
+  --fg:    #d0dce8;
+  --dim:   #44596a;
+  --gold:  #e3b341;
+  --blue:  #4c9ef0;
+  --red:   #f85149;
+  --green: #3fb950;
+}
+
+html { scroll-behavior: smooth; }
+
 body {
-  background: #060b14;
-  color: #cdd9e8;
+  background: var(--bg);
+  color: var(--fg);
   font-family: -apple-system, 'Microsoft YaHei', 'PingFang SC', sans-serif;
-  height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ══════════════════════════════════════
+   SECTION 1 — INTRO HERO
+══════════════════════════════════════ */
+#intro {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
   overflow: hidden;
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, #0e1e34 0%, #040810 70%);
 }
 
-/* HEADER */
-.hd {
-  padding: 14px 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #1a2838;
-  flex-shrink: 0;
+/* Star field */
+#intro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, #ffffff22 1px, transparent 1px),
+    radial-gradient(circle, #ffffff18 1px, transparent 1px),
+    radial-gradient(circle, #ffffff14 1px, transparent 1px);
+  background-size: 80px 80px, 140px 140px, 200px 200px;
+  background-position: 0 0, 40px 60px, 80px 20px;
+  pointer-events: none;
 }
-.hd-title {
-  font-size: 20px;
-  font-weight: 900;
-  letter-spacing: -0.01em;
+
+.intro-content {
+  text-align: center;
+  z-index: 1;
+  padding: 0 24px;
 }
-.hd-title .glow {
-  color: #e3b341;
-  text-shadow: 0 0 20px #e3b34155;
-  animation: breathe 3s ease-in-out infinite;
-}
-@keyframes breathe {
-  0%,100% { text-shadow: 0 0 16px #e3b34144; }
-  50%      { text-shadow: 0 0 28px #e3b34177; }
-}
-.hd-right {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-.hd-meta { font-size: 12px; color: #546678; }
-.hd-fg {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #0d1623;
-  border: 1px solid #1a2838;
-  border-radius: 20px;
-  padding: 5px 14px 5px 10px;
+
+.intro-date {
   font-size: 12px;
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 0.2s;
-}
-.hd-fg:hover { border-color: #e3b341; }
-.fg-num { font-size: 16px; font-weight: 900; color: #e3b341; }
-.fg-lbl { color: #546678; }
-.hd-gauge-mini {
-  width: 36px; height: 20px;
-  overflow: visible;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 32px;
 }
 
-/* CHART */
-.chart-area {
-  flex: 1;
-  min-height: 0;
+.intro-headline {
+  font-size: clamp(56px, 12vw, 120px);
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  margin-bottom: 16px;
+}
+
+.intro-headline .guang {
+  color: var(--gold);
+  display: inline-block;
+  animation: sunpulse 3s ease-in-out infinite;
+  text-shadow:
+    0 0 40px #e3b34166,
+    0 0 80px #e3b34133,
+    0 0 120px #e3b34122;
   position: relative;
 }
-#chart {
-  width: 100%;
-  height: 100%;
-  display: block;
+
+.intro-headline .guang::after {
+  content: '';
+  position: absolute;
+  inset: -20px -30px;
+  background: radial-gradient(ellipse, #e3b34122 0%, transparent 70%);
+  pointer-events: none;
+  animation: sunpulse 3s ease-in-out infinite;
 }
 
-/* FOOTER */
-.ft {
-  padding: 8px 28px;
-  border-top: 1px solid #1a2838;
+@keyframes sunpulse {
+  0%, 100% {
+    text-shadow: 0 0 40px #e3b34166, 0 0 80px #e3b34133, 0 0 120px #e3b34122;
+  }
+  50% {
+    text-shadow: 0 0 60px #e3b34188, 0 0 120px #e3b34155, 0 0 180px #e3b34133;
+  }
+}
+
+.intro-sub {
+  font-size: clamp(14px, 2.5vw, 18px);
+  color: var(--dim);
+  margin-bottom: 48px;
+  letter-spacing: 0.02em;
+  line-height: 1.7;
+}
+
+.intro-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 56px;
+}
+
+.intro-pill {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 18px;
+  border-radius: 24px;
+  letter-spacing: 0.04em;
+  border: 1px solid;
+}
+
+.pill-gold  { color: var(--gold);  background: #e3b34112; border-color: #e3b34140; }
+.pill-blue  { color: var(--blue);  background: #4c9ef012; border-color: #4c9ef040; }
+.pill-red   { color: var(--red);   background: #f8514912; border-color: #f8514940; }
+.pill-dark  { color: var(--dim);   background: #1a2a3a12; border-color: #1a2a3a60; }
+
+.scroll-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--dim);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.scroll-cta:hover { color: var(--gold); }
+.scroll-arrow {
+  width: 20px; height: 20px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-4px);
+  animation: bounce 1.8s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: rotate(45deg) translateY(-4px); opacity: 0.5; }
+  50%       { transform: rotate(45deg) translateY(0px);  opacity: 1; }
+}
+
+/* Ray burst behind 光 */
+.ray-burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  width: 600px;
+  height: 600px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.12;
+  animation: rayspin 20s linear infinite;
+}
+@keyframes rayspin { to { transform: translate(-50%, -60%) rotate(360deg); } }
+
+/* ══════════════════════════════════════
+   SECTION 2 — QUADRANT CHART
+══════════════════════════════════════ */
+#chart-section {
+  padding: 0;
+  background: var(--bg);
+  position: relative;
+}
+
+.section-hd {
+  padding: 28px 32px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-shrink: 0;
+  border-top: 1px solid var(--bdr);
 }
-.ft-legend {
+.section-hd-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.section-hd-meta {
+  font-size: 11px;
+  color: var(--dim);
+}
+
+.chart-wrap {
+  width: 100%;
+  position: relative;
+}
+#chart { width: 100%; display: block; }
+
+/* Axis labels overlaid */
+.axis-overlay {
+  position: absolute;
+  pointer-events: none;
+  top: 0; left: 0; width: 100%; height: 100%;
+}
+
+/* Footer legend */
+.chart-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 14px;
+  gap: 4px 16px;
+  padding: 10px 32px 20px;
+  border-bottom: 1px solid var(--bdr);
 }
 .leg {
   display: flex;
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  color: #546678;
+  color: var(--dim);
 }
 .leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.ft-note { font-size: 11px; color: #374556; text-align: right; }
+
+/* ══════════════════════════════════════
+   SECTION 3 — GAUGE + COMPONENTS
+══════════════════════════════════════ */
+#gauge-section {
+  padding: 40px 32px 60px;
+  background: linear-gradient(180deg, var(--bg) 0%, #060c16 100%);
+}
+
+.gauge-section-title {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.gauge-section-title h2 {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+.gauge-section-title p {
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.gauge-layout {
+  display: flex;
+  gap: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+/* Left: gauge + history */
+.gauge-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+  width: 320px;
+}
+#gauge-svg { width: 320px; display: block; }
+
+.gauge-readout {
+  text-align: center;
+}
+.readout-num {
+  font-size: 80px;
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+  text-shadow: 0 0 32px #e3b34155;
+  display: block;
+}
+.readout-zone {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+  margin: 4px 0 6px;
+}
+.readout-delta {
+  font-size: 12px;
+  color: var(--dim);
+}
+.readout-delta b { font-weight: 700; }
+
+.history-box {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--bdr);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.hb-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 8px;
+}
+.hb-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid #101e2e;
+  font-size: 11px;
+}
+.hb-row:last-child { border-bottom: none; }
+.hb-cond { color: var(--dim); }
+.hb-val  { font-weight: 700; }
+
+/* Right: component bars */
+.gauge-right {
+  flex: 1;
+  min-width: 0;
+  padding-top: 8px;
+}
+.comp-title {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.comp-sub {
+  font-size: 11px;
+  color: var(--dim);
+  margin-bottom: 24px;
+}
+.comp-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.cr-lbl  { font-size: 12px; color: var(--dim); flex-shrink: 0; width: 76px; }
+.cr-val  { font-size: 14px; font-weight: 800; flex-shrink: 0; width: 28px; text-align: right; }
+.cr-bg   { flex: 1; height: 6px; background: var(--bdr); border-radius: 3px; overflow: hidden; }
+.cr-bar  { height: 100%; border-radius: 3px; }
+.cr-note { font-size: 10.5px; color: var(--dim); flex-shrink: 0; width: 110px; text-align: right; }
 
 /* SVG animations */
 @keyframes dash-pulse {
-  0%,100% { stroke-opacity: 0.25; }
-  50%      { stroke-opacity: 0.65; }
+  0%,100% { stroke-opacity: 0.2; }
+  50%      { stroke-opacity: 0.6; }
 }
 .tl-dash { animation: dash-pulse 2.8s ease-in-out infinite; }
 
-.s-bubble { cursor: default; }
+/* Page footer */
+.page-ft {
+  padding: 14px 32px;
+  border-top: 1px solid var(--bdr);
+  text-align: center;
+  font-size: 11px;
+  color: #2e3e4e;
+}
+
+@media (max-width: 700px) {
+  .gauge-layout { flex-direction: column; }
+  .gauge-left { width: 100%; }
+}
 </style>
 </head>
 <body>
 
-<div class="hd">
-  <div class="hd-title">你相信<span class="glow">光</span>吗？</div>
-  <div class="hd-right">
-    <span class="hd-meta">机构 vs 散户 · 10大板块 · 2026-05-20</span>
-    <a href="gauge.html" class="hd-fg">
-      <svg class="hd-gauge-mini" viewBox="0 0 36 20">
-        <path d="M 3 18 A 15 15 0 0 1 33 18" fill="none" stroke="#1a2838" stroke-width="4" stroke-linecap="round"/>
-        <path d="M 3 18 A 15 15 0 0 1 10 6"  fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
-        <path d="M 10 6 A 15 15 0 0 1 18 3"  fill="none" stroke="#0ea5e9" stroke-width="4" stroke-linecap="round"/>
-        <path d="M 18 3 A 15 15 0 0 1 29 9"  fill="none" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"/>
-        <line x1="18" y1="18" x2="27" y2="8" stroke="#e3b341" stroke-width="1.5" stroke-linecap="round"/>
-        <circle cx="18" cy="18" r="2.5" fill="#e3b341"/>
-        <circle cx="18" cy="18" r="1.2" fill="#060b14"/>
-      </svg>
-      <span class="fg-num">71</span>
-      <span class="fg-lbl">贪婪 · 温度计 →</span>
-    </a>
-  </div>
-</div>
+<!-- ════════════════════════════════════════
+     SECTION 1: INTRO HERO
+════════════════════════════════════════ -->
+<section id="intro">
 
-<div class="chart-area">
-  <svg id="chart" viewBox="0 0 960 640" preserveAspectRatio="xMidYMid meet">
-    <defs>
-      <!-- TR gold glow -->
-      <radialGradient id="tr-g" cx="100%" cy="0%" r="65%" gradientUnits="userSpaceOnUse"
-        x1="480" y1="48" x2="860" y2="48">
-        <stop offset="0%"   stop-color="#e3b341" stop-opacity="0.16"/>
-        <stop offset="55%"  stop-color="#f59e0b" stop-opacity="0.06"/>
-        <stop offset="100%" stop-color="#e3b341" stop-opacity="0"/>
-      </radialGradient>
-      <!-- TL blue tint -->
-      <linearGradient id="tl-g" x1="100%" y1="100%" x2="0%" y2="0%">
-        <stop offset="0%"   stop-color="#4c9ef0" stop-opacity="0.03"/>
-        <stop offset="100%" stop-color="#4c9ef0" stop-opacity="0.09"/>
-      </linearGradient>
-      <!-- BR red tint -->
-      <radialGradient id="br-g" cx="0%" cy="0%" r="70%"
-        gradientUnits="userSpaceOnUse" x1="480" y1="332" x2="860" y2="332">
-        <stop offset="0%"   stop-color="#f85149" stop-opacity="0.09"/>
-        <stop offset="100%" stop-color="#f85149" stop-opacity="0.01"/>
-      </radialGradient>
-      <!-- Gold glow filter -->
-      <filter id="gf" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b"/>
-        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-    </defs>
-
-    <!-- QUADRANT FILLS -->
-    <rect x="96" y="48" width="384" height="284" fill="#050810" fill-opacity="0.8"/>
-    <rect x="96" y="48" width="384" height="284" fill="url(#tl-g)"/>
-    <rect x="480" y="48" width="384" height="284" fill="#0c1828"/>
-    <rect x="480" y="48" width="384" height="284" fill="url(#tr-g)"/>
-    <rect x="480" y="332" width="384" height="272" fill="url(#br-g)"/>
-
-    <!-- Gold sparkles in TR -->
-    <g opacity="0.55">
-      <circle cx="720" cy="80"  r="1.6" fill="#e3b341"><animate attributeName="opacity" values="0.3;0.8;0.3" dur="2.2s" repeatCount="indefinite"/></circle>
-      <circle cx="775" cy="115" r="1.2" fill="#f5c843"><animate attributeName="opacity" values="0.4;0.9;0.4" dur="3.1s" repeatCount="indefinite"/></circle>
-      <circle cx="820" cy="82"  r="0.9" fill="#e3b341"><animate attributeName="opacity" values="0.5;1.0;0.5" dur="1.7s" repeatCount="indefinite"/></circle>
-      <circle cx="685" cy="130" r="1.4" fill="#f5c843"><animate attributeName="opacity" values="0.2;0.7;0.2" dur="2.8s" repeatCount="indefinite"/></circle>
-      <circle cx="840" cy="170" r="1.0" fill="#e3b341"><animate attributeName="opacity" values="0.3;0.8;0.3" dur="3.4s" repeatCount="indefinite"/></circle>
-      <circle cx="760" cy="62"  r="1.3" fill="#e3b341"><animate attributeName="opacity" values="0.4;0.85;0.4" dur="1.9s" repeatCount="indefinite"/></circle>
+  <!-- Ray burst SVG -->
+  <svg class="ray-burst" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(300,300)">
+      <line x1="0" y1="-280" x2="0" y2="280" stroke="#e3b341" stroke-width="1.5"/>
+      <line x1="-280" y1="0" x2="280" y2="0" stroke="#e3b341" stroke-width="1.5"/>
+      <line x1="-198" y1="-198" x2="198" y2="198" stroke="#e3b341" stroke-width="1"/>
+      <line x1="198" y1="-198" x2="-198" y2="198" stroke="#e3b341" stroke-width="1"/>
+      <line x1="-106" y1="-260" x2="106" y2="260" stroke="#e3b341" stroke-width="0.8"/>
+      <line x1="106" y1="-260" x2="-106" y2="260" stroke="#e3b341" stroke-width="0.8"/>
+      <line x1="-260" y1="-106" x2="260" y2="106" stroke="#e3b341" stroke-width="0.8"/>
+      <line x1="-260" y1="106" x2="260" y2="-106" stroke="#e3b341" stroke-width="0.8"/>
     </g>
-
-    <!-- TL pulsing border -->
-    <rect x="98" y="50" width="380" height="280"
-      fill="none" stroke="#4c9ef0" stroke-width="1.2"
-      stroke-dasharray="9 5" class="tl-dash"/>
-
-    <!-- BR danger brackets -->
-    <g stroke="#f85149" stroke-width="1.5" opacity="0.4">
-      <path d="M480 332 l16 0 M480 332 l0 16"/>
-      <path d="M864 332 l-16 0 M864 332 l0 16"/>
-      <path d="M480 604 l16 0 M480 604 l0 -16"/>
-      <path d="M864 604 l-16 0 M864 604 l0 -16"/>
-    </g>
-
-    <!-- AXES -->
-    <line x1="96" y1="332" x2="864" y2="332" stroke="#1e3050" stroke-width="1.2" stroke-dasharray="4 3"/>
-    <line x1="480" y1="48"  x2="480" y2="604" stroke="#1e3050" stroke-width="1.2" stroke-dasharray="4 3"/>
-
-    <!-- QUADRANT LABELS -->
-    <text x="288" y="90" text-anchor="middle"
-      font-family="Microsoft YaHei,PingFang SC,sans-serif"
-      font-size="16" font-weight="900" fill="#4c9ef0" fill-opacity="0.82">踏进光里</text>
-    <text x="288" y="108" text-anchor="middle"
-      font-family="Microsoft YaHei,PingFang SC,sans-serif"
-      font-size="10" fill="#4c9ef0" fill-opacity="0.38">机构加仓 · 散户未跟 · 布局窗口</text>
-
-    <text x="672" y="90" text-anchor="middle"
-      font-family="Microsoft YaHei,PingFang SC,sans-serif"
-      font-size="18" font-weight="900" fill="#e3b341" filter="url(#gf)">站在光里</text>
-    <text x="672" y="110" text-anchor="middle"
-      font-family="Microsoft YaHei,PingFang SC,sans-serif"
-      font-size="10" fill="#e3b341" fill-opacity="0.42">机构+散户共振 · 主升浪</text>
-
-    <text x="288" y="580" text-anchor="middle"
-      font-family="Microsoft YaHei,PingFang SC,sans-serif"
-      font-size="14" font-weight="800" fill="#364555">光着站在那里</text>
-    <text x="288" y="597" text-anchor="middle"
-      font-family="Microsoft YaHei,PingFang SC,sans-serif"
-      font-size="9.5" fill="#364555">双向撤退 · 资金真空</text>
-
-    <text x="672" y="580" text-anchor="middle"
-      font-family="Microsoft YaHei,PingFang SC,sans-serif"
-      font-size="15" font-weight="900" fill="#f85149" fill-opacity="0.82">别光站在那里</text>
-    <text x="672" y="597" text-anchor="middle"
-      font-family="Microsoft YaHei,PingFang SC,sans-serif"
-      font-size="9.5" fill="#f85149" fill-opacity="0.42">机构出货 · 散户追涨</text>
-
-    <!-- AXIS LABELS -->
-    <text x="60" y="190" text-anchor="middle"
-      font-family="Microsoft YaHei,PingFang SC,sans-serif"
-      font-size="10" fill="#2a3a4a"
-      transform="rotate(-90,60,190)">机构资金变化</text>
-    <text x="66" y="70"  text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#2a3a4a">买入↑</text>
-    <text x="66" y="596" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#2a3a4a">减仓↓</text>
-    <text x="192" y="628" text-anchor="middle" font-family="Microsoft YaHei,PingFang SC,sans-serif" font-size="9.5" fill="#2a3a4a">← 散户减仓</text>
-    <text x="480" y="628" text-anchor="middle" font-family="Microsoft YaHei,PingFang SC,sans-serif" font-size="9.5" fill="#2a3a4a">散户资金变化</text>
-    <text x="768" y="628" text-anchor="middle" font-family="Microsoft YaHei,PingFang SC,sans-serif" font-size="9.5" fill="#2a3a4a">散户加仓 →</text>
-
-    <g id="bubbles"></g>
   </svg>
-</div>
 
-<div class="ft">
-  <div class="ft-legend" id="legend"></div>
-  <div class="ft-note">气泡 = 成交量 &nbsp;·&nbsp; 箭头 = 5日方向 &nbsp;·&nbsp; 仅供参考，不构成投资建议 &nbsp;·&nbsp; © Asymmetric IM</div>
+  <div class="intro-content">
+    <div class="intro-date">A 股 资 金 博 弈 图 &nbsp;·&nbsp; 2026-05-20</div>
+
+    <h1 class="intro-headline">
+      你相信<span class="guang">光</span>吗？
+    </h1>
+
+    <p class="intro-sub">
+      机构 vs 散户 · 10大板块实时定位<br>
+      你在哪里？光在哪里？
+    </p>
+
+    <div class="intro-pills">
+      <span class="intro-pill pill-gold">站在光里</span>
+      <span class="intro-pill pill-blue">踏进光里</span>
+      <span class="intro-pill pill-red">别光站在那里</span>
+      <span class="intro-pill pill-dark">光着站在那里</span>
+    </div>
+
+    <div class="scroll-cta" onclick="document.getElementById('chart-section').scrollIntoView()">
+      <span>看图</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SECTION 2: QUADRANT CHART
+════════════════════════════════════════ -->
+<section id="chart-section">
+  <div class="section-hd">
+    <span class="section-hd-title">机构 vs 散户 · 板块定位</span>
+    <span class="section-hd-meta">气泡 = 成交量 &nbsp;·&nbsp; 箭头 = 5日方向</span>
+  </div>
+
+  <div class="chart-wrap">
+    <svg id="chart" viewBox="0 0 960 640" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <!-- TR sunlight radial -->
+        <radialGradient id="tr-sun" cx="85%" cy="15%" r="70%" gradientUnits="userSpaceOnUse"
+            x1="864" y1="48" x2="480" y2="332">
+          <stop offset="0%"   stop-color="#e3b341" stop-opacity="0.22"/>
+          <stop offset="40%"  stop-color="#f59e0b" stop-opacity="0.10"/>
+          <stop offset="100%" stop-color="#e3b341" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- TL cool blue -->
+        <linearGradient id="tl-cool" x1="100%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%"   stop-color="#4c9ef0" stop-opacity="0.01"/>
+          <stop offset="100%" stop-color="#4c9ef0" stop-opacity="0.08"/>
+        </linearGradient>
+
+        <!-- BR danger -->
+        <radialGradient id="br-danger" cx="10%" cy="10%" r="80%" gradientUnits="userSpaceOnUse"
+            x1="480" y1="332" x2="864" y2="604">
+          <stop offset="0%"   stop-color="#f85149" stop-opacity="0.12"/>
+          <stop offset="100%" stop-color="#f85149" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Glow filter for 光 label -->
+        <filter id="glow-gold" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+
+        <!-- Soft glow for bubbles -->
+        <filter id="bubble-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- ── QUADRANT BASE FILLS ── -->
+      <rect x="96" y="48"  width="384" height="284" fill="#040a14"/>
+      <rect x="96" y="48"  width="384" height="284" fill="url(#tl-cool)"/>
+      <rect x="480" y="48" width="384" height="284" fill="#0a1520"/>
+      <rect x="480" y="48" width="384" height="284" fill="url(#tr-sun)"/>
+      <rect x="96"  y="332" width="384" height="272" fill="#030710"/>
+      <rect x="480" y="332" width="384" height="272" fill="#07100a"/>
+      <rect x="480" y="332" width="384" height="272" fill="url(#br-danger)"/>
+
+      <!-- ── TR: SUNLIGHT CORONA ── -->
+      <!-- Warm halo at top-right corner -->
+      <ellipse cx="864" cy="48" rx="260" ry="180" fill="#e3b34108"/>
+      <ellipse cx="864" cy="48" rx="160" ry="110" fill="#e3b34110"/>
+      <ellipse cx="864" cy="48" rx="80"  ry="55"  fill="#e3b34114"/>
+
+      <!-- Animated gold particles -->
+      <g>
+        <circle cx="720" cy="80"  r="1.8" fill="#e3b341"><animate attributeName="opacity" values="0.2;0.9;0.2" dur="2.1s" repeatCount="indefinite"/></circle>
+        <circle cx="780" cy="110" r="1.3" fill="#f5c843"><animate attributeName="opacity" values="0.3;1.0;0.3" dur="3.3s" repeatCount="indefinite"/></circle>
+        <circle cx="830" cy="72"  r="1.0" fill="#e3b341"><animate attributeName="opacity" values="0.4;0.9;0.4" dur="1.7s" repeatCount="indefinite"/></circle>
+        <circle cx="688" cy="128" r="1.5" fill="#f5c843"><animate attributeName="opacity" values="0.1;0.7;0.1" dur="2.9s" repeatCount="indefinite"/></circle>
+        <circle cx="845" cy="165" r="1.1" fill="#e3b341"><animate attributeName="opacity" values="0.3;0.8;0.3" dur="3.5s" repeatCount="indefinite"/></circle>
+        <circle cx="762" cy="57"  r="1.4" fill="#fdd570"><animate attributeName="opacity" values="0.5;1.0;0.5" dur="1.9s" repeatCount="indefinite"/></circle>
+        <circle cx="856" cy="240" r="1.0" fill="#e3b341"><animate attributeName="opacity" values="0.2;0.6;0.2" dur="4.1s" repeatCount="indefinite"/></circle>
+        <circle cx="700" cy="200" r="1.2" fill="#f5c843"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="2.6s" repeatCount="indefinite"/></circle>
+      </g>
+
+      <!-- ── TL: PULSING OPPORTUNITY BORDER ── -->
+      <rect x="97" y="49" width="382" height="282"
+        fill="none" stroke="#4c9ef0" stroke-width="1.4"
+        stroke-dasharray="10 6" class="tl-dash"/>
+
+      <!-- ── BR: DANGER BRACKET CORNERS ── -->
+      <g stroke="#f85149" stroke-width="1.8" opacity="0.45">
+        <path d="M482 334 l18 0 M482 334 l0 18"/>
+        <path d="M862 334 l-18 0 M862 334 l0 18"/>
+        <path d="M482 602 l18 0 M482 602 l0 -18"/>
+        <path d="M862 602 l-18 0 M862 602 l0 -18"/>
+      </g>
+
+      <!-- ── AXIS LINES ── -->
+      <line x1="96" y1="332" x2="864" y2="332" stroke="#1c3050" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <line x1="480" y1="48" x2="480" y2="604" stroke="#1c3050" stroke-width="1.4" stroke-dasharray="5 4"/>
+
+      <!-- ── QUADRANT LABELS ── -->
+      <!-- TL: 踏进光里 -->
+      <text x="288" y="90" text-anchor="middle"
+        font-family="Microsoft YaHei,PingFang SC,sans-serif"
+        font-size="17" font-weight="900" fill="#4c9ef0" fill-opacity="0.85">踏进光里</text>
+      <text x="288" y="110" text-anchor="middle"
+        font-family="Microsoft YaHei,PingFang SC,sans-serif"
+        font-size="9.5" fill="#4c9ef0" fill-opacity="0.35">机构加仓 · 散户未跟 · 布局窗口</text>
+
+      <!-- TR: 站在光里 (gold, glowing) -->
+      <text x="672" y="88" text-anchor="middle"
+        font-family="Microsoft YaHei,PingFang SC,sans-serif"
+        font-size="20" font-weight="900" fill="#e3b341"
+        filter="url(#glow-gold)">站在光里</text>
+      <text x="672" y="108" text-anchor="middle"
+        font-family="Microsoft YaHei,PingFang SC,sans-serif"
+        font-size="9.5" fill="#e3b341" fill-opacity="0.38">机构 + 散户共振 · 主升浪</text>
+
+      <!-- BL: 光着站在那里 -->
+      <text x="288" y="578" text-anchor="middle"
+        font-family="Microsoft YaHei,PingFang SC,sans-serif"
+        font-size="14" font-weight="800" fill="#2a3a4a">光着站在那里</text>
+      <text x="288" y="595" text-anchor="middle"
+        font-family="Microsoft YaHei,PingFang SC,sans-serif"
+        font-size="9.5" fill="#2a3a4a">双向撤退 · 资金真空</text>
+
+      <!-- BR: 别光站在那里 -->
+      <text x="672" y="578" text-anchor="middle"
+        font-family="Microsoft YaHei,PingFang SC,sans-serif"
+        font-size="15" font-weight="900" fill="#f85149" fill-opacity="0.85">别光站在那里</text>
+      <text x="672" y="595" text-anchor="middle"
+        font-family="Microsoft YaHei,PingFang SC,sans-serif"
+        font-size="9.5" fill="#f85149" fill-opacity="0.38">机构出货 · 散户追涨</text>
+
+      <!-- ── AXIS LABELS ── -->
+      <text x="58" y="190" text-anchor="middle"
+        font-family="Microsoft YaHei,PingFang SC,sans-serif"
+        font-size="10" fill="#253545"
+        transform="rotate(-90,58,190)">机构资金变化</text>
+      <text x="64" y="68"  text-anchor="middle" font-family="sans-serif" font-size="9" fill="#253545">买入↑</text>
+      <text x="64" y="598" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#253545">减仓↓</text>
+      <text x="192" y="628" text-anchor="middle" font-family="Microsoft YaHei,PingFang SC,sans-serif" font-size="9" fill="#253545">← 散户减仓</text>
+      <text x="480" y="628" text-anchor="middle" font-family="Microsoft YaHei,PingFang SC,sans-serif" font-size="9" fill="#253545">散户资金变化</text>
+      <text x="768" y="628" text-anchor="middle" font-family="Microsoft YaHei,PingFang SC,sans-serif" font-size="9" fill="#253545">散户加仓 →</text>
+
+      <!-- Bubble layer -->
+      <g id="bubbles"></g>
+    </svg>
+  </div>
+
+  <div class="chart-legend" id="legend"></div>
+</section>
+
+<!-- ════════════════════════════════════════
+     SECTION 3: FEAR/GREED GAUGE
+════════════════════════════════════════ -->
+<section id="gauge-section">
+  <div class="gauge-section-title">
+    <h2>恐贪温度计</h2>
+    <p>A股综合情绪指数 · 7项指标合成 · 2026-05-20</p>
+  </div>
+
+  <div class="gauge-layout">
+    <!-- Left: speedometer + readout + history -->
+    <div class="gauge-left">
+      <svg id="gauge-svg" viewBox="0 0 320 200"></svg>
+
+      <div class="gauge-readout">
+        <span class="readout-num">71</span>
+        <div class="readout-zone">贪婪</div>
+        <div class="readout-delta">昨日 <b>65</b> &nbsp;→&nbsp; 今日 <b style="color:#f59e0b">71</b> &nbsp;<b style="color:#f85149">+6 贪婪加剧</b></div>
+      </div>
+
+      <div class="history-box">
+        <div class="hb-title">历史规律（2015–2026）</div>
+        <div class="hb-row">
+          <span class="hb-cond">指数 &gt; 75（极度贪婪）</span>
+          <span class="hb-val" style="color:#f85149">持有一月  均 −4.1%</span>
+        </div>
+        <div class="hb-row">
+          <span class="hb-cond">指数 55–75（贪婪）</span>
+          <span class="hb-val" style="color:#f59e0b">持有一月  均 −2.3%</span>
+        </div>
+        <div class="hb-row">
+          <span class="hb-cond">指数 &lt; 30（恐惧）</span>
+          <span class="hb-val" style="color:#3fb950">持有一月  均 +5.8%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: component bars -->
+    <div class="gauge-right">
+      <div class="comp-title">分项指标</div>
+      <div class="comp-sub">综合得分 71 / 100</div>
+      <div id="comp-rows"></div>
+    </div>
+  </div>
+</section>
+
+<div class="page-ft">
+  指标：RSI超买度 · 融资杠杆 · 成交热度 · 北向资金 · 市场广度 · 价格动量 · 波动率
+  &nbsp;·&nbsp; 数据：Wind · 龙虎榜 · 仅供参考，不构成投资建议 · © Asymmetric IM
 </div>
 
 <script>
+// ══════════════════════════════════════
+// CHART DATA
+// ══════════════════════════════════════
 const SECTORS = [
-  { name:'大金融',    x:0.28, y:0.36, dx:0.09, dy:0.13, vol:1.8, ret5d:1.2,  color:'#4c9ef0' },
-  { name:'新能源车',  x:0.20, y:0.22, dx:0.06, dy:0.08, vol:1.3, ret5d:3.2,  color:'#3fb950' },
-  { name:'AI算力',   x:-0.16,y:0.32, dx:0.00, dy:0.15, vol:1.5, ret5d:7.8,  color:'#f0883e' },
-  { name:'消费白酒',  x:-0.12,y:0.16, dx:-0.02,dy:0.07, vol:1.0, ret5d:1.8,  color:'#e3b341' },
-  { name:'创新药',    x:-0.08,y:0.12, dx:-0.02,dy:0.05, vol:0.9, ret5d:0.9,  color:'#bc8cff' },
-  { name:'半导体',    x:0.34, y:-0.10,dx:0.13, dy:-0.06,vol:1.4, ret5d:4.5,  color:'#58a6ff' },
-  { name:'电力设备',  x:0.14, y:-0.17,dx:0.06, dy:-0.09,vol:0.9, ret5d:2.1,  color:'#56d364' },
-  { name:'光伏储能',  x:-0.20,y:-0.22,dx:-0.09,dy:-0.09,vol:0.7, ret5d:-1.2, color:'#ffa657' },
-  { name:'传媒互联网',x:-0.14,y:-0.27,dx:-0.06,dy:-0.11,vol:0.6, ret5d:-2.9, color:'#ff7b6b' },
-  { name:'地产链',    x:-0.08,y:-0.33,dx:-0.02,dy:-0.09,vol:0.5, ret5d:-3.5, color:'#f85149' },
+  { name:'大金融',    x: 0.28,  y: 0.36,  dx: 0.09,  dy: 0.13,  vol:1.8, ret5d: 1.2,  color:'#4c9ef0' },
+  { name:'新能源车',  x: 0.20,  y: 0.22,  dx: 0.06,  dy: 0.08,  vol:1.3, ret5d: 3.2,  color:'#3fb950' },
+  { name:'AI算力',   x:-0.16,  y: 0.32,  dx: 0.00,  dy: 0.15,  vol:1.5, ret5d: 7.8,  color:'#f0883e' },
+  { name:'消费白酒',  x:-0.12,  y: 0.16,  dx:-0.02,  dy: 0.07,  vol:1.0, ret5d: 1.8,  color:'#e3b341' },
+  { name:'创新药',    x:-0.08,  y: 0.12,  dx:-0.02,  dy: 0.05,  vol:0.9, ret5d: 0.9,  color:'#bc8cff' },
+  { name:'半导体',    x: 0.34,  y:-0.10,  dx: 0.13,  dy:-0.06,  vol:1.4, ret5d: 4.5,  color:'#58a6ff' },
+  { name:'电力设备',  x: 0.14,  y:-0.17,  dx: 0.06,  dy:-0.09,  vol:0.9, ret5d: 2.1,  color:'#56d364' },
+  { name:'光伏储能',  x:-0.20,  y:-0.22,  dx:-0.09,  dy:-0.09,  vol:0.7, ret5d:-1.2,  color:'#ffa657' },
+  { name:'传媒互联网',x:-0.14,  y:-0.27,  dx:-0.06,  dy:-0.11,  vol:0.6, ret5d:-2.9,  color:'#ff7b6b' },
+  { name:'地产链',    x:-0.08,  y:-0.33,  dx:-0.02,  dy:-0.09,  vol:0.5, ret5d:-3.5,  color:'#f85149' },
 ];
 
-// Coordinate transform
 const VB = { l:96, r:864, t:48, b:604 };
 const XR = 0.54, YR = 0.48;
-function toSVG(dx, dy) {
+function toSVG(nx, ny) {
   return {
-    x: VB.l + (dx + XR) / (2*XR) * (VB.r - VB.l),
-    y: VB.t + (1 - (dy + YR) / (2*YR)) * (VB.b - VB.t),
+    x: VB.l + (nx + XR) / (2*XR) * (VB.r - VB.l),
+    y: VB.t + (1 - (ny + YR) / (2*YR)) * (VB.b - VB.t),
   };
 }
 
-const svgEl  = document.getElementById('chart');
-const defs   = svgEl.querySelector('defs');
-const layer  = document.getElementById('bubbles');
+const svgEl = document.getElementById('chart');
+const defs  = svgEl.querySelector('defs');
+const layer = document.getElementById('bubbles');
+const NS    = 'http://www.w3.org/2000/svg';
 
 SECTORS.forEach((s, i) => {
-  // Arrow marker
-  const mk  = document.createElementNS('http://www.w3.org/2000/svg','marker');
-  const mid = 'a' + i;
+  const mid = 'mk' + i;
+  const mk  = document.createElementNS(NS, 'marker');
   mk.setAttribute('id', mid);
-  mk.setAttribute('markerWidth','7'); mk.setAttribute('markerHeight','7');
-  mk.setAttribute('refX','6'); mk.setAttribute('refY','3');
+  mk.setAttribute('markerWidth','8'); mk.setAttribute('markerHeight','8');
+  mk.setAttribute('refX','7'); mk.setAttribute('refY','3.5');
   mk.setAttribute('orient','auto');
-  const mkp = document.createElementNS('http://www.w3.org/2000/svg','path');
-  mkp.setAttribute('d','M 0 0 L 7 3 L 0 6 Z');
-  mkp.setAttribute('fill', s.color); mkp.setAttribute('opacity','0.7');
+  const mkp = document.createElementNS(NS, 'path');
+  mkp.setAttribute('d','M0 0 L7 3.5 L0 7 Z');
+  mkp.setAttribute('fill', s.color); mkp.setAttribute('opacity','0.8');
   mk.appendChild(mkp); defs.appendChild(mk);
 
   const cur = toSVG(s.x, s.y);
   const old = toSVG(s.x - s.dx, s.y - s.dy);
-  const r   = 18 + s.vol * 12;
-  const g   = document.createElementNS('http://www.w3.org/2000/svg','g');
-  g.setAttribute('class','s-bubble');
+  const r   = 18 + s.vol * 13;
+  const g   = document.createElementNS(NS, 'g');
 
-  // Ghost
-  const ghost = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  // Ghost (old position)
+  const ghost = document.createElementNS(NS, 'circle');
   ghost.setAttribute('cx', old.x); ghost.setAttribute('cy', old.y);
-  ghost.setAttribute('r', r * 0.3);
-  ghost.setAttribute('fill', s.color); ghost.setAttribute('fill-opacity','0.15');
+  ghost.setAttribute('r', r * 0.28);
+  ghost.setAttribute('fill', s.color); ghost.setAttribute('fill-opacity','0.18');
   g.appendChild(ghost);
 
-  // Trajectory
-  const dist = Math.hypot(cur.x-old.x, cur.y-old.y);
-  if (dist > 4) {
-    const shrink = r + 4;
+  // Trajectory arrow
+  const dist = Math.hypot(cur.x - old.x, cur.y - old.y);
+  if (dist > 6) {
+    const shrink = r + 5;
     const t1 = 0.18, t2 = Math.max(0, (dist - shrink) / dist);
-    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    const line = document.createElementNS(NS, 'line');
     line.setAttribute('x1', old.x + (cur.x-old.x)*t1);
     line.setAttribute('y1', old.y + (cur.y-old.y)*t1);
     line.setAttribute('x2', old.x + (cur.x-old.x)*t2);
     line.setAttribute('y2', old.y + (cur.y-old.y)*t2);
     line.setAttribute('stroke', s.color);
-    line.setAttribute('stroke-width','1.6');
-    line.setAttribute('stroke-opacity','0.5');
+    line.setAttribute('stroke-width','1.8');
+    line.setAttribute('stroke-opacity','0.6');
     line.setAttribute('marker-end','url(#'+mid+')');
     g.appendChild(line);
   }
 
-  // Glow ring
-  const glow = document.createElementNS('http://www.w3.org/2000/svg','circle');
-  glow.setAttribute('cx', cur.x); glow.setAttribute('cy', cur.y);
-  glow.setAttribute('r', r * 1.5);
-  glow.setAttribute('fill', s.color); glow.setAttribute('fill-opacity','0.07');
-  g.appendChild(glow);
+  // Glow halo
+  const halo = document.createElementNS(NS, 'circle');
+  halo.setAttribute('cx', cur.x); halo.setAttribute('cy', cur.y);
+  halo.setAttribute('r', r * 1.7);
+  halo.setAttribute('fill', s.color); halo.setAttribute('fill-opacity','0.06');
+  g.appendChild(halo);
 
   // Bubble
-  const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  const c = document.createElementNS(NS, 'circle');
   c.setAttribute('cx', cur.x); c.setAttribute('cy', cur.y); c.setAttribute('r', r);
-  c.setAttribute('fill', s.color); c.setAttribute('fill-opacity','0.88');
-  c.setAttribute('stroke', s.color); c.setAttribute('stroke-width','2');
+  c.setAttribute('fill', s.color); c.setAttribute('fill-opacity','0.85');
+  c.setAttribute('stroke', '#ffffff'); c.setAttribute('stroke-width','1.2');
+  c.setAttribute('stroke-opacity','0.18');
   g.appendChild(c);
 
-  // Name
-  const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
-  txt.setAttribute('x', cur.x); txt.setAttribute('y', cur.y + 4);
-  txt.setAttribute('text-anchor','middle'); txt.setAttribute('dominant-baseline','middle');
-  txt.setAttribute('font-family','Microsoft YaHei,PingFang SC,sans-serif');
-  txt.setAttribute('font-size', r > 28 ? '11' : '10');
-  txt.setAttribute('font-weight','800');
-  txt.setAttribute('fill','#fff'); txt.setAttribute('fill-opacity','0.95');
-  txt.setAttribute('pointer-events','none');
-  txt.textContent = s.name;
-  g.appendChild(txt);
+  // Sector name
+  const t = document.createElementNS(NS, 'text');
+  t.setAttribute('x', cur.x); t.setAttribute('y', cur.y + 4);
+  t.setAttribute('text-anchor','middle');
+  t.setAttribute('font-family','Microsoft YaHei,PingFang SC,sans-serif');
+  t.setAttribute('font-size', r > 29 ? '11' : '10');
+  t.setAttribute('font-weight','800');
+  t.setAttribute('fill','#fff'); t.setAttribute('fill-opacity','0.95');
+  t.setAttribute('pointer-events','none');
+  t.textContent = s.name;
+  g.appendChild(t);
 
-  // Return
-  const ret = document.createElementNS('http://www.w3.org/2000/svg','text');
-  ret.setAttribute('x', cur.x); ret.setAttribute('y', cur.y + r + 13);
-  ret.setAttribute('text-anchor','middle');
-  ret.setAttribute('font-family','Microsoft YaHei,PingFang SC,sans-serif');
-  ret.setAttribute('font-size','9'); ret.setAttribute('font-weight','700');
-  ret.setAttribute('fill', s.ret5d >= 0 ? '#3fb950' : '#f85149');
-  ret.setAttribute('pointer-events','none');
-  ret.textContent = (s.ret5d >= 0 ? '+' : '') + s.ret5d + '%';
-  g.appendChild(ret);
+  // 5-day return label below bubble
+  const rt = document.createElementNS(NS, 'text');
+  rt.setAttribute('x', cur.x); rt.setAttribute('y', cur.y + r + 14);
+  rt.setAttribute('text-anchor','middle');
+  rt.setAttribute('font-family','Microsoft YaHei,PingFang SC,sans-serif');
+  rt.setAttribute('font-size','9.5'); rt.setAttribute('font-weight','700');
+  rt.setAttribute('fill', s.ret5d >= 0 ? '#3fb950' : '#f85149');
+  rt.setAttribute('pointer-events','none');
+  rt.textContent = (s.ret5d >= 0 ? '+' : '') + s.ret5d + '%';
+  g.appendChild(rt);
 
   layer.appendChild(g);
 });
@@ -364,6 +739,129 @@ SECTORS.forEach(s => {
   d.className = 'leg';
   d.innerHTML = `<div class="leg-dot" style="background:${s.color}"></div>${s.name}`;
   legEl.appendChild(d);
+});
+
+// ══════════════════════════════════════
+// GAUGE SVG
+// ══════════════════════════════════════
+const TODAY = 71;
+const gns   = 'http://www.w3.org/2000/svg';
+const gsvg  = document.getElementById('gauge-svg');
+const CX = 160, CY = 158, OR = 128, IR = 76;
+
+function gAngle(v) { return (195 - v/100*210) * Math.PI / 180; }
+function gPt(r, v) { const a = gAngle(v); return { x: CX + r*Math.cos(a), y: CY - r*Math.sin(a) }; }
+
+function addArc(v0, v1, color) {
+  const p1o = gPt(OR,v0), p2o = gPt(OR,v1);
+  const p1i = gPt(IR,v0), p2i = gPt(IR,v1);
+  const span = (v1-v0)/100*210;
+  const lg = span > 180 ? 1 : 0;
+  const path = document.createElementNS(gns,'path');
+  path.setAttribute('d',
+    `M ${p1o.x} ${p1o.y} A ${OR} ${OR} 0 ${lg} 1 ${p2o.x} ${p2o.y}
+     L ${p2i.x} ${p2i.y} A ${IR} ${IR} 0 ${lg} 0 ${p1i.x} ${p1i.y} Z`);
+  path.setAttribute('fill', color);
+  path.setAttribute('fill-opacity','0.92');
+  path.setAttribute('stroke','#040810');
+  path.setAttribute('stroke-width','1.5');
+  gsvg.appendChild(path);
+}
+
+// Background arc
+const bg = document.createElementNS(gns,'path');
+const s0 = gPt(OR,0), s100 = gPt(OR,100), s0i = gPt(IR,0), s100i = gPt(IR,100);
+bg.setAttribute('d', `M ${s0.x} ${s0.y} A ${OR} ${OR} 0 1 1 ${s100.x} ${s100.y}
+  L ${s100i.x} ${s100i.y} A ${IR} ${IR} 0 1 0 ${s0i.x} ${s0i.y} Z`);
+bg.setAttribute('fill','#0e1a28'); gsvg.appendChild(bg);
+
+// Colored segments
+[[0,25,'#1d4ed8'],[25,45,'#0ea5e9'],[45,55,'#4b5563'],[55,75,'#f59e0b'],[75,100,'#dc2626']]
+  .forEach(([v0,v1,c]) => addArc(v0,v1,c));
+
+// Tick marks
+for (let v = 0; v <= 100; v += 10) {
+  const major = v % 25 === 0;
+  const r1 = major ? OR-10 : OR-6;
+  const a  = gAngle(v);
+  const tk = document.createElementNS(gns,'line');
+  tk.setAttribute('x1', CX + r1*Math.cos(a));    tk.setAttribute('y1', CY - r1*Math.sin(a));
+  tk.setAttribute('x2', CX + (OR+3)*Math.cos(a)); tk.setAttribute('y2', CY - (OR+3)*Math.sin(a));
+  tk.setAttribute('stroke','#c0d0e0');
+  tk.setAttribute('stroke-width', major ? '1.8' : '0.9');
+  tk.setAttribute('stroke-opacity', major ? '0.5' : '0.22');
+  gsvg.appendChild(tk);
+  if (major) {
+    const lr = OR + 16;
+    const t = document.createElementNS(gns,'text');
+    t.setAttribute('x', CX + lr*Math.cos(a)); t.setAttribute('y', CY - lr*Math.sin(a) + 4);
+    t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-family','sans-serif'); t.setAttribute('font-size','10');
+    t.setAttribute('fill','#446070'); t.textContent = v;
+    gsvg.appendChild(t);
+  }
+}
+
+// Zone labels
+[[12,'极度恐惧','#60a5fa'],[35,'恐惧','#38bdf8'],[50,'中性','#6b7280'],
+ [65,'贪婪','#fbbf24'],[88,'极度贪婪','#ef4444']]
+.forEach(([v, txt, c]) => {
+  const rm = (OR+IR)/2, a = gAngle(v);
+  const t = document.createElementNS(gns,'text');
+  t.setAttribute('x', CX + rm*Math.cos(a)); t.setAttribute('y', CY - rm*Math.sin(a) + 4);
+  t.setAttribute('text-anchor','middle');
+  t.setAttribute('font-family','Microsoft YaHei,PingFang SC,sans-serif');
+  t.setAttribute('font-size','9'); t.setAttribute('fill',c); t.setAttribute('fill-opacity','0.65');
+  t.textContent = txt; gsvg.appendChild(t);
+});
+
+// Needle
+const na = gAngle(TODAY);
+const nx = CX + (OR-8)*Math.cos(na), ny = CY - (OR-8)*Math.sin(na);
+
+// Shadow
+const shad = document.createElementNS(gns,'line');
+shad.setAttribute('x1',CX+1.5); shad.setAttribute('y1',CY+1.5);
+shad.setAttribute('x2',nx+1.5); shad.setAttribute('y2',ny+1.5);
+shad.setAttribute('stroke','#00000066'); shad.setAttribute('stroke-width','5');
+shad.setAttribute('stroke-linecap','round'); gsvg.appendChild(shad);
+
+const needle = document.createElementNS(gns,'line');
+needle.setAttribute('x1',CX); needle.setAttribute('y1',CY);
+needle.setAttribute('x2',nx); needle.setAttribute('y2',ny);
+needle.setAttribute('stroke','#f0f6fc'); needle.setAttribute('stroke-width','4');
+needle.setAttribute('stroke-linecap','round'); gsvg.appendChild(needle);
+
+[[9,'#f0f6fc'],[6,'#040810'],[3.5,'#e3b341']].forEach(([r,c]) => {
+  const ci = document.createElementNS(gns,'circle');
+  ci.setAttribute('cx',CX); ci.setAttribute('cy',CY); ci.setAttribute('r',r); ci.setAttribute('fill',c);
+  gsvg.appendChild(ci);
+});
+
+// ══════════════════════════════════════
+// COMPONENT BARS
+// ══════════════════════════════════════
+const COMPS = [
+  { label:'RSI超买度', val:79, note:'半导体 82.9',   color:'#dc2626' },
+  { label:'融资杠杆',  val:82, note:'+1,295亿/月',   color:'#f59e0b' },
+  { label:'成交热度',  val:75, note:'2.86万亿',       color:'#f59e0b' },
+  { label:'北向资金',  val:58, note:'+35.3亿',        color:'#9ca3af' },
+  { label:'市场广度',  val:62, note:'7/10板块正收益', color:'#9ca3af' },
+  { label:'价格动量',  val:65, note:'CSI300 +1.8%',  color:'#9ca3af' },
+  { label:'波动率',    val:67, note:'VIX当量偏低',   color:'#9ca3af' },
+];
+
+const compEl = document.getElementById('comp-rows');
+COMPS.forEach(c => {
+  const row = document.createElement('div');
+  row.className = 'comp-row';
+  row.innerHTML = `
+    <div class="cr-lbl">${c.label}</div>
+    <div class="cr-val" style="color:${c.color}">${c.val}</div>
+    <div class="cr-bg"><div class="cr-bar"
+      style="width:${c.val}%;background:linear-gradient(90deg,${c.color},${c.color}88)"></div></div>
+    <div class="cr-note">${c.note}</div>`;
+  compEl.appendChild(row);
 });
 </script>
 </body>
