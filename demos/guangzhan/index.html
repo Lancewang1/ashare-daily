@@ -376,6 +376,7 @@ body {
   justify-content: center;
   backdrop-filter: blur(6px);
   cursor: pointer;
+  padding: 16px;
 }
 #modal-overlay.open { display: flex; }
 
@@ -383,71 +384,214 @@ body {
   background: #0b1624;
   border: 1px solid var(--bdr);
   border-radius: 16px;
-  width: min(480px, 92vw);
-  overflow: hidden;
+  width: min(540px, 96vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
   cursor: default;
-  box-shadow: 0 24px 64px #00000088;
+  box-shadow: 0 24px 64px #00000099;
   animation: modal-in 0.18s ease-out;
+  position: relative;
 }
+#modal-box::-webkit-scrollbar { width: 4px; }
+#modal-box::-webkit-scrollbar-track { background: transparent; }
+#modal-box::-webkit-scrollbar-thumb { background: var(--bdr); border-radius: 2px; }
+
 @keyframes modal-in {
-  from { opacity: 0; transform: scale(0.94) translateY(8px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
 }
 
-.modal-header {
-  padding: 20px 22px 16px;
+/* ─ Shared modal header ─ */
+.modal-hd {
+  padding: 18px 20px 14px;
   border-bottom: 1px solid var(--bdr);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+  position: sticky; top: 0;
+  background: #0b1624;
+  z-index: 2;
 }
-.modal-name { font-size: 22px; font-weight: 900; }
-.modal-zone {
-  font-size: 11px; font-weight: 700;
-  padding: 4px 10px; border-radius: 20px; border: 1px solid;
-  letter-spacing: 0.06em; flex-shrink: 0; margin-top: 4px;
+.modal-hd-left { flex: 1; min-width: 0; }
+.modal-sector-name { font-size: 20px; font-weight: 900; }
+.modal-zone-badge {
+  display: inline-block; margin-top: 5px;
+  font-size: 10.5px; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px; border: 1px solid;
+  letter-spacing: 0.06em;
 }
-.modal-close {
-  color: var(--dim); font-size: 20px; cursor: pointer; line-height: 1;
-  flex-shrink: 0; padding: 2px 4px;
+.modal-close-btn {
+  color: var(--dim); font-size: 20px; cursor: pointer;
+  line-height: 1; flex-shrink: 0; padding: 2px 4px;
 }
-.modal-close:hover { color: var(--fg); }
+.modal-close-btn:hover { color: var(--fg); }
 
-.modal-stats {
-  display: flex;
-  gap: 0;
+/* ─ BUY mode ─ */
+.modal-summary {
+  padding: 14px 20px;
+  font-size: 13px; color: var(--fg);
+  line-height: 1.75; border-bottom: 1px solid var(--bdr);
+  background: #07101e;
+}
+
+.pick-cards { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.pick-card {
+  background: #060f1c;
+  border: 1px solid var(--bdr);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  transition: border-color 0.18s;
+}
+.pick-card:hover { border-color: #2a4060; }
+.pick-card-left { flex: 1; min-width: 0; }
+.pick-card-tag {
+  font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 12px; border: 1px solid;
+  display: inline-block; margin-bottom: 5px; letter-spacing: 0.04em;
+}
+.tag-buy  { background: #3fb95022; color: #3fb950; border-color: #3fb95050; }
+.tag-hold { background: #9ca3af22; color: #9ca3af; border-color: #9ca3af50; }
+.pick-card-name { font-size: 14px; font-weight: 800; color: var(--fg); }
+.pick-card-note { font-size: 11px; color: var(--dim); margin-top: 2px; }
+.report-btn {
+  flex-shrink: 0;
+  font-size: 11px; font-weight: 700;
+  color: var(--gold); border: 1px solid #e3b34140;
+  background: #e3b34110; padding: 5px 12px; border-radius: 20px;
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.report-btn:hover { background: #e3b34122; border-color: #e3b34166; }
+
+/* ─ WARN mode ─ */
+.warn-banner {
+  padding: 12px 20px;
+  background: #1a080a;
+  border-bottom: 1px solid #3a1015;
+  font-size: 12.5px; color: #f87171; line-height: 1.6;
+}
+.warn-rows { padding: 10px 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+.warn-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 11px 14px; border-radius: 10px;
+  background: #0a0c10; border: 1px solid #1e1418;
+}
+.warn-tag {
+  font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 12px;
+  background: #f8514920; color: #f85149; border: 1px solid #f8514950;
+  flex-shrink: 0; margin-top: 1px; letter-spacing: 0.04em;
+}
+.warn-info { flex: 1; }
+.warn-name { font-size: 13px; font-weight: 800; color: #ccc; margin-bottom: 3px; }
+.warn-reason { font-size: 11px; color: var(--dim); line-height: 1.5; }
+
+/* ─ COMFORT mode ─ */
+.comfort-body {
+  padding: 20px 22px;
+}
+.comfort-text {
+  font-size: 14px; line-height: 1.9; color: #7090a8;
+  margin-bottom: 20px;
+  border-left: 2px solid #1a3050;
+  padding-left: 14px;
+}
+.comfort-redirect-title {
+  font-size: 10px; letter-spacing: 0.12em; color: var(--dim);
+  text-transform: uppercase; font-weight: 700; margin-bottom: 10px;
+}
+.redirect-cards { display: flex; flex-direction: column; gap: 8px; }
+.redirect-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; border-radius: 10px;
+  border: 1px solid var(--bdr); background: #06101c;
+  cursor: pointer; transition: border-color 0.18s;
+}
+.redirect-card:hover { border-color: #2a4060; }
+.rc-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.rc-sector { font-size: 14px; font-weight: 800; color: var(--fg); }
+.rc-zone   { font-size: 11px; font-weight: 700; margin-left: 4px; }
+.rc-ret    { font-size: 12px; font-weight: 700; margin-left: auto; }
+
+/* ─ REPORT sub-view ─ */
+#report-view {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: #0b1624;
+  z-index: 10;
+  overflow-y: auto;
+  animation: modal-in 0.15s ease-out;
+}
+#report-view.open { display: block; }
+#report-view::-webkit-scrollbar { width: 4px; }
+#report-view::-webkit-scrollbar-thumb { background: var(--bdr); border-radius: 2px; }
+
+.report-hd {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--bdr);
+  display: flex; align-items: center; gap: 10px;
+  position: sticky; top: 0;
+  background: #0b1624; z-index: 2;
+}
+.report-back {
+  font-size: 12px; color: var(--dim); cursor: pointer;
+  padding: 4px 10px; border-radius: 16px;
+  border: 1px solid var(--bdr); background: #060f1c;
+  transition: color 0.15s;
+}
+.report-back:hover { color: var(--fg); }
+.report-stock-title { font-size: 16px; font-weight: 900; flex: 1; }
+.report-stock-code  { font-size: 11px; color: var(--dim); font-weight: 400; margin-left: 6px; }
+
+.report-body { padding: 18px 20px 28px; }
+
+.report-section { margin-bottom: 20px; }
+.report-section-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  color: var(--dim); text-transform: uppercase;
+  margin-bottom: 8px; padding-bottom: 5px;
   border-bottom: 1px solid var(--bdr);
 }
-.modal-stat {
-  flex: 1; padding: 14px 18px; text-align: center;
-  border-right: 1px solid var(--bdr);
-}
-.modal-stat:last-child { border-right: none; }
-.ms-val { font-size: 20px; font-weight: 900; display: block; }
-.ms-lbl { font-size: 10px; color: var(--dim); margin-top: 2px; display: block; }
+.report-logic { font-size: 13px; color: var(--fg); line-height: 1.8; }
 
-.modal-body { padding: 16px 20px 20px; }
-.modal-insight {
-  font-size: 13px; color: var(--dim);
-  line-height: 1.7; margin-bottom: 16px;
+.report-bullets { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.report-bullets li {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 12.5px; line-height: 1.6; color: #8aa8c0;
 }
+.report-bullets li::before {
+  content: ''; flex-shrink: 0;
+  width: 5px; height: 5px; border-radius: 50%;
+  margin-top: 7px;
+}
+.bullets-green li::before { background: #3fb950; }
+.bullets-red   li::before { background: #f85149; }
 
-.modal-picks { display: flex; flex-direction: column; gap: 8px; }
-.pick-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 12px; border-radius: 8px;
-  background: #06101c; border: 1px solid var(--bdr);
+.report-bottom {
+  display: flex; gap: 10px; margin-top: 6px;
+  flex-wrap: wrap;
 }
-.pick-tag {
-  font-size: 10px; font-weight: 700; padding: 2px 7px;
-  border-radius: 12px; flex-shrink: 0; letter-spacing: 0.04em;
+.rbt-card {
+  flex: 1; min-width: 140px;
+  padding: 12px 14px; border-radius: 10px;
+  background: #060f1c; border: 1px solid var(--bdr);
 }
-.tag-buy  { background: #3fb95022; color: #3fb950; border: 1px solid #3fb95044; }
-.tag-sell { background: #f8514922; color: #f85149; border: 1px solid #f8514944; }
-.tag-hold { background: #9ca3af22; color: #9ca3af; border: 1px solid #9ca3af44; }
-.pick-name { font-size: 13px; font-weight: 700; color: var(--fg); }
-.pick-note { font-size: 11px; color: var(--dim); margin-left: auto; }
+.rbt-label { font-size: 10px; color: var(--dim); margin-bottom: 4px; }
+.rbt-value { font-size: 15px; font-weight: 900; }
+.rbt-sub   { font-size: 11px; color: var(--dim); margin-top: 2px; }
+
+.report-action {
+  margin-top: 18px; padding: 13px 16px;
+  background: #070e1a; border: 1px solid #1a3050;
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  font-size: 13px; color: var(--fg); line-height: 1.7;
+}
+.report-action strong { color: var(--gold); }
 
 /* Page footer */
 .page-ft {
@@ -708,31 +852,48 @@ body {
 <!-- MODAL -->
 <div id="modal-overlay" onclick="closeModal()">
   <div id="modal-box" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <div>
-        <div class="modal-name" id="m-name"></div>
-        <div style="margin-top:6px"><span class="modal-zone" id="m-zone"></span></div>
+
+    <!-- Shared header -->
+    <div class="modal-hd">
+      <div class="modal-hd-left">
+        <div class="modal-sector-name" id="m-name"></div>
+        <span class="modal-zone-badge" id="m-zone"></span>
       </div>
-      <span class="modal-close" onclick="closeModal()">✕</span>
+      <span class="modal-close-btn" onclick="closeModal()">✕</span>
     </div>
-    <div class="modal-stats">
-      <div class="modal-stat">
-        <span class="ms-val" id="m-ret"></span>
-        <span class="ms-lbl">5日涨跌</span>
-      </div>
-      <div class="modal-stat">
-        <span class="ms-val" id="m-inst"></span>
-        <span class="ms-lbl">机构动向</span>
-      </div>
-      <div class="modal-stat">
-        <span class="ms-val" id="m-retail"></span>
-        <span class="ms-lbl">散户热度</span>
+
+    <!-- BUY view (站在光里 / 踏进光里) -->
+    <div id="m-buy">
+      <div class="modal-summary" id="m-summary"></div>
+      <div class="pick-cards" id="m-pick-cards"></div>
+    </div>
+
+    <!-- WARN view (别光站在那里) -->
+    <div id="m-warn" style="display:none">
+      <div class="warn-banner" id="m-warn-banner"></div>
+      <div class="warn-rows" id="m-warn-rows"></div>
+    </div>
+
+    <!-- COMFORT view (光着站在那里) -->
+    <div id="m-comfort" style="display:none">
+      <div class="comfort-body">
+        <div class="comfort-text" id="m-comfort-text"></div>
+        <div class="comfort-redirect-title">光在这里</div>
+        <div class="redirect-cards" id="m-redirects"></div>
       </div>
     </div>
-    <div class="modal-body">
-      <div class="modal-insight" id="m-insight"></div>
-      <div class="modal-picks" id="m-picks"></div>
+
+    <!-- REPORT sub-view (slides over everything) -->
+    <div id="report-view">
+      <div class="report-hd">
+        <span class="report-back" onclick="closeReport()">← 返回</span>
+        <span class="report-stock-title" id="r-name"></span>
+        <span class="report-stock-code"  id="r-code"></span>
+        <span class="modal-close-btn" onclick="closeModal()">✕</span>
+      </div>
+      <div class="report-body" id="r-body"></div>
     </div>
+
   </div>
 </div>
 
@@ -741,86 +902,150 @@ body {
 // CHART DATA
 // ══════════════════════════════════════
 const SECTORS = [
-  { name:'大金融',    x: 0.28,  y: 0.36,  dx: 0.09,  dy: 0.13,  vol:1.8, ret5d: 1.2,  color:'#4c9ef0',
-    inst:'加速买入', retail:'温和跟进',
-    insight:'大金融稳步向主升浪移动，北向连续5日净流入。银行+保险机构席位占比上升，散户尚未大规模追入，仍有布局空间。',
+  // ── TR: 站在光里 ──
+  { name:'大金融', x:0.28, y:0.36, dx:0.09, dy:0.13, vol:1.8, ret5d:1.2, color:'#4c9ef0', mode:'buy',
+    summary:'银行+保险机构持续净流入，北向连续5日买入。散户尚未大规模追入，主升浪初期共振，仍有上车窗口。',
     picks:[
-      { tag:'buy',  name:'招商银行 600036', note:'北向连买3日 +2.1%' },
-      { tag:'buy',  name:'中国平安 601318', note:'估值底部+股息4.8%' },
-      { tag:'hold', name:'工商银行 601398', note:'持有观察，等突破' },
+      { tag:'buy', name:'招商银行', code:'600036', note:'北向连买3日 +2.1%',
+        report:{ logic:'零售银行护城河深厚，净息差企稳回升，2026 Q1 ROE 14.2% 居A股银行首位。资产质量改善，拨备覆盖率455%安全垫充足。',
+          catalysts:['北向资金连续5日净买入，合计3.2亿元','分红率提升至35%，股息收益率4.1%','Q1营收同比超预期2.3%，净利润增速回正'],
+          risks:['地产敞口若二次减值，拨备压力上升','净息差仍受存款利率传导压制'],
+          target:'40.0元', current:'34.2元', upside:'+17%',
+          action:'分批建仓，目标价40元，36元下方积极加仓，止损31元。' }},
+      { tag:'buy', name:'中国平安', code:'601318', note:'寿险NBV +23%',
+        report:{ logic:'寿险改革成效显现，新业务价值同比增长23%。港股资产端反弹直接受益，科技子板块分拆预期升温。',
+          catalysts:['NBV增速连续3季加快，代理人产能大幅提升','科技板块独立上市预期升温，隐蔽资产重估','股息率4.8%提供安全垫'],
+          risks:['长端利率下行压制准备金释放','权益市场大幅波动影响投资收益'],
+          target:'55.0元', current:'46.8元', upside:'+17%',
+          action:'低吸建仓，55元为第一目标，止损42元破位离场。' }},
+      { tag:'buy', name:'工商银行', code:'601398', note:'股息率6.2%',
+        report:{ logic:'国有大行政策性地位叠加特别国债注资提升资本充足率。6.2%股息率为当前市场最高之一，安全垫厚实，适合底仓配置。',
+          catalysts:['特别国债注资进程推进，资本补充超预期','政策性贷款投放加速，规模稳步扩张','A/H股溢价收窄，港股联动效应'],
+          risks:['盈利弹性有限，增速慢于股份行','净息差压力在大行中相对更大'],
+          target:'6.5元', current:'5.8元', upside:'+12%',
+          action:'底仓配置，等待突破5.9元后趋势确认再加仓。' }},
     ]},
-  { name:'新能源车',  x: 0.20,  y: 0.22,  dx: 0.06,  dy: 0.08,  vol:1.3, ret5d: 3.2,  color:'#3fb950',
-    inst:'持续加仓', retail:'同步跟进',
-    insight:'新能源车进入机构+散户双向共振区间，已踏入光里。出口数据超预期叠加二季度交付旺季，中短期动能仍在。',
+
+  { name:'新能源车', x:0.20, y:0.22, dx:0.06, dy:0.08, vol:1.3, ret5d:3.2, color:'#3fb950', mode:'buy',
+    summary:'机构+散户双向共振，主升浪进行中。5月交付数据超预期，出口加速渗透欧洲，中短期动能仍强。',
     picks:[
-      { tag:'buy',  name:'比亚迪 002594',  note:'5月交付再创新高' },
-      { tag:'buy',  name:'赛力斯 601127',  note:'华为赋能订单饱满' },
-      { tag:'hold', name:'天齐锂业 002466', note:'锂价反弹尚未确认' },
+      { tag:'buy', name:'比亚迪', code:'002594', note:'5月交付42万辆创新高',
+        report:{ logic:'5月销量再创历史新高42万辆，海外出口同比增180%。第五代DM技术领先同业2年，垂直整合体系构筑护城河，成本优势持续扩大。',
+          catalysts:['匈牙利工厂2026 Q3投产，打开欧洲本地化生产','第五代DM混动系统节油率再创行业纪录','海外销量占比提升至18%，溢价能力增强'],
+          risks:['欧盟关税升级风险，若税率提至50%影响出口利润','国内价格战或在下半年再度激化'],
+          target:'340元', current:'295元', upside:'+15%',
+          action:'回调至280元支撑位分批加仓，目标340元，止损265元。' }},
+      { tag:'buy', name:'赛力斯', code:'601127', note:'问界M9连续8个月销冠',
+        report:{ logic:'问界M9连续8个月占据50万+价格段销冠，华为技术赋能构筑强大品牌壁垒，客户复购率远超行业平均。',
+          catalysts:['问界M8新车型预期Q3发布，拓展价格段','鸿蒙智行生态用户突破800万','Q2交付指引上调15%，超预期概率高'],
+          risks:['华为合作依赖度高，技术授权单一风险','产能爬坡速度若滞后影响交付'],
+          target:'85元', current:'71元', upside:'+20%',
+          action:'持有，等突破75元形态确认后加仓，止损63元。' }},
+      { tag:'buy', name:'天齐锂业', code:'002466', note:'锂价触底信号初现',
+        report:{ logic:'锂价在4万元/吨附近触底企稳信号初现，全球新能源需求长期确定性高。资源端布局完善，弹性品种首选。',
+          catalysts:['智利锂矿国有化进展缓和，资源端扰动减少','全球锂需求2026 H2有望超预期回升','大量同业减产，行业出清加速'],
+          risks:['锂价反弹尚未确认，底部不确定','盈利在锂价低位仍承压'],
+          target:'30元', current:'24元', upside:'+25%',
+          action:'小仓位试探建仓，确认锂价反转信号后加仓，止损20元。' }},
     ]},
-  { name:'AI算力',   x:-0.16,  y: 0.32,  dx: 0.00,  dy: 0.15,  vol:1.5, ret5d: 7.8,  color:'#f0883e',
-    inst:'强势建仓', retail:'还未跟上',
-    insight:'AI算力是本周最强机构布局方向，散户热度仍低——这正是踏进光里的最佳信号。光模块、服务器板块北向资金连日大幅净流入。',
+
+  // ── TL: 踏进光里 ──
+  { name:'AI算力', x:-0.16, y:0.32, dx:0.00, dy:0.15, vol:1.5, ret5d:7.8, color:'#f0883e', mode:'buy',
+    summary:'本周最强机构布局方向，散户热度仍低。这正是踏进光里的最佳信号——机构悄悄进场，散户还没跟上。',
     picks:[
-      { tag:'buy',  name:'中际旭创 300308', note:'光模块龙头 RSI 78' },
-      { tag:'buy',  name:'寒武纪 688256',   note:'国产算力政策受益' },
-      { tag:'hold', name:'华为概念指数ETF', note:'等回调再加' },
+      { tag:'buy', name:'中际旭创', code:'300308', note:'800G光模块放量出货',
+        report:{ logic:'全球光模块龙头，800G产品已规模出货至NVIDIA和微软数据中心，订单能见度超12个月。1.6T模块研发进度领先竞争对手6个月。',
+          catalysts:['1.6T光模块量产时间领先竞品半年以上','全球AI数据中心资本开支2026年同比+60%','北向资金连续3周净流入，配置盘建仓'],
+          risks:['RSI 78接近超买区间，短线回调压力','若美国科技股大幅调整，产业链情绪传导'],
+          target:'130元', current:'108元', upside:'+20%',
+          action:'逢回调至100元附近加仓，当前轻仓持有，止损92元。' }},
+      { tag:'buy', name:'寒武纪', code:'688256', note:'政府算力采购加速',
+        report:{ logic:'国内AI芯片政策受益首选，政府+科研机构算力采购订单Q2加速落地。思元590芯片推理性能升级，国产替代空间广阔。',
+          catalysts:['政府AI基础设施专项资金落地，订单超预期','思元590芯片推理性能提升40%','AI政务+医疗+教育场景采购需求明确'],
+          risks:['商业化盈利可见度仍低，估值依赖预期','与海外芯片在训练场景差距仍明显'],
+          target:'350元', current:'290元', upside:'+21%',
+          action:'分批建仓，严格止损260元，仓位不超过总仓15%。' }},
+      { tag:'buy', name:'工业富联', code:'601138', note:'AI服务器收入占比提升',
+        report:{ logic:'全球最大AI服务器代工厂，2026年AI服务器收入占比有望达45%。与NVIDIA深度绑定，GB200超级机柜独家组装。',
+          catalysts:['GB200超级机柜独家组装，订单能见度至2027 Q1','AI服务器毛利率15%，高于传统5pct','自研液冷散热技术，迎接高密度算力需求'],
+          risks:['地缘政治风险影响台湾供应链预期','大客户集中度高，单一客户占比超40%'],
+          target:'28元', current:'23元', upside:'+22%',
+          action:'低吸建仓，目标28元，止损20元下方离场。' }},
     ]},
-  { name:'消费白酒',  x:-0.12,  y: 0.16,  dx:-0.02,  dy: 0.07,  vol:1.0, ret5d: 1.8,  color:'#e3b341',
-    inst:'小幅加仓', retail:'低热度',
-    insight:'消费白酒机构悄悄布局中，散户关注度仍低。茅台二季报预期改善，估值经历半年修复回到历史低位区间。',
+
+  { name:'消费白酒', x:-0.12, y:0.16, dx:-0.02, dy:0.07, vol:1.0, ret5d:1.8, color:'#e3b341', mode:'buy',
+    summary:'机构悄悄低吸，散户关注度仍低。估值经历半年消化回到历史合理区间，是别人还在观望时踏进光里的时机。',
     picks:[
-      { tag:'buy',  name:'贵州茅台 600519', note:'机构席位低位吸筹' },
-      { tag:'hold', name:'五粮液 000858',   note:'端午节前观察动销' },
-      { tag:'hold', name:'泸州老窖 000568', note:'次高端承压，等信号' },
+      { tag:'buy', name:'贵州茅台', code:'600519', note:'机构席位低位持续吸筹',
+        report:{ logic:'机构席位在2000元区间持续低吸，龙虎榜买方席位近3周均为机构。批价稳定在2650元以上，渠道库存处于健康水位。',
+          catalysts:['批价稳定回升，渠道补库需求启动','私人宴请+商务需求季节性修复','国际化进程加速，海外免税渠道拓展'],
+          risks:['宏观消费降级压力持续','政商消费政策若收紧直接影响需求'],
+          target:'2300元', current:'1950元', upside:'+18%',
+          action:'分批建仓，目标2300元，每下跌5%补仓一次，止损1700元。' }},
+      { tag:'buy', name:'五粮液', code:'000858', note:'端午节前动销回暖预期',
+        report:{ logic:'高端次高端定位稳固，品牌力仅次于茅台。端午节旺季临近，动销数据有望边际改善，渠道价格持稳，估值低于茅台。',
+          catalysts:['端午节+618旺季催化，动销回暖预期','渠道库存去化完成，价格企稳','PE 18x历史低位，估值安全边际充足'],
+          risks:['次高端价格段竞争加剧','若终端动销低于预期，价格承压'],
+          target:'170元', current:'143元', upside:'+19%',
+          action:'低吸建仓，端午节前观察动销，数据超预期则加仓。' }},
+      { tag:'buy', name:'山西汾酒', code:'600809', note:'全国化提速',
+        report:{ logic:'全国化进程持续提速，华东华南市场份额扩张。青花汾20年系列升级成功，价格带上移至600-800元，品牌升维效果明显。',
+          catalysts:['全国化网络从18省拓展至28省','青花20年终端成交价持续提升','北向资金加仓，外资看好白酒复苏'],
+          risks:['全国化费用投入增加，短期压利润','次高端竞争格局未明显改善'],
+          target:'220元', current:'185元', upside:'+19%',
+          action:'看好全国化逻辑，分批建仓，止损165元。' }},
     ]},
-  { name:'创新药',    x:-0.08,  y: 0.12,  dx:-0.02,  dy: 0.05,  vol:0.9, ret5d: 0.9,  color:'#bc8cff',
-    inst:'试探建仓', retail:'低热度',
-    insight:'创新药机构开始试探性建仓，BD出海催化剂持续。港股18A企业已有资金提前布局，但整体情绪尚未打开。',
+
+  { name:'创新药', x:-0.08, y:0.12, dx:-0.02, dy:0.05, vol:0.9, ret5d:0.9, color:'#bc8cff', mode:'buy',
+    summary:'BD出海催化剂持续兑现，机构开始试探性建仓。港股18A聪明钱提前布局，从光外踏进光里的早期信号。',
     picks:[
-      { tag:'buy',  name:'恒瑞医药 600276', note:'创新管线多点开花' },
-      { tag:'hold', name:'百济神州 688235', note:'等Q2数据催化' },
-      { tag:'hold', name:'药明康德 603259', note:'地缘风险仍存' },
+      { tag:'buy', name:'恒瑞医药', code:'600276', note:'创新管线多点开花',
+        report:{ logic:'创新药管线丰富度A股最佳，海外BD交易持续落地。GLP-1、ADC、PD-1三大赛道均有重磅品种，2026年有望迎来集中兑现年。',
+          catalysts:['2026年预计5个以上创新品种获批上市','海外授权交易首付款+里程碑超20亿美元','ADC产品在美临床三期进展顺利'],
+          risks:['医保价格谈判降价压力仍存','仿制药集采对存量收入持续侵蚀'],
+          target:'48元', current:'38元', upside:'+26%',
+          action:'看好创新周期，分批买入，止损33元。' }},
+      { tag:'buy', name:'百济神州', code:'688235', note:'泽布替尼海外销售加速',
+        report:{ logic:'泽布替尼全球BTK抑制剂市场份额快速提升，美国季度销售额突破3亿美元。2026年有望实现全年盈利，质变临近。',
+          catalysts:['泽布替尼2026年美国市场份额有望超25%','TIGIT+PD-1联合疗法多适应症推进','国内医保扩大适应症，放量超预期'],
+          risks:['研发费用仍高，盈利时间点不确定','与阿斯利康竞争BTK市场可能价格战'],
+          target:'185港元', current:'151港元', upside:'+22%',
+          action:'等Q2销售数据催化，超预期后加仓，止损130港元。' }},
+      { tag:'buy', name:'药明生物', code:'02269.HK', note:'订单能见度改善',
+        report:{ logic:'全球CRDMO龙头，客户订单能见度已改善至2027年。地缘风险已基本定价，估值处于历史底部，向上修复空间大。',
+          catalysts:['新签订单同比增速回正，能见度提升','ADC CRDMO全球市占率第一','估值13x EV/EBITDA，历史低位区域'],
+          risks:['美国生物安全法案若升级影响在美业务','客户管线失败率导致订单波动'],
+          target:'18港元', current:'14港元', upside:'+29%',
+          action:'低吸建仓，目标18港元，止损11.5港元。' }},
     ]},
-  { name:'半导体',    x: 0.34,  y:-0.10,  dx: 0.13,  dy:-0.06,  vol:1.4, ret5d: 4.5,  color:'#58a6ff',
-    inst:'强势买入', retail:'高热度',
-    insight:'半导体机构资金强势，但价格动量开始走弱——国产替代主线机构持有，RSI已达82.9超买区间，短线需警惕获利盘回吐。',
+
+  // ── BR: 别光站在那里 ──
+  { name:'半导体', x:0.34, y:-0.10, dx:0.13, dy:-0.06, vol:1.4, ret5d:4.5, color:'#58a6ff', mode:'warn',
+    warnText:'机构仍在持仓，但价格动量已走弱，RSI 82.9 处于超买警戒线以上。散户追高情绪浓厚——这正是"别光站在那里"的危险信号。短线追高需谨慎。',
     picks:[
-      { tag:'hold', name:'中芯国际 688981', note:'RSI 82.9 超买警戒' },
-      { tag:'hold', name:'北方华创 002371', note:'设备龙头，等回调' },
-      { tag:'sell', name:'澜起科技 688008', note:'短线超涨15%，减仓' },
+      { name:'中芯国际', code:'688981', reason:'RSI 82.9 历史超买区间，短线回调压力大。机构持仓已高，上方空间有限，等待回调至合理价位再考虑。' },
+      { name:'澜起科技', code:'688008', reason:'短线超涨15%，换手率异常放大，游资炒作特征明显。龙虎榜出现大量卖方席位，警惕次日低开高走陷阱。' },
+      { name:'北方华创', code:'002371', reason:'基本面扎实但短期估值偏高，PE已达75x。机构高位减仓信号出现，等回调至合理估值再入场。' },
     ]},
-  { name:'电力设备',  x: 0.14,  y:-0.17,  dx: 0.06,  dy:-0.09,  vol:0.9, ret5d: 2.1,  color:'#56d364',
-    inst:'温和买入', retail:'跟进中',
-    insight:'电力设备机构买入，但价格动量偏弱，处于"别光站在那里"边缘。特高压+储能订单落地，中期逻辑仍在，等待价格修复。',
+
+  { name:'电力设备', x:0.14, y:-0.17, dx:0.06, dy:-0.09, vol:0.9, ret5d:2.1, color:'#56d364', mode:'warn',
+    warnText:'机构有一定买入但价格动量偏弱，处于"别光站在那里"区间。特高压逻辑长期成立，但短期催化不足，现在跟进风险大于机会。',
     picks:[
-      { tag:'hold', name:'特变电工 600089', note:'特高压订单饱满' },
-      { tag:'hold', name:'阳光电源 300274', note:'储能出海进度跟踪' },
-      { tag:'buy',  name:'南网科技 688248', note:'低估值，机构新进' },
+      { name:'特变电工', code:'600089', reason:'订单饱满是事实，但当前估值已充分反映。近期主力资金出货特征明显，散户在相对高位接盘风险较大。' },
+      { name:'阳光电源', code:'300274', reason:'海外储能出货节奏低于预期，汇率波动压缩海外利润。消息面不支持短线追涨，等数据兑现再说。' },
+      { name:'东方电气', code:'600875', reason:'股价已提前透支2026年业绩预期，机构持仓成本明显低于当前价，上涨动力不足。' },
     ]},
-  { name:'光伏储能',  x:-0.20,  y:-0.22,  dx:-0.09,  dy:-0.09,  vol:0.7, ret5d:-1.2,  color:'#ffa657',
-    inst:'减仓离场', retail:'持续流出',
-    insight:'光伏储能双向撤退中，机构连续减仓，散户情绪低迷。产能过剩+组件价格继续寻底，暂无明显反转信号，避开为上。',
-    picks:[
-      { tag:'sell', name:'隆基绿能 601012', note:'产能过剩，等底部' },
-      { tag:'sell', name:'通威股份 600438', note:'硅料价格持续下行' },
-      { tag:'hold', name:'固德威 688390',   note:'海外储能仍有需求' },
-    ]},
-  { name:'传媒互联网',x:-0.14,  y:-0.27,  dx:-0.06,  dy:-0.11,  vol:0.6, ret5d:-2.9,  color:'#ff7b6b',
-    inst:'持续撤退', retail:'快速流出',
-    insight:'传媒互联网资金双向撤离，已陷入"光着站在那里"的真空区。游戏版号与广告需求边际改善有限，缺乏催化剂。',
-    picks:[
-      { tag:'sell', name:'腾讯音乐 1698.HK', note:'流量见顶，降级' },
-      { tag:'sell', name:'芒果超媒 300413',   note:'广告复苏不及预期' },
-      { tag:'hold', name:'中文在线 300364',   note:'AIGC概念保留仓位' },
-    ]},
-  { name:'地产链',    x:-0.08,  y:-0.33,  dx:-0.02,  dy:-0.09,  vol:0.5, ret5d:-3.5,  color:'#f85149',
-    inst:'坚定减仓', retail:'恐慌流出',
-    insight:'地产链是本周最弱板块，机构坚定减仓，散户恐慌性流出。政策底已现但需求底未至，此时勇接飞刀风险极高。',
-    picks:[
-      { tag:'sell', name:'万科 000002',   note:'流动性压力未解除' },
-      { tag:'sell', name:'保利发展 600048', note:'机构席位净减持' },
-      { tag:'hold', name:'招商蛇口 001979', note:'央企唯一保留仓' },
-    ]},
+
+  // ── BL: 光着站在那里 ──
+  { name:'光伏储能', x:-0.20, y:-0.22, dx:-0.09, dy:-0.09, vol:0.7, ret5d:-1.2, color:'#ffa657', mode:'comfort',
+    comfortText:'这里暂时没有光。\n\n产能过剩的寒冬需要时间消化，机构和散户都在撤退，现在接刀是高风险动作。不要因为"跌了很多"就认为便宜——便宜的可以更便宜。\n\n把目光转向光在的地方，等这里的拐点信号真正出现再说。',
+    redirects:['AI算力','大金融','新能源车'] },
+  { name:'传媒互联网', x:-0.14, y:-0.27, dx:-0.06, dy:-0.11, vol:0.6, ret5d:-2.9, color:'#ff7b6b', mode:'comfort',
+    comfortText:'这里的光已经熄了一段时间了。\n\n流量红利见顶、广告需求疲软、版号政策不明朗，机构和散户都在用脚投票。与其在黑暗里等待，不如先去光在的地方站站。\n\n等这里重新出现机构净流入的信号，再考虑回来。',
+    redirects:['AI算力','消费白酒','新能源车'] },
+  { name:'地产链', x:-0.08, y:-0.33, dx:-0.02, dy:-0.09, vol:0.5, ret5d:-3.5, color:'#f85149', mode:'comfort',
+    comfortText:'本周最弱的地方。\n\n政策底已现，但需求底还没有。机构坚定减仓，散户在恐惧中流出。这种时候接刀，需要极强的心理承受能力和充足的时间成本。\n\n不是不会好，是现在还没到时候。先去看看光在哪里，等这里重新有机构建仓的信号再说。',
+    redirects:['大金融','AI算力','创新药'] },
 ];
 
 const VB = { l:96, r:864, t:48, b:604 };
@@ -934,61 +1159,163 @@ SECTORS.forEach(s => {
 // ══════════════════════════════════════
 // MODAL
 // ══════════════════════════════════════
-function getZone(s) {
-  if (s.x >= 0 && s.y >= 0) return { label:'站在光里', cls:'pill-gold' };
-  if (s.x < 0  && s.y >= 0) return { label:'踏进光里', cls:'pill-blue' };
-  if (s.x >= 0 && s.y < 0)  return { label:'别光站在那里', cls:'pill-red' };
-  return { label:'光着站在那里', cls:'pill-dark' };
+const ZONE_STYLES = {
+  buy_tr:  { label:'站在光里',    color:'#e3b341', bg:'#e3b34118', border:'#e3b34150' },
+  buy_tl:  { label:'踏进光里',    color:'#4c9ef0', bg:'#4c9ef018', border:'#4c9ef050' },
+  warn:    { label:'别光站在那里', color:'#f85149', bg:'#f8514918', border:'#f8514950' },
+  comfort: { label:'光着站在那里', color:'#44596a', bg:'#44596a18', border:'#44596a50' },
+};
+
+function getZoneKey(s) {
+  if (s.mode === 'warn')    return 'warn';
+  if (s.mode === 'comfort') return 'comfort';
+  return (s.x >= 0) ? 'buy_tr' : 'buy_tl';
+}
+
+function setModalHeader(s) {
+  const zk = getZoneKey(s);
+  const zs = ZONE_STYLES[zk];
+  document.getElementById('m-name').textContent = s.name;
+  document.getElementById('m-name').style.color = s.color;
+  const badge = document.getElementById('m-zone');
+  badge.textContent = zs.label;
+  badge.style.cssText = `color:${zs.color};background:${zs.bg};border:1px solid ${zs.border}`;
+}
+
+function showView(mode) {
+  ['m-buy','m-warn','m-comfort'].forEach(id =>
+    document.getElementById(id).style.display = 'none');
+  document.getElementById('m-' + mode).style.display = '';
+  document.getElementById('report-view').classList.remove('open');
 }
 
 function openModal(s) {
-  const zone = getZone(s);
-  document.getElementById('m-name').textContent  = s.name;
-  document.getElementById('m-name').style.color  = s.color;
-
-  const zoneEl = document.getElementById('m-zone');
-  zoneEl.textContent = zone.label;
-  zoneEl.className = 'modal-zone';
-  // inline style based on zone
-  const zoneStyles = {
-    'pill-gold': { color:'#e3b341', border:'1px solid #e3b34150', background:'#e3b34118' },
-    'pill-blue': { color:'#4c9ef0', border:'1px solid #4c9ef050', background:'#4c9ef018' },
-    'pill-red':  { color:'#f85149', border:'1px solid #f8514950', background:'#f8514918' },
-    'pill-dark': { color:'#44596a', border:'1px solid #44596a50', background:'#44596a18' },
-  };
-  Object.assign(zoneEl.style, zoneStyles[zone.cls]);
-
-  const retEl = document.getElementById('m-ret');
-  retEl.textContent = (s.ret5d >= 0 ? '+' : '') + s.ret5d + '%';
-  retEl.style.color = s.ret5d >= 0 ? '#3fb950' : '#f85149';
-
-  document.getElementById('m-inst').textContent   = s.inst;
-  document.getElementById('m-inst').style.color   = s.color;
-  document.getElementById('m-retail').textContent = s.retail;
-  document.getElementById('m-retail').style.color = '#9ca3af';
-
-  document.getElementById('m-insight').textContent = s.insight;
-
-  const picksEl = document.getElementById('m-picks');
-  picksEl.innerHTML = '';
-  s.picks.forEach(p => {
-    const row = document.createElement('div');
-    row.className = 'pick-row';
-    const tagCls = p.tag === 'buy' ? 'tag-buy' : p.tag === 'sell' ? 'tag-sell' : 'tag-hold';
-    const tagTxt = p.tag === 'buy' ? '推荐' : p.tag === 'sell' ? '避雷' : '持有';
-    row.innerHTML = `
-      <span class="pick-tag ${tagCls}">${tagTxt}</span>
-      <span class="pick-name">${p.name}</span>
-      <span class="pick-note">${p.note}</span>`;
-    picksEl.appendChild(row);
-  });
-
+  setModalHeader(s);
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  document.getElementById('modal-box').scrollTop = 0;
+
+  if (s.mode === 'buy') {
+    showView('buy');
+    document.getElementById('m-summary').textContent = s.summary;
+    const cards = document.getElementById('m-pick-cards');
+    cards.innerHTML = '';
+    s.picks.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'pick-card';
+      const tagTxt = p.tag === 'buy' ? '推荐' : '持有';
+      const tagCls = p.tag === 'buy' ? 'tag-buy' : 'tag-hold';
+      card.innerHTML = `
+        <div class="pick-card-left">
+          <span class="pick-card-tag ${tagCls}">${tagTxt}</span>
+          <div class="pick-card-name">${p.name} <span style="font-size:11px;font-weight:400;color:var(--dim)">${p.code}</span></div>
+          <div class="pick-card-note">${p.note}</div>
+        </div>
+        <span class="report-btn">深度报告 →</span>`;
+      card.querySelector('.report-btn').addEventListener('click', () => openReport(p, s.color));
+      cards.appendChild(card);
+    });
+
+  } else if (s.mode === 'warn') {
+    showView('warn');
+    document.getElementById('m-warn-banner').textContent = s.warnText;
+    const rows = document.getElementById('m-warn-rows');
+    rows.innerHTML = '';
+    s.picks.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'warn-row';
+      row.innerHTML = `
+        <span class="warn-tag">避雷</span>
+        <div class="warn-info">
+          <div class="warn-name">${p.name} <span style="font-size:11px;font-weight:400;color:var(--dim)">${p.code}</span></div>
+          <div class="warn-reason">${p.reason}</div>
+        </div>`;
+      rows.appendChild(row);
+    });
+
+  } else {
+    showView('comfort');
+    document.getElementById('m-comfort-text').textContent = s.comfortText;
+    const redir = document.getElementById('m-redirects');
+    redir.innerHTML = '';
+    s.redirects.forEach(name => {
+      const target = SECTORS.find(x => x.name === name);
+      if (!target) return;
+      const zk = getZoneKey(target);
+      const zs = ZONE_STYLES[zk];
+      const retTxt = (target.ret5d >= 0 ? '+' : '') + target.ret5d + '%';
+      const retClr = target.ret5d >= 0 ? '#3fb950' : '#f85149';
+      const card = document.createElement('div');
+      card.className = 'redirect-card';
+      card.innerHTML = `
+        <div class="rc-dot" style="background:${target.color}"></div>
+        <span class="rc-sector">${target.name}</span>
+        <span class="rc-zone" style="color:${zs.color}">${zs.label}</span>
+        <span class="rc-ret" style="color:${retClr}">${retTxt}</span>`;
+      card.addEventListener('click', () => openModal(target));
+      redir.appendChild(card);
+    });
+  }
+}
+
+function openReport(p, accentColor) {
+  const rv = document.getElementById('report-view');
+  rv.classList.add('open');
+  document.getElementById('modal-box').scrollTop = 0;
+
+  document.getElementById('r-name').textContent = p.name;
+  document.getElementById('r-name').style.color = accentColor;
+  document.getElementById('r-code').textContent = p.code;
+
+  const r = p.report;
+  const body = document.getElementById('r-body');
+  body.innerHTML = `
+    <div class="report-section">
+      <div class="report-section-label">核心逻辑</div>
+      <div class="report-logic">${r.logic}</div>
+    </div>
+    <div class="report-section">
+      <div class="report-section-label">关键催化剂</div>
+      <ul class="report-bullets bullets-green">
+        ${r.catalysts.map(c => `<li>${c}</li>`).join('')}
+      </ul>
+    </div>
+    <div class="report-section">
+      <div class="report-section-label">风险提示</div>
+      <ul class="report-bullets bullets-red">
+        ${r.risks.map(c => `<li>${c}</li>`).join('')}
+      </ul>
+    </div>
+    <div class="report-section">
+      <div class="report-section-label">目标价位</div>
+      <div class="report-bottom">
+        <div class="rbt-card">
+          <div class="rbt-label">目标价</div>
+          <div class="rbt-value" style="color:${accentColor}">${r.target}</div>
+        </div>
+        <div class="rbt-card">
+          <div class="rbt-label">当前价</div>
+          <div class="rbt-value">${r.current}</div>
+        </div>
+        <div class="rbt-card">
+          <div class="rbt-label">上行空间</div>
+          <div class="rbt-value" style="color:#3fb950">${r.upside}</div>
+        </div>
+      </div>
+    </div>
+    <div class="report-action">
+      <strong>操作建议</strong>&nbsp;&nbsp;${r.action}
+    </div>`;
+}
+
+function closeReport() {
+  document.getElementById('report-view').classList.remove('open');
+  document.getElementById('modal-box').scrollTop = 0;
 }
 
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
+  document.getElementById('report-view').classList.remove('open');
   document.body.style.overflow = '';
 }
 
