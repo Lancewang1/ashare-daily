@@ -363,6 +363,92 @@ body {
 }
 .tl-dash { animation: dash-pulse 2.8s ease-in-out infinite; }
 
+/* ══════════════════════════════════════
+   MODAL
+══════════════════════════════════════ */
+#modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000000cc;
+  z-index: 900;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+#modal-overlay.open { display: flex; }
+
+#modal-box {
+  background: #0b1624;
+  border: 1px solid var(--bdr);
+  border-radius: 16px;
+  width: min(480px, 92vw);
+  overflow: hidden;
+  cursor: default;
+  box-shadow: 0 24px 64px #00000088;
+  animation: modal-in 0.18s ease-out;
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--bdr);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.modal-name { font-size: 22px; font-weight: 900; }
+.modal-zone {
+  font-size: 11px; font-weight: 700;
+  padding: 4px 10px; border-radius: 20px; border: 1px solid;
+  letter-spacing: 0.06em; flex-shrink: 0; margin-top: 4px;
+}
+.modal-close {
+  color: var(--dim); font-size: 20px; cursor: pointer; line-height: 1;
+  flex-shrink: 0; padding: 2px 4px;
+}
+.modal-close:hover { color: var(--fg); }
+
+.modal-stats {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--bdr);
+}
+.modal-stat {
+  flex: 1; padding: 14px 18px; text-align: center;
+  border-right: 1px solid var(--bdr);
+}
+.modal-stat:last-child { border-right: none; }
+.ms-val { font-size: 20px; font-weight: 900; display: block; }
+.ms-lbl { font-size: 10px; color: var(--dim); margin-top: 2px; display: block; }
+
+.modal-body { padding: 16px 20px 20px; }
+.modal-insight {
+  font-size: 13px; color: var(--dim);
+  line-height: 1.7; margin-bottom: 16px;
+}
+
+.modal-picks { display: flex; flex-direction: column; gap: 8px; }
+.pick-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 8px;
+  background: #06101c; border: 1px solid var(--bdr);
+}
+.pick-tag {
+  font-size: 10px; font-weight: 700; padding: 2px 7px;
+  border-radius: 12px; flex-shrink: 0; letter-spacing: 0.04em;
+}
+.tag-buy  { background: #3fb95022; color: #3fb950; border: 1px solid #3fb95044; }
+.tag-sell { background: #f8514922; color: #f85149; border: 1px solid #f8514944; }
+.tag-hold { background: #9ca3af22; color: #9ca3af; border: 1px solid #9ca3af44; }
+.pick-name { font-size: 13px; font-weight: 700; color: var(--fg); }
+.pick-note { font-size: 11px; color: var(--dim); margin-left: auto; }
+
 /* Page footer */
 .page-ft {
   padding: 14px 32px;
@@ -619,21 +705,122 @@ body {
   &nbsp;·&nbsp; 数据：Wind · 龙虎榜 · 仅供参考，不构成投资建议 · © Asymmetric IM
 </div>
 
+<!-- MODAL -->
+<div id="modal-overlay" onclick="closeModal()">
+  <div id="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-name" id="m-name"></div>
+        <div style="margin-top:6px"><span class="modal-zone" id="m-zone"></span></div>
+      </div>
+      <span class="modal-close" onclick="closeModal()">✕</span>
+    </div>
+    <div class="modal-stats">
+      <div class="modal-stat">
+        <span class="ms-val" id="m-ret"></span>
+        <span class="ms-lbl">5日涨跌</span>
+      </div>
+      <div class="modal-stat">
+        <span class="ms-val" id="m-inst"></span>
+        <span class="ms-lbl">机构动向</span>
+      </div>
+      <div class="modal-stat">
+        <span class="ms-val" id="m-retail"></span>
+        <span class="ms-lbl">散户热度</span>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-insight" id="m-insight"></div>
+      <div class="modal-picks" id="m-picks"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════
 // CHART DATA
 // ══════════════════════════════════════
 const SECTORS = [
-  { name:'大金融',    x: 0.28,  y: 0.36,  dx: 0.09,  dy: 0.13,  vol:1.8, ret5d: 1.2,  color:'#4c9ef0' },
-  { name:'新能源车',  x: 0.20,  y: 0.22,  dx: 0.06,  dy: 0.08,  vol:1.3, ret5d: 3.2,  color:'#3fb950' },
-  { name:'AI算力',   x:-0.16,  y: 0.32,  dx: 0.00,  dy: 0.15,  vol:1.5, ret5d: 7.8,  color:'#f0883e' },
-  { name:'消费白酒',  x:-0.12,  y: 0.16,  dx:-0.02,  dy: 0.07,  vol:1.0, ret5d: 1.8,  color:'#e3b341' },
-  { name:'创新药',    x:-0.08,  y: 0.12,  dx:-0.02,  dy: 0.05,  vol:0.9, ret5d: 0.9,  color:'#bc8cff' },
-  { name:'半导体',    x: 0.34,  y:-0.10,  dx: 0.13,  dy:-0.06,  vol:1.4, ret5d: 4.5,  color:'#58a6ff' },
-  { name:'电力设备',  x: 0.14,  y:-0.17,  dx: 0.06,  dy:-0.09,  vol:0.9, ret5d: 2.1,  color:'#56d364' },
-  { name:'光伏储能',  x:-0.20,  y:-0.22,  dx:-0.09,  dy:-0.09,  vol:0.7, ret5d:-1.2,  color:'#ffa657' },
-  { name:'传媒互联网',x:-0.14,  y:-0.27,  dx:-0.06,  dy:-0.11,  vol:0.6, ret5d:-2.9,  color:'#ff7b6b' },
-  { name:'地产链',    x:-0.08,  y:-0.33,  dx:-0.02,  dy:-0.09,  vol:0.5, ret5d:-3.5,  color:'#f85149' },
+  { name:'大金融',    x: 0.28,  y: 0.36,  dx: 0.09,  dy: 0.13,  vol:1.8, ret5d: 1.2,  color:'#4c9ef0',
+    inst:'加速买入', retail:'温和跟进',
+    insight:'大金融稳步向主升浪移动，北向连续5日净流入。银行+保险机构席位占比上升，散户尚未大规模追入，仍有布局空间。',
+    picks:[
+      { tag:'buy',  name:'招商银行 600036', note:'北向连买3日 +2.1%' },
+      { tag:'buy',  name:'中国平安 601318', note:'估值底部+股息4.8%' },
+      { tag:'hold', name:'工商银行 601398', note:'持有观察，等突破' },
+    ]},
+  { name:'新能源车',  x: 0.20,  y: 0.22,  dx: 0.06,  dy: 0.08,  vol:1.3, ret5d: 3.2,  color:'#3fb950',
+    inst:'持续加仓', retail:'同步跟进',
+    insight:'新能源车进入机构+散户双向共振区间，已踏入光里。出口数据超预期叠加二季度交付旺季，中短期动能仍在。',
+    picks:[
+      { tag:'buy',  name:'比亚迪 002594',  note:'5月交付再创新高' },
+      { tag:'buy',  name:'赛力斯 601127',  note:'华为赋能订单饱满' },
+      { tag:'hold', name:'天齐锂业 002466', note:'锂价反弹尚未确认' },
+    ]},
+  { name:'AI算力',   x:-0.16,  y: 0.32,  dx: 0.00,  dy: 0.15,  vol:1.5, ret5d: 7.8,  color:'#f0883e',
+    inst:'强势建仓', retail:'还未跟上',
+    insight:'AI算力是本周最强机构布局方向，散户热度仍低——这正是踏进光里的最佳信号。光模块、服务器板块北向资金连日大幅净流入。',
+    picks:[
+      { tag:'buy',  name:'中际旭创 300308', note:'光模块龙头 RSI 78' },
+      { tag:'buy',  name:'寒武纪 688256',   note:'国产算力政策受益' },
+      { tag:'hold', name:'华为概念指数ETF', note:'等回调再加' },
+    ]},
+  { name:'消费白酒',  x:-0.12,  y: 0.16,  dx:-0.02,  dy: 0.07,  vol:1.0, ret5d: 1.8,  color:'#e3b341',
+    inst:'小幅加仓', retail:'低热度',
+    insight:'消费白酒机构悄悄布局中，散户关注度仍低。茅台二季报预期改善，估值经历半年修复回到历史低位区间。',
+    picks:[
+      { tag:'buy',  name:'贵州茅台 600519', note:'机构席位低位吸筹' },
+      { tag:'hold', name:'五粮液 000858',   note:'端午节前观察动销' },
+      { tag:'hold', name:'泸州老窖 000568', note:'次高端承压，等信号' },
+    ]},
+  { name:'创新药',    x:-0.08,  y: 0.12,  dx:-0.02,  dy: 0.05,  vol:0.9, ret5d: 0.9,  color:'#bc8cff',
+    inst:'试探建仓', retail:'低热度',
+    insight:'创新药机构开始试探性建仓，BD出海催化剂持续。港股18A企业已有资金提前布局，但整体情绪尚未打开。',
+    picks:[
+      { tag:'buy',  name:'恒瑞医药 600276', note:'创新管线多点开花' },
+      { tag:'hold', name:'百济神州 688235', note:'等Q2数据催化' },
+      { tag:'hold', name:'药明康德 603259', note:'地缘风险仍存' },
+    ]},
+  { name:'半导体',    x: 0.34,  y:-0.10,  dx: 0.13,  dy:-0.06,  vol:1.4, ret5d: 4.5,  color:'#58a6ff',
+    inst:'强势买入', retail:'高热度',
+    insight:'半导体机构资金强势，但价格动量开始走弱——国产替代主线机构持有，RSI已达82.9超买区间，短线需警惕获利盘回吐。',
+    picks:[
+      { tag:'hold', name:'中芯国际 688981', note:'RSI 82.9 超买警戒' },
+      { tag:'hold', name:'北方华创 002371', note:'设备龙头，等回调' },
+      { tag:'sell', name:'澜起科技 688008', note:'短线超涨15%，减仓' },
+    ]},
+  { name:'电力设备',  x: 0.14,  y:-0.17,  dx: 0.06,  dy:-0.09,  vol:0.9, ret5d: 2.1,  color:'#56d364',
+    inst:'温和买入', retail:'跟进中',
+    insight:'电力设备机构买入，但价格动量偏弱，处于"别光站在那里"边缘。特高压+储能订单落地，中期逻辑仍在，等待价格修复。',
+    picks:[
+      { tag:'hold', name:'特变电工 600089', note:'特高压订单饱满' },
+      { tag:'hold', name:'阳光电源 300274', note:'储能出海进度跟踪' },
+      { tag:'buy',  name:'南网科技 688248', note:'低估值，机构新进' },
+    ]},
+  { name:'光伏储能',  x:-0.20,  y:-0.22,  dx:-0.09,  dy:-0.09,  vol:0.7, ret5d:-1.2,  color:'#ffa657',
+    inst:'减仓离场', retail:'持续流出',
+    insight:'光伏储能双向撤退中，机构连续减仓，散户情绪低迷。产能过剩+组件价格继续寻底，暂无明显反转信号，避开为上。',
+    picks:[
+      { tag:'sell', name:'隆基绿能 601012', note:'产能过剩，等底部' },
+      { tag:'sell', name:'通威股份 600438', note:'硅料价格持续下行' },
+      { tag:'hold', name:'固德威 688390',   note:'海外储能仍有需求' },
+    ]},
+  { name:'传媒互联网',x:-0.14,  y:-0.27,  dx:-0.06,  dy:-0.11,  vol:0.6, ret5d:-2.9,  color:'#ff7b6b',
+    inst:'持续撤退', retail:'快速流出',
+    insight:'传媒互联网资金双向撤离，已陷入"光着站在那里"的真空区。游戏版号与广告需求边际改善有限，缺乏催化剂。',
+    picks:[
+      { tag:'sell', name:'腾讯音乐 1698.HK', note:'流量见顶，降级' },
+      { tag:'sell', name:'芒果超媒 300413',   note:'广告复苏不及预期' },
+      { tag:'hold', name:'中文在线 300364',   note:'AIGC概念保留仓位' },
+    ]},
+  { name:'地产链',    x:-0.08,  y:-0.33,  dx:-0.02,  dy:-0.09,  vol:0.5, ret5d:-3.5,  color:'#f85149',
+    inst:'坚定减仓', retail:'恐慌流出',
+    insight:'地产链是本周最弱板块，机构坚定减仓，散户恐慌性流出。政策底已现但需求底未至，此时勇接飞刀风险极高。',
+    picks:[
+      { tag:'sell', name:'万科 000002',   note:'流动性压力未解除' },
+      { tag:'sell', name:'保利发展 600048', note:'机构席位净减持' },
+      { tag:'hold', name:'招商蛇口 001979', note:'央企唯一保留仓' },
+    ]},
 ];
 
 const VB = { l:96, r:864, t:48, b:604 };
@@ -729,6 +916,9 @@ SECTORS.forEach((s, i) => {
   rt.textContent = (s.ret5d >= 0 ? '+' : '') + s.ret5d + '%';
   g.appendChild(rt);
 
+  // Click handler
+  g.style.cursor = 'pointer';
+  g.addEventListener('click', () => openModal(s));
   layer.appendChild(g);
 });
 
@@ -740,6 +930,69 @@ SECTORS.forEach(s => {
   d.innerHTML = `<div class="leg-dot" style="background:${s.color}"></div>${s.name}`;
   legEl.appendChild(d);
 });
+
+// ══════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════
+function getZone(s) {
+  if (s.x >= 0 && s.y >= 0) return { label:'站在光里', cls:'pill-gold' };
+  if (s.x < 0  && s.y >= 0) return { label:'踏进光里', cls:'pill-blue' };
+  if (s.x >= 0 && s.y < 0)  return { label:'别光站在那里', cls:'pill-red' };
+  return { label:'光着站在那里', cls:'pill-dark' };
+}
+
+function openModal(s) {
+  const zone = getZone(s);
+  document.getElementById('m-name').textContent  = s.name;
+  document.getElementById('m-name').style.color  = s.color;
+
+  const zoneEl = document.getElementById('m-zone');
+  zoneEl.textContent = zone.label;
+  zoneEl.className = 'modal-zone';
+  // inline style based on zone
+  const zoneStyles = {
+    'pill-gold': { color:'#e3b341', border:'1px solid #e3b34150', background:'#e3b34118' },
+    'pill-blue': { color:'#4c9ef0', border:'1px solid #4c9ef050', background:'#4c9ef018' },
+    'pill-red':  { color:'#f85149', border:'1px solid #f8514950', background:'#f8514918' },
+    'pill-dark': { color:'#44596a', border:'1px solid #44596a50', background:'#44596a18' },
+  };
+  Object.assign(zoneEl.style, zoneStyles[zone.cls]);
+
+  const retEl = document.getElementById('m-ret');
+  retEl.textContent = (s.ret5d >= 0 ? '+' : '') + s.ret5d + '%';
+  retEl.style.color = s.ret5d >= 0 ? '#3fb950' : '#f85149';
+
+  document.getElementById('m-inst').textContent   = s.inst;
+  document.getElementById('m-inst').style.color   = s.color;
+  document.getElementById('m-retail').textContent = s.retail;
+  document.getElementById('m-retail').style.color = '#9ca3af';
+
+  document.getElementById('m-insight').textContent = s.insight;
+
+  const picksEl = document.getElementById('m-picks');
+  picksEl.innerHTML = '';
+  s.picks.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'pick-row';
+    const tagCls = p.tag === 'buy' ? 'tag-buy' : p.tag === 'sell' ? 'tag-sell' : 'tag-hold';
+    const tagTxt = p.tag === 'buy' ? '推荐' : p.tag === 'sell' ? '避雷' : '持有';
+    row.innerHTML = `
+      <span class="pick-tag ${tagCls}">${tagTxt}</span>
+      <span class="pick-name">${p.name}</span>
+      <span class="pick-note">${p.note}</span>`;
+    picksEl.appendChild(row);
+  });
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 // ══════════════════════════════════════
 // GAUGE SVG
