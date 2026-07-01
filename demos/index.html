@@ -246,13 +246,14 @@
 <!-- HEADER -->
 <div class="header">
   <div class="header-tag">Product Demo · 2026-05-20</div>
-  <h1>散户<span>智兵器</span>三件套</h1>
-  <p>基于垂类金融模型 + 真实 A 股数据，三款概念产品 Demo。<br>
+  <h1>散户<span>智兵器</span>四件套</h1>
+  <p>基于垂类金融模型 + 真实 A 股数据，四款概念产品 Demo。<br>
      数据来源：Wind · 龙虎榜 · 北向资金 · 产业链 Chain Map v0.1</p>
   <div class="header-meta">
-    <div class="meta-pill"><div class="dot" style="background:var(--red)"></div>韭菜探测器™</div>
-    <div class="meta-pill"><div class="dot" style="background:var(--gold)"></div>供应链先知™</div>
-    <div class="meta-pill"><div class="dot" style="background:var(--blue)"></div>战争实力地图™</div>
+    <div class="meta-pill"><div class="dot" style="background:var(--gold)"></div>你相信光吗？</div>
+    <div class="meta-pill"><div class="dot" style="background:var(--orange)"></div>A股恐贪温度计</div>
+    <div class="meta-pill"><div class="dot" style="background:var(--blue)"></div>板块轮动周期图</div>
+    <div class="meta-pill"><div class="dot" style="background:var(--red)"></div>韭菜探测器 v2</div>
     <div class="meta-pill"><div class="dot" style="background:var(--green)"></div>A股 · 2026-05-20</div>
   </div>
 </div>
@@ -302,47 +303,69 @@
     </div>
   </div>
 
-  <!-- CARD 1: 韭菜探测器 -->
+  <!-- CARD 1: A股恐贪温度计 -->
   <div class="demo-card">
     <div class="card-header">
       <div class="card-num">01</div>
       <div class="card-title-block">
-        <h2>韭菜探测器™ <span class="card-badge badge-red">高病毒性</span></h2>
-        <p>A股资金博弈象限图 — 告诉你你的持仓哪只正在被机构出货给散户。<br>
-           X轴：散户热度（融资增速·买卖比·社交声量）　Y轴：机构信心（北向净流·龙虎榜席位）</p>
+        <h2>A股恐贪温度计™ <span class="card-badge" style="background:#ff7b0022;color:var(--orange);border:1px solid #ff7b0040">日更 · 最易传播</span></h2>
+        <p>单一数字 0-100 · 今日 <strong style="color:var(--gold)">71 贪婪</strong> · 综合 7 项 A 股情绪指标。<br>
+           左侧仪表盘 · 右上 60 日走势（关税恐慌 → AI 反弹）· 右下分项 + 历史规律回测</p>
       </div>
     </div>
     <div class="card-img-wrap" onclick="openLb(this)">
-      <img src="demo_leek_detector.png" alt="韭菜探测器" loading="lazy">
+      <img src="demo_fear_greed.png" alt="A股恐贪温度计" loading="lazy">
       <div class="zoom-hint">点击放大</div>
     </div>
     <div class="card-footer">
-      <div class="feature-pill"><div class="dot" style="background:var(--red)"></div>韭菜陷阱区 红色边框预警</div>
-      <div class="feature-pill"><div class="dot" style="background:var(--blue)"></div>气泡大小 = 市值</div>
-      <div class="feature-pill"><div class="dot" style="background:var(--green)"></div>边框绿 = 近5日涨逾3%</div>
-      <div class="feature-pill"><div class="dot" style="background:var(--dim)"></div>数据：Wind · 龙虎榜 · 沪深港通</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--orange)"></div>指针 · 数字 · 分区颜色一目了然</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--gold)"></div>7 分项：RSI · 融资 · 成交 · 北向 · 广度 · 动量 · 波动</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--green)"></div>历史规律 &lt; 30 持一月 +5.8%</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--red)"></div>&gt; 75 持一月 -4.1%</div>
     </div>
   </div>
 
-  <!-- CARD 3: 战争实力地图 -->
+  <!-- CARD 2: 板块轮动周期图 -->
+  <div class="demo-card">
+    <div class="card-header">
+      <div class="card-num">02</div>
+      <div class="card-title-block">
+        <h2>板块轮动周期图™ <span class="card-badge badge-blue">动态叙事</span></h2>
+        <p>4 象限 × 5 日轨迹箭头 — 一眼看穿每个板块处在资金周期哪一步。<br>
+           X 轴：机构布局强度　Y 轴：价格动量　箭头：5 日运动方向　气泡：成交量</p>
+      </div>
+    </div>
+    <div class="card-img-wrap" onclick="openLb(this)">
+      <img src="demo_sector_cycle.png" alt="板块轮动周期图" loading="lazy">
+      <div class="zoom-hint">点击放大</div>
+    </div>
+    <div class="card-footer">
+      <div class="feature-pill"><div class="dot" style="background:var(--green)"></div>◆ 主升浪 · ⚡ 游资拉升</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--blue)"></div>↗ 底部吸筹 · ✕ 资金回避</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--gold)"></div>轨迹箭头显示 5 日运动</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--dim)"></div>典型轮动路径参考弧线</div>
+    </div>
+  </div>
+
+  <!-- CARD 3: 韭菜探测器 v2 -->
   <div class="demo-card">
     <div class="card-header">
       <div class="card-num">03</div>
       <div class="card-title-block">
-        <h2>战争实力地图™ <span class="card-badge badge-blue">最适合短视频</span></h2>
-        <p>A股板块博弈战力图 — 10大板块机构 vs 散户实力对比，一图看穿今日资金博弈格局。<br>
-           蓝色 = 机构买入力度　橙色 = 散户热度指数　每行附北向资金、RSI、战情研判</p>
+        <h2>韭菜探测器 v2™ <span class="card-badge badge-red">升级：AI 荐股</span></h2>
+        <p>散户 × 机构资金博弈四象限 + 右侧 <strong style="color:var(--fg)">AI 今日荐股</strong> 三分区面板：<br>
+           <span style="color:var(--blue)">恐惧中布局</span> · <span style="color:var(--green)">共振强买</span> · <span style="color:var(--red)">韭菜警报</span> — 每只股票附恐贪分数 0-100 + 逻辑 + 操作</p>
       </div>
     </div>
     <div class="card-img-wrap" onclick="openLb(this)">
-      <img src="demo_war_map.png" alt="战争实力地图" loading="lazy">
+      <img src="demo_leek_detector_v2.png" alt="韭菜探测器 v2" loading="lazy">
       <div class="zoom-hint">点击放大</div>
     </div>
     <div class="card-footer">
-      <div class="feature-pill"><div class="dot" style="background:var(--blue)"></div>蓝色 = 机构实力（北向+龙虎榜）</div>
-      <div class="feature-pill"><div class="dot" style="background:var(--orange)"></div>橙色 = 散户热度（融资+情绪）</div>
-      <div class="feature-pill"><div class="dot" style="background:var(--green)"></div>左侧色条 = 战情研判</div>
-      <div class="feature-pill"><div class="dot" style="background:var(--dim)"></div>RSI > 75 = 超买预警</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--blue)"></div>机构吃肉区 → 逆向价值</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--green)"></div>共振爆发区 → 趋势兑现</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--red)"></div>韭菜陷阱区 → 拥挤避险</div>
+      <div class="feature-pill"><div class="dot" style="background:var(--dim)"></div>数据：Wind · 龙虎榜 · 沪深港通</div>
     </div>
   </div>
 
