@@ -606,6 +606,245 @@ body {
   .gauge-layout { flex-direction: column; }
   .gauge-left { width: 100%; }
 }
+
+/* ══════════════════════════════════════
+   WATCHBOT — 帮我盯着
+══════════════════════════════════════ */
+.wb-fab {
+  position: fixed; bottom: 28px; right: 28px; z-index: 800;
+  background: linear-gradient(135deg, #c99a2e, #e3b341);
+  color: #040810; font-weight: 900; font-size: 13px;
+  padding: 12px 20px; border-radius: 40px;
+  cursor: pointer; border: none; font-family: inherit;
+  display: flex; align-items: center; gap: 8px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 24px #e3b34150;
+  animation: wb-glow 3s ease-in-out infinite;
+}
+.wb-fab-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #040810; opacity: 0.6;
+  animation: wb-blink 2s ease-in-out infinite;
+}
+@keyframes wb-glow {
+  0%,100% { box-shadow: 0 4px 20px #e3b34144; }
+  50%      { box-shadow: 0 6px 36px #e3b34177; }
+}
+@keyframes wb-blink { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
+
+#wb-overlay {
+  display: none; position: fixed; inset: 0; z-index: 950;
+  background: #000000aa; backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; padding: 16px;
+}
+#wb-overlay.open { display: flex; }
+
+#wb-box {
+  background: #07101e; border: 1px solid #1a2e44; border-radius: 20px;
+  width: min(520px, 96vw); max-height: 88vh;
+  overflow-y: auto; overflow-x: hidden;
+  box-shadow: 0 32px 80px #00000099;
+  animation: modal-in 0.2s ease-out; position: relative;
+}
+#wb-box::-webkit-scrollbar { width: 4px; }
+#wb-box::-webkit-scrollbar-thumb { background: #1a2e44; border-radius: 2px; }
+
+.wb-hd {
+  padding: 16px 18px 14px; border-bottom: 1px solid #132030;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; background: #07101e; z-index: 2;
+}
+.wb-hd-icon {
+  width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+  background: linear-gradient(135deg, #c99a2e, #e3b341);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #040810; font-weight: 900;
+}
+.wb-hd-title { font-size: 15px; font-weight: 900; color: #e3b341; }
+.wb-hd-sub   { font-size: 11px; color: var(--dim); }
+.wb-hd-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.wb-close-btn { color: var(--dim); font-size: 20px; cursor: pointer; }
+.wb-close-btn:hover { color: var(--fg); }
+
+.wb-dots {
+  display: flex; gap: 5px; padding: 10px 18px;
+  border-bottom: 1px solid #0e1c2e;
+}
+.wb-dot {
+  height: 3px; flex: 1; border-radius: 2px;
+  background: #132030; transition: background 0.3s;
+}
+.wb-dot.active { background: #e3b341; }
+.wb-dot.done   { background: #4c9ef0; }
+
+.wb-step { padding: 18px; display: none; }
+.wb-step.show { display: block; }
+.wb-step-title { font-size: 15px; font-weight: 800; color: var(--fg); margin-bottom: 4px; }
+.wb-step-sub   { font-size: 12px; color: var(--dim); margin-bottom: 16px; line-height: 1.65; }
+
+/* Step 1: snapshot + conditions */
+.wb-snapshot {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  padding: 10px 14px; border-radius: 10px;
+  background: #040c18; border: 1px solid #132030;
+  margin-bottom: 16px;
+}
+.wb-snap { font-size: 11.5px; }
+.wb-snap-l { color: var(--dim); }
+.wb-snap-v { font-weight: 800; margin-left: 4px; }
+.wb-snap-sep { color: #132030; }
+
+.wb-cond {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 11px 13px; border-radius: 10px;
+  background: #050d1a; border: 1.5px solid #132030;
+  margin-bottom: 8px; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.wb-cond:hover { border-color: #1e3048; }
+.wb-cond.on    { border-color: #e3b34155; background: #0e1c2e; }
+.wb-cond-chk {
+  width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0; margin-top: 1px;
+  border: 1.5px solid #1e3048; background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 900; color: #040810;
+  transition: all 0.15s;
+}
+.wb-cond.on .wb-cond-chk { background: #e3b341; border-color: #e3b341; }
+.wb-cond-body { flex: 1; min-width: 0; }
+.wb-cond-name {
+  font-size: 13px; font-weight: 800; color: var(--fg); margin-bottom: 3px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.wb-cond-tag {
+  font-size: 9.5px; font-weight: 700; padding: 1px 7px; border-radius: 10px;
+  background: #e3b34118; color: #e3b341; flex-shrink: 0;
+}
+.wb-cond-note { font-size: 11px; color: var(--dim); line-height: 1.5; }
+
+/* Step 2: sector selection */
+.wb-sec-grid {
+  display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px;
+}
+.wb-sec-pill {
+  font-size: 12px; font-weight: 700; padding: 6px 13px;
+  border-radius: 20px; cursor: pointer;
+  border: 1.5px solid #132030; background: #050d1a;
+  transition: all 0.15s; color: var(--dim);
+}
+.wb-sec-pill.buy-tr  { color: #c9a83a; }
+.wb-sec-pill.buy-tl  { color: #4c9ef0; }
+.wb-sec-pill.zone-warn    { color: #f85149; }
+.wb-sec-pill.zone-comfort { color: #5a7a8a; }
+.wb-sec-pill.on { border-color: currentColor !important; }
+.wb-sec-pill.buy-tr.on  { background: #e3b34114; }
+.wb-sec-pill.buy-tl.on  { background: #4c9ef014; }
+.wb-sec-pill.zone-warn.on    { background: #f8514914; }
+.wb-sec-pill.zone-comfort.on { background: #5a7a8a14; }
+
+/* Comfort block */
+.wb-comfort {
+  display: none; margin-bottom: 14px;
+  border-radius: 12px; overflow: hidden;
+  border: 1px solid #1a2e40;
+  animation: modal-in 0.2s ease-out;
+}
+.wb-comfort.show { display: block; }
+.wb-comfort-msg-wrap {
+  padding: 14px 16px 12px;
+  background: #040c18;
+  border-bottom: 1px solid #1a2e40;
+}
+.wb-comfort-sector-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  color: #5a7a8a; text-transform: uppercase; margin-bottom: 8px;
+}
+.wb-comfort-text {
+  font-size: 13px; color: #6a90a8; line-height: 1.85;
+  white-space: pre-line;
+}
+.wb-comfort-stocks-hd {
+  padding: 11px 16px 8px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--dim); text-transform: uppercase;
+  background: #04080e;
+}
+.wb-comfort-stock {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; border-top: 1px solid #0e1c2e;
+  background: #04080e; cursor: pointer;
+  transition: background 0.15s;
+}
+.wb-comfort-stock:hover { background: #06101c; }
+.wb-cs-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.wb-cs-left { flex: 1; min-width: 0; }
+.wb-cs-name { font-size: 13px; font-weight: 800; color: var(--fg); }
+.wb-cs-meta { font-size: 10.5px; color: var(--dim); margin-top: 2px; }
+.wb-cs-zone { font-weight: 700; }
+.wb-cs-note { font-size: 11px; color: var(--dim); max-width: 130px; text-align: right; line-height: 1.4; }
+.wb-cs-ret  { font-size: 12px; font-weight: 800; margin-left: 8px; flex-shrink: 0; }
+
+/* Step 3: notify */
+.wb-channel-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.wb-ch-btn {
+  flex: 1; padding: 11px; border-radius: 10px; text-align: center;
+  border: 1.5px solid #132030; background: #050d1a;
+  cursor: pointer; font-size: 13px; font-weight: 700; color: var(--dim);
+  transition: all 0.15s;
+}
+.wb-ch-btn.on { border-color: #e3b34155; color: #e3b341; background: #e3b34110; }
+.wb-input {
+  width: 100%; padding: 11px 13px; border-radius: 10px;
+  border: 1.5px solid #132030; background: #040c18;
+  color: var(--fg); font-size: 13px; outline: none;
+  font-family: inherit; transition: border-color 0.15s;
+}
+.wb-input:focus { border-color: #e3b34155; }
+.wb-input::placeholder { color: #2a3e52; }
+.wb-demo-note { font-size: 11px; color: #2a3e52; margin-top: 7px; }
+
+/* Step 4: done */
+.wb-done-hero { text-align: center; padding: 20px 0 18px; }
+.wb-done-sun  { font-size: 44px; line-height: 1; margin-bottom: 10px; color: #e3b341; }
+.wb-done-title { font-size: 26px; font-weight: 900; color: var(--fg); margin-bottom: 6px; }
+.wb-done-sub { font-size: 13px; color: var(--dim); line-height: 1.8; }
+
+.wb-monitor-list {
+  background: #040c18; border: 1px solid #132030;
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 14px;
+}
+.wb-ml-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--dim); text-transform: uppercase; margin-bottom: 9px;
+}
+.wb-ml-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0; border-bottom: 1px solid #0e1c2e;
+  font-size: 12px;
+}
+.wb-ml-row:last-child { border-bottom: none; }
+.wb-ml-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #e3b341;
+  flex-shrink: 0; animation: wb-blink 2s ease-in-out infinite;
+}
+.wb-ml-text   { color: var(--fg); flex: 1; }
+.wb-ml-status { font-size: 10px; color: #3fb950; }
+.wb-notify-row {
+  font-size: 12px; color: var(--dim); text-align: center; margin-bottom: 14px;
+}
+.wb-notify-val { color: var(--fg); font-weight: 700; }
+
+/* Shared buttons */
+.wb-btn-row { display: flex; gap: 8px; margin-top: 16px; }
+.wb-btn {
+  flex: 1; padding: 12px; border-radius: 10px; border: none;
+  font-size: 13px; font-weight: 800; cursor: pointer;
+  font-family: inherit; letter-spacing: 0.02em;
+  transition: opacity 0.15s;
+}
+.wb-btn:hover { opacity: 0.86; }
+.wb-btn-gold { background: linear-gradient(135deg, #c99a2e, #e3b341); color: #040810; }
+.wb-btn-dim  { background: #09172a; color: var(--dim); border: 1.5px solid #132030; }
 </style>
 </head>
 <body>
@@ -1443,6 +1682,311 @@ COMPS.forEach(c => {
     <div class="cr-note">${c.note}</div>`;
   compEl.appendChild(row);
 });
+</script>
+
+<!-- ════════════════════════════════════════
+     WATCHBOT: 帮我盯着
+════════════════════════════════════════ -->
+
+<!-- FAB -->
+<button class="wb-fab" onclick="openWatchBot()">帮我盯着 ▶</button>
+
+<!-- Overlay -->
+<div id="wb-overlay" onclick="closeWatchBot()">
+  <div id="wb-box" onclick="event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="wb-hd">
+      <div class="wb-hd-icon">☀</div>
+      <div>
+        <div class="wb-hd-title">帮我盯着</div>
+        <div class="wb-hd-sub">AI 全天候监控 · 不盯盘也不错过</div>
+      </div>
+      <div class="wb-hd-right">
+        <span class="wb-close-btn" onclick="closeWatchBot()">✕</span>
+      </div>
+    </div>
+
+    <!-- Progress dots -->
+    <div class="wb-dots">
+      <div class="wb-dot active"></div>
+      <div class="wb-dot"></div>
+      <div class="wb-dot"></div>
+      <div class="wb-dot"></div>
+    </div>
+
+    <!-- Steps rendered by JS -->
+    <div id="wb-body"></div>
+
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────
+const WB_CONDITIONS = [
+  { id:'c1', label:'板块从「踏进光里」升入「站在光里」', note:'机构持续加仓 + 价格确认 → 最佳买入窗口', on:true  },
+  { id:'c2', label:'贪婪指数突破 75（极度贪婪）',         note:'历史均值 −4.1%/月，建议减仓', on:true  },
+  { id:'c3', label:'AI算力板块 北向资金单日净流出',        note:'主线切换预警，关注半导体接力', on:true  },
+  { id:'c4', label:'你持仓板块 RSI 超过 80',              note:'短期超买，可考虑止盈 10–20%', on:false },
+  { id:'c5', label:'市场广度骤降（<5 成板块正收益）',      note:'系统性风险上升，全面防守信号', on:false },
+];
+
+const WB_COMFORT_STOCKS = [
+  { name:'中际旭创', code:'300308', zone:'buy_tl', color:'#4c9ef0',
+    note:'AI算力主线 北向连买4日' },
+  { name:'招商银行', code:'600036', zone:'buy_tr', color:'#e3b341',
+    note:'大金融 股息+机构底仓配置' },
+  { name:'比亚迪',   code:'002594', zone:'buy_tr', color:'#3fb950',
+    note:'新能源车已进入主升浪' },
+];
+
+const BL_SECTOR_NAMES = new Set(['地产链','传媒互联网']);
+
+// ── STATE ─────────────────────────────────────────────────────────────
+let wbStep = 0;
+let wbConds = new Set(WB_CONDITIONS.filter(c=>c.on).map(c=>c.id));
+let wbSectors = new Set();
+let wbChannel = 'email';
+let wbContact = '';
+
+// ── OPEN / CLOSE ───────────────────────────────────────────────────────
+function openWatchBot() {
+  wbStep = 0; wbSectors.clear();
+  document.getElementById('wb-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderWbStep();
+}
+function closeWatchBot() {
+  document.getElementById('wb-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────
+function wbGoTo(step) {
+  wbStep = step;
+  renderWbStep();
+  const dots = document.querySelectorAll('#wb-box .wb-dot');
+  dots.forEach((d,i) => d.classList.toggle('active', i <= step));
+  document.getElementById('wb-body').scrollTop = 0;
+}
+
+// ── RENDER ROUTER ─────────────────────────────────────────────────────
+function renderWbStep() {
+  const body = document.getElementById('wb-body');
+  body.innerHTML = '';
+  if (wbStep === 0) body.appendChild(renderStepScan());
+  else if (wbStep === 1) body.appendChild(renderStepPosition());
+  else if (wbStep === 2) body.appendChild(renderStepNotify());
+  else body.appendChild(renderStepDone());
+}
+
+// ── STEP 1: 市场扫描 & 触发条件 ────────────────────────────────────────
+function renderStepScan() {
+  const el = document.createElement('div');
+  el.className = 'wb-step show';
+  el.innerHTML = `
+    <div class="wb-step-title">今日市场快照</div>
+    <div class="wb-snapshot">
+      <div class="wb-snap"><span class="wb-snap-l">恐贪指数</span><span class="wb-snap-v" style="color:#f59e0b">71 · 贪婪</span></div>
+      <span class="wb-snap-sep">·</span>
+      <div class="wb-snap"><span class="wb-snap-l">北向资金</span><span class="wb-snap-v" style="color:#3fb950">+35.3亿</span></div>
+      <span class="wb-snap-sep">·</span>
+      <div class="wb-snap"><span class="wb-snap-l">成交额</span><span class="wb-snap-v">2.86万亿</span></div>
+      <span class="wb-snap-sep">·</span>
+      <div class="wb-snap"><span class="wb-snap-l">板块广度</span><span class="wb-snap-v" style="color:#3fb950">7/10 正收益</span></div>
+    </div>
+
+    <div class="wb-step-title" style="margin-top:20px">AI 帮你盯这些条件</div>
+    <div class="wb-step-sub" style="margin-bottom:12px">已为你预选最关键的三项，可自由调整</div>
+    <div id="wb-cond-list"></div>
+
+    <div class="wb-btn-row">
+      <button class="wb-btn wb-btn-dim" onclick="closeWatchBot()">稍后再说</button>
+      <button class="wb-btn wb-btn-gold" onclick="wbGoTo(1)">下一步：告诉我你的仓位 →</button>
+    </div>
+  `;
+
+  const list = el.querySelector('#wb-cond-list');
+  WB_CONDITIONS.forEach(c => {
+    const card = document.createElement('div');
+    const isOn = wbConds.has(c.id);
+    card.className = 'wb-cond' + (isOn ? ' on' : '');
+    card.innerHTML = `
+      <div class="wb-cond-chk">${isOn ? '✓' : ''}</div>
+      <div class="wb-cond-body">
+        <div class="wb-cond-name">${c.label}</div>
+        <div class="wb-cond-note">${c.note}</div>
+      </div>`;
+    card.onclick = () => {
+      if (wbConds.has(c.id)) wbConds.delete(c.id);
+      else wbConds.add(c.id);
+      const on = wbConds.has(c.id);
+      card.classList.toggle('on', on);
+      card.querySelector('.wb-cond-chk').textContent = on ? '✓' : '';
+    };
+    list.appendChild(card);
+  });
+
+  return el;
+}
+
+// ── STEP 2: 持仓板块 & 安慰 ────────────────────────────────────────────
+function renderStepPosition() {
+  const el = document.createElement('div');
+  el.className = 'wb-step show';
+  const hasBL = [...wbSectors].some(s => BL_SECTOR_NAMES.has(s));
+
+  el.innerHTML = `
+    <div class="wb-step-title">你目前持仓哪些板块？</div>
+    <div class="wb-step-sub">AI 会优先帮你盯住你的仓位，可多选</div>
+
+    <div class="wb-sec-grid" id="wb-sec-grid"></div>
+
+    <div class="wb-comfort ${hasBL ? 'show' : ''}" id="wb-comfort-block">
+      <div class="wb-comfort-msg-wrap">
+        <div class="wb-comfort-sector-label">光着站在那里 · 当前持仓区</div>
+        <div class="wb-comfort-text">地产链 / 传媒这一块，机构资金还在观望，短期没有明确催化剂。\n\n别着急抄底——但钱也不能就这么闲着。</div>
+      </div>
+      <div class="wb-comfort-stocks-hd">光在这里 · 今日推荐</div>
+      <div id="wb-comfort-stocks"></div>
+    </div>
+
+    <div class="wb-btn-row">
+      <button class="wb-btn wb-btn-dim" onclick="wbGoTo(0)">← 上一步</button>
+      <button class="wb-btn wb-btn-gold" onclick="wbGoTo(2)">下一步：设置通知方式 →</button>
+    </div>
+  `;
+
+  // Build sector pills
+  const grid = el.querySelector('#wb-sec-grid');
+  SECTORS.forEach(s => {
+    const zk = getZoneKey(s);
+    const pill = document.createElement('div');
+    pill.className = 'wb-sec-pill ' + (
+      zk === 'buy_tr' ? 'buy-tr' :
+      zk === 'buy_tl' ? 'buy-tl' :
+      s.mode === 'warn' ? 'zone-warn' : 'zone-comfort'
+    );
+    if (wbSectors.has(s.name)) pill.classList.add('on');
+    pill.textContent = s.name;
+    pill.onclick = () => {
+      if (wbSectors.has(s.name)) wbSectors.delete(s.name);
+      else wbSectors.add(s.name);
+      pill.classList.toggle('on', wbSectors.has(s.name));
+      const hasBl = [...wbSectors].some(n => BL_SECTOR_NAMES.has(n));
+      el.querySelector('#wb-comfort-block').classList.toggle('show', hasBl);
+    };
+    grid.appendChild(pill);
+  });
+
+  // Build comfort stocks
+  const stksEl = el.querySelector('#wb-comfort-stocks');
+  WB_COMFORT_STOCKS.forEach(st => {
+    const card = document.createElement('div');
+    card.className = 'wb-comfort-stock';
+    const zLabel = st.zone === 'buy_tr' ? '站在光里' : '踏进光里';
+    card.innerHTML = `
+      <div class="wb-cs-dot" style="background:${st.color}"></div>
+      <div class="wb-cs-left">
+        <div class="wb-cs-name">${st.name}<span style="font-size:10px;color:#44596a;font-weight:400;margin-left:5px">${st.code}</span></div>
+        <div class="wb-cs-meta"><span class="wb-cs-zone" style="color:${st.color}">${zLabel}</span></div>
+      </div>
+      <div class="wb-cs-note">${st.note}</div>`;
+    stksEl.appendChild(card);
+  });
+
+  return el;
+}
+
+// ── STEP 3: 通知方式 ──────────────────────────────────────────────────
+function renderStepNotify() {
+  const el = document.createElement('div');
+  el.className = 'wb-step show';
+  el.innerHTML = `
+    <div class="wb-step-title">触发时，怎么通知你？</div>
+    <div class="wb-step-sub">AI 发现信号后 30 秒内推送，不错过任何机会</div>
+
+    <div class="wb-channel-row">
+      <button class="wb-ch-btn ${wbChannel==='email'?'on':''}" id="ch-email" onclick="wbSelCh('email')">邮件</button>
+      <button class="wb-ch-btn ${wbChannel==='wechat'?'on':''}" id="ch-wechat" onclick="wbSelCh('wechat')">微信</button>
+    </div>
+
+    <input class="wb-input" id="wb-contact-input"
+      placeholder="${wbChannel==='email' ? '输入你的邮箱地址' : '输入微信号'}"
+      value="${wbContact}"
+      oninput="wbContact=this.value"
+    >
+    <div class="wb-demo-note">演示版 · 实际产品接入真实推送服务</div>
+
+    <div class="wb-btn-row">
+      <button class="wb-btn wb-btn-dim" onclick="wbGoTo(1)">← 上一步</button>
+      <button class="wb-btn wb-btn-gold" onclick="wbGoTo(3)">启动监控 →</button>
+    </div>
+  `;
+  return el;
+}
+
+function wbSelCh(ch) {
+  wbChannel = ch;
+  ['email','wechat'].forEach(c => {
+    const b = document.getElementById('ch-'+c);
+    if (b) b.classList.toggle('on', c === ch);
+  });
+  const inp = document.getElementById('wb-contact-input');
+  if (inp) inp.placeholder = ch === 'email' ? '输入你的邮箱地址' : '输入微信号';
+}
+
+// ── STEP 4: 完成确认 ──────────────────────────────────────────────────
+function renderStepDone() {
+  const el = document.createElement('div');
+  el.className = 'wb-step show';
+
+  const activeLabels = WB_CONDITIONS.filter(c => wbConds.has(c.id)).map(c => c.label);
+  const sectorList   = wbSectors.size > 0 ? [...wbSectors].join(' · ') : '全板块';
+  const channelTxt   = wbChannel === 'email' ? '邮件' : '微信';
+  const contactTxt   = wbContact || (wbChannel==='email' ? '（邮箱未填）' : '（微信未填）');
+
+  const monRows = activeLabels.map(lbl =>
+    `<div class="wb-ml-row">
+       <div class="wb-ml-dot"></div>
+       <div class="wb-ml-text">${lbl}</div>
+       <div class="wb-ml-status">监控中</div>
+     </div>`
+  ).join('') || `<div class="wb-ml-row"><div class="wb-ml-text" style="color:#44596a">（未选择条件）</div></div>`;
+
+  el.innerHTML = `
+    <div class="wb-done-hero">
+      <div class="wb-done-sun">☀</div>
+      <div class="wb-done-title">AI 已上岗</div>
+      <div class="wb-done-sub">你去忙吧，有信号我来找你<br>触发条件满足时 30 秒内推送</div>
+    </div>
+
+    <div class="wb-monitor-list">
+      <div class="wb-ml-title">正在监控</div>
+      ${monRows}
+    </div>
+
+    <div class="wb-monitor-list">
+      <div class="wb-ml-title">持仓板块</div>
+      <div class="wb-ml-row">
+        <div class="wb-ml-dot" style="background:#4c9ef0"></div>
+        <div class="wb-ml-text">${sectorList}</div>
+        <div class="wb-ml-status">已标记</div>
+      </div>
+    </div>
+
+    <div class="wb-notify-row" style="margin-top:14px">
+      通知方式 <span class="wb-notify-val">${channelTxt}</span>
+      &nbsp;→&nbsp;<span class="wb-notify-val">${contactTxt}</span>
+    </div>
+
+    <div class="wb-btn-row">
+      <button class="wb-btn wb-btn-dim" onclick="wbGoTo(2)">修改设置</button>
+      <button class="wb-btn wb-btn-gold" onclick="closeWatchBot()">完成，去休息 ☀</button>
+    </div>
+  `;
+  return el;
+}
 </script>
 </body>
 </html>
