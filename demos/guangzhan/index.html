@@ -955,6 +955,49 @@ body {
 .wb-notify-row {
   font-size: 12px; color: var(--dim); text-align: center; margin-bottom: 14px;
 }
+
+/* ── 通知示例卡片 ─────────────────────────────────────────── */
+.wb-notif-section {
+  background: #040c18; border: 1px solid #132030;
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 14px;
+}
+.wb-notif-section-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--dim); text-transform: uppercase; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.wb-notif-section-title::after {
+  content: ''; flex: 1; height: 1px; background: #132030;
+}
+.wb-notif-card {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: #060f1e; border: 1px solid #1a2d44;
+  border-left: 3px solid;
+  border-radius: 10px; padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.wb-notif-card:last-child { margin-bottom: 0; }
+.wb-notif-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 900; flex-shrink: 0;
+}
+.wb-notif-body { flex: 1; min-width: 0; }
+.wb-notif-head {
+  display: flex; align-items: center; gap: 5px; margin-bottom: 3px;
+}
+.wb-notif-app { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; }
+.wb-notif-time { font-size: 10px; color: var(--dim); margin-left: auto; }
+.wb-notif-title {
+  font-size: 12px; font-weight: 700; color: var(--fg);
+  margin-bottom: 3px; line-height: 1.4;
+}
+.wb-notif-text { font-size: 11px; color: var(--dim); line-height: 1.5; }
+.wb-notif-chip {
+  display: inline-block; font-size: 9px; font-weight: 700;
+  padding: 1px 7px; border-radius: 10px; margin-top: 5px;
+  letter-spacing: 0.05em;
+}
 .wb-notify-val { color: var(--fg); font-weight: 700; }
 
 /* Shared buttons */
@@ -2321,6 +2364,66 @@ function renderStepDone() {
     <div class="wb-monitor-list">
       <div class="wb-ml-title">研报/资讯信源</div>
       ${srcRows}
+    </div>
+
+    <div class="wb-notif-section">
+      <div class="wb-notif-section-title">你将收到这样的提醒</div>
+
+      <div class="wb-notif-card" style="border-left-color:#e3b341">
+        <div class="wb-notif-icon" style="background:#e3b34120;color:#e3b341">◆</div>
+        <div class="wb-notif-body">
+          <div class="wb-notif-head">
+            <span class="wb-notif-app" style="color:#e3b341">AI 盯盘</span>
+            <span style="font-size:10px;color:#44596a">· 象限变动</span>
+            <span class="wb-notif-time">2 分钟前</span>
+          </div>
+          <div class="wb-notif-title">AI算力板块已升入「站在光里」</div>
+          <div class="wb-notif-text">机构持续净买入 +3.2 亿，价格突破 20 日均线确认 · 历史胜率 67%</div>
+          <span class="wb-notif-chip" style="background:#4c9ef020;color:#4c9ef0;border:1px solid #4c9ef040">AI算力</span>
+        </div>
+      </div>
+
+      <div class="wb-notif-card" style="border-left-color:#f59e0b">
+        <div class="wb-notif-icon" style="background:#f59e0b20;color:#f59e0b">!</div>
+        <div class="wb-notif-body">
+          <div class="wb-notif-head">
+            <span class="wb-notif-app" style="color:#f59e0b">恐贪温度计</span>
+            <span style="font-size:10px;color:#44596a">· 预警</span>
+            <span class="wb-notif-time">3 分钟前</span>
+          </div>
+          <div class="wb-notif-title">恐贪指数突破 75，进入「极度贪婪」</div>
+          <div class="wb-notif-text">历史规律：此后一月平均 -4.1% · 建议适当减仓或止盈</div>
+          <span class="wb-notif-chip" style="background:#dc262620;color:#ef4444;border:1px solid #dc262640">极度贪婪</span>
+        </div>
+      </div>
+
+      <div class="wb-notif-card" style="border-left-color:#4c9ef0">
+        <div class="wb-notif-icon" style="background:#4c9ef020;color:#4c9ef0">★</div>
+        <div class="wb-notif-body">
+          <div class="wb-notif-head">
+            <span class="wb-notif-app" style="color:#4c9ef0">Serenity</span>
+            <span style="font-size:10px;color:#44596a">· 新帖</span>
+            <span class="wb-notif-time">1 小时前</span>
+          </div>
+          <div class="wb-notif-title">提及 中际旭创(300308) · 800G 光模块</div>
+          <div class="wb-notif-text">WF6 出口管制升级，SK 硅片替代路线再验证 · AI 算力 photonics 主线</div>
+          <span class="wb-notif-chip" style="background:#4c9ef020;color:#4c9ef0;border:1px solid #4c9ef040">KOL 提及</span>
+        </div>
+      </div>
+
+      <div class="wb-notif-card" style="border-left-color:#f0883e">
+        <div class="wb-notif-icon" style="background:#f0883e20;color:#f0883e">W</div>
+        <div class="wb-notif-body">
+          <div class="wb-notif-head">
+            <span class="wb-notif-app" style="color:#f0883e">Whale Watch</span>
+            <span style="font-size:10px;color:#44596a">· 参议员交易</span>
+            <span class="wb-notif-time">今日</span>
+          </div>
+          <div class="wb-notif-title">Nancy Pelosi 披露买入 NVDA call 期权</div>
+          <div class="wb-notif-text">金额 5–6M USD · AI 算力主线，与你的持仓板块匹配</div>
+          <span class="wb-notif-chip" style="background:#f0883e20;color:#f0883e;border:1px solid #f0883e40">Whale 建仓</span>
+        </div>
+      </div>
     </div>
 
     <div class="wb-notify-row" style="margin-top:14px">
