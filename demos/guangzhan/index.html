@@ -784,7 +784,130 @@ body {
 .wb-cs-note { font-size: 11px; color: var(--dim); max-width: 130px; text-align: right; line-height: 1.4; }
 .wb-cs-ret  { font-size: 12px; font-weight: 800; margin-left: 8px; flex-shrink: 0; }
 
-/* Step 3: notify */
+/* Step 3 (NEW): 研报/资讯信源 */
+.wb-src-cat {
+  display: flex; align-items: center; gap: 8px;
+  margin: 14px 0 8px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  color: var(--dim); text-transform: uppercase;
+}
+.wb-src-cat:first-child { margin-top: 0; }
+.wb-src-cat-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+}
+.wb-src-cat-sub {
+  color: #2a3e52; font-size: 10px; font-weight: 500;
+  letter-spacing: 0; text-transform: none;
+  margin-left: 4px;
+}
+.wb-src-card {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 12px; margin-bottom: 6px;
+  background: #04101c; border: 1.5px solid #132030; border-radius: 8px;
+  cursor: pointer; transition: border-color 0.15s, background 0.15s;
+}
+.wb-src-card:hover { border-color: #1e3048; }
+.wb-src-card.on   { border-color: #e3b34155; background: #0e1c2e; }
+.wb-src-card-chk {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 1.5px solid #132030; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #040810; font-size: 10px; font-weight: 900;
+  margin-top: 2px;
+}
+.wb-src-card.on .wb-src-card-chk {
+  background: #e3b341; border-color: #e3b341;
+}
+.wb-src-card-body { flex: 1; min-width: 0; }
+.wb-src-card-name {
+  font-size: 13px; font-weight: 800; color: var(--fg);
+  margin-bottom: 1px;
+}
+.wb-src-verified {
+  display: inline-block; margin-left: 5px; font-size: 9px;
+  color: #4c9ef0; font-weight: 800;
+  vertical-align: middle;
+}
+.wb-src-card-handle {
+  font-size: 10px; color: #44596a; margin-bottom: 5px;
+}
+.wb-src-card-tags {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 5px;
+}
+.wb-src-tag {
+  font-size: 9.5px; padding: 1.5px 6px;
+  border-radius: 8px;
+  background: #0a1728; color: #4a5a70;
+  border: 1px solid #14243a;
+}
+.wb-src-tag.match {
+  color: #e3b341; border-color: #e3b34133;
+  background: #e3b34110;
+}
+.wb-src-card-action {
+  font-size: 10.5px; color: #6a7a90; line-height: 1.4;
+}
+
+.wb-preview-box {
+  margin-top: 16px; padding: 12px;
+  background: #040c18; border: 1px solid #132030;
+  border-radius: 10px;
+}
+.wb-preview-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--dim); text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.wb-preview-count {
+  color: #e3b341; font-weight: 800;
+  letter-spacing: 0;
+}
+.wb-preview-alert {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid #0e1c2e;
+  font-size: 11.5px;
+}
+.wb-preview-alert:last-child { border-bottom: none; }
+.wb-preview-alert-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  margin-top: 5px; flex-shrink: 0;
+}
+.wb-preview-alert-body { flex: 1; min-width: 0; }
+.wb-preview-alert-head {
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+  margin-bottom: 3px;
+}
+.wb-preview-src {
+  font-size: 10px; font-weight: 800; color: var(--fg);
+}
+.wb-preview-time {
+  font-size: 9.5px; color: #44596a;
+}
+.wb-preview-sector-chip {
+  font-size: 9px; padding: 1px 6px;
+  border-radius: 8px;
+  background: #e3b34118; color: #e3b341;
+  border: 1px solid #e3b34133;
+  font-weight: 700;
+}
+.wb-preview-sample {
+  font-size: 9px; padding: 1px 6px;
+  border-radius: 8px;
+  background: #2a3e5222; color: #6a7a90;
+  border: 1px solid #2a3e5255;
+  font-weight: 700;
+}
+.wb-preview-alert-title {
+  font-size: 11.5px; color: var(--fg); line-height: 1.5;
+}
+.wb-preview-empty {
+  font-size: 11px; color: #2a3e52; text-align: center;
+  padding: 14px 0 6px; line-height: 1.7;
+}
+
+/* Step 4: notify */
 .wb-channel-row { display: flex; gap: 8px; margin-bottom: 12px; }
 .wb-ch-btn {
   flex: 1; padding: 11px; border-radius: 10px; text-align: center;
@@ -803,7 +926,7 @@ body {
 .wb-input::placeholder { color: #2a3e52; }
 .wb-demo-note { font-size: 11px; color: #2a3e52; margin-top: 7px; }
 
-/* Step 4: done */
+/* Step 5: done */
 .wb-done-hero { text-align: center; padding: 20px 0 18px; }
 .wb-done-sun  { font-size: 44px; line-height: 1; margin-bottom: 10px; color: #e3b341; }
 .wb-done-title { font-size: 26px; font-weight: 900; color: var(--fg); margin-bottom: 6px; }
@@ -1713,6 +1836,7 @@ COMPS.forEach(c => {
       <div class="wb-dot"></div>
       <div class="wb-dot"></div>
       <div class="wb-dot"></div>
+      <div class="wb-dot"></div>
     </div>
 
     <!-- Steps rendered by JS -->
@@ -1742,10 +1866,97 @@ const WB_COMFORT_STOCKS = [
 
 const BL_SECTOR_NAMES = new Set(['地产链','传媒互联网']);
 
+// ── 研报/资讯 信源库 ──────────────────────────────────────────────────
+const WB_SRC_CATS = [
+  { key:'kol',      label:'KOL 观点',       sub:'高质量个人研究者', color:'#4c9ef0' },
+  { key:'fund',     label:'大佬持仓 13F',   sub:'季度机构披露',   color:'#e3b341' },
+  { key:'politics', label:'参议员/众议员',   sub:'国会交易披露',   color:'#f0883e' },
+  { key:'broker',   label:'大行研报',       sub:'GS/MS/JPM/Barclays', color:'#3fb950' },
+];
+
+const WB_SOURCES = [
+  // KOL
+  { id:'serenity', cat:'kol', name:'Serenity',
+    handle:'@aleabitoreddit · X/Twitter',
+    sectors:['AI算力','半导体','电力设备','新能源车'],
+    lastAction:'2h 前 · WF6 出口管制 → SK 硅片受益',
+    verified:true },
+  { id:'situational', cat:'kol', name:'Situational Awareness',
+    handle:'Leopold Aschenbrenner · Substack',
+    sectors:['AI算力','半导体'],
+    lastAction:'昨日 · AGI 时间表 2027 更新',
+    verified:true },
+  // 大佬持仓 (13F)
+  { id:'berkshire', cat:'fund', name:'Berkshire Hathaway',
+    handle:'巴菲特 · 季度 13F',
+    sectors:['消费白酒','大金融'],
+    lastAction:'Q2 新增 OXY 3% 仓位' },
+  { id:'lilu', cat:'fund', name:'喜马拉雅资本',
+    handle:'李录 · 季度 13F',
+    sectors:['大金融','消费白酒','新能源车'],
+    lastAction:'Q2 加仓 BAC 至 12%' },
+  // 参议员/众议员
+  { id:'pelosi', cat:'politics', name:'Nancy Pelosi',
+    handle:'众议员 · Periodic Trading Report',
+    sectors:['AI算力','半导体'],
+    lastAction:'披露买入 NVDA call 5-6M USD' },
+  { id:'senate_whale', cat:'politics', name:'Senate Whale Watch',
+    handle:'50+ 议员合集 · unusualwhales',
+    sectors:['大金融','AI算力','医疗','半导体'],
+    lastAction:'本周 12 位议员买入 GOOGL' },
+  // 大行研报
+  { id:'gs', cat:'broker', name:'Goldman Sachs',
+    handle:'Marquee · Global Strategy',
+    sectors:['大金融','AI算力','消费白酒','新能源车','半导体'],
+    lastAction:'Peter Oppenheimer 全球策略白皮书' },
+  { id:'ms', cat:'broker', name:'Morgan Stanley',
+    handle:'Matrix · Thematic Research',
+    sectors:['AI算力','医疗','消费白酒'],
+    lastAction:'Robotics 主题周报 2026-05-19' },
+  { id:'jpm', cat:'broker', name:'JPMorgan',
+    handle:'Marko Kolanovic · Global Markets',
+    sectors:['大金融','半导体'],
+    lastAction:'Rates 结构性上行论' },
+  { id:'barclays', cat:'broker', name:'Barclays',
+    handle:'Live Research · Cross-Asset',
+    sectors:['大金融','AI算力'],
+    lastAction:'"No saving grace" 长端债 sell-off' },
+];
+
+// 今日示例预警：前 3 条为真实数据（来自 daily-research-brief 与 Serenity JSON），
+// 后 3 条为手工构造（sample:true 会加"示例"chip）
+const WB_TODAY_ALERTS = [
+  { src:'serenity', time:'2h 前',
+    title:'WF6 出口管制升级 → SK 硅片 093370.KS + 688146.SH 是核心 chokepoint',
+    sector:'半导体', sample:false },
+  { src:'gs', time:'今日 08:26',
+    title:'AC+T Data Centers：GPU 短缺 2028-29 normalize，power 才是真正约束',
+    sector:'AI算力', sample:false },
+  { src:'gs', time:'昨日 05:03',
+    title:'Peter Oppenheimer《Momentum risks yielding to bonds》— 短期 correction 风险抬升',
+    sector:'大金融', sample:false },
+  { src:'pelosi', time:'今日 06:00',
+    title:'Nancy Pelosi 披露买入 NVDA call 5-6M 美元',
+    sector:'AI算力', sample:true },
+  { src:'lilu', time:'昨日',
+    title:'喜马拉雅资本 Q2 13F：加仓 BAC 至 12% 仓位',
+    sector:'大金融', sample:true },
+  { src:'berkshire', time:'本周',
+    title:'Berkshire Q2 13F：新增 OXY 3% 仓位（能源持仓再度加码）',
+    sector:'消费白酒', sample:true },
+  { src:'situational', time:'昨日',
+    title:'Leopold 更新 AGI 时间表 2027：CoWoS 与 HBM 是最紧供给约束',
+    sector:'AI算力', sample:true },
+  { src:'ms', time:'2 日前',
+    title:'MS Robotics 周报：Optimus V3 供应链 = 谐波减速器 + 灵巧手',
+    sector:'AI算力', sample:true },
+];
+
 // ── STATE ─────────────────────────────────────────────────────────────
 let wbStep = 0;
 let wbConds = new Set(WB_CONDITIONS.filter(c=>c.on).map(c=>c.id));
 let wbSectors = new Set();
+let wbSources = new Set(['serenity','gs','pelosi']);
 let wbChannel = 'email';
 let wbContact = '';
 
@@ -1774,10 +1985,11 @@ function wbGoTo(step) {
 function renderWbStep() {
   const body = document.getElementById('wb-body');
   body.innerHTML = '';
-  if (wbStep === 0) body.appendChild(renderStepScan());
+  if (wbStep === 0)      body.appendChild(renderStepScan());
   else if (wbStep === 1) body.appendChild(renderStepPosition());
-  else if (wbStep === 2) body.appendChild(renderStepNotify());
-  else body.appendChild(renderStepDone());
+  else if (wbStep === 2) body.appendChild(renderStepSources());
+  else if (wbStep === 3) body.appendChild(renderStepNotify());
+  else                    body.appendChild(renderStepDone());
 }
 
 // ── STEP 1: 市场扫描 & 触发条件 ────────────────────────────────────────
@@ -1853,7 +2065,7 @@ function renderStepPosition() {
 
     <div class="wb-btn-row">
       <button class="wb-btn wb-btn-dim" onclick="wbGoTo(0)">← 上一步</button>
-      <button class="wb-btn wb-btn-gold" onclick="wbGoTo(2)">下一步：设置通知方式 →</button>
+      <button class="wb-btn wb-btn-gold" onclick="wbGoTo(2)">下一步：选研报/资讯信源 →</button>
     </div>
   `;
 
@@ -1898,7 +2110,127 @@ function renderStepPosition() {
   return el;
 }
 
-// ── STEP 3: 通知方式 ──────────────────────────────────────────────────
+// ── STEP 3 (NEW): 研报/资讯 信源 ─────────────────────────────────────
+function renderStepSources() {
+  const el = document.createElement('div');
+  el.className = 'wb-step show';
+
+  const userSectors = new Set(wbSectors);  // 用户在 step 2 选的板块
+  const hasSectorPick = userSectors.size > 0;
+
+  // Auto-boost：如果用户选了板块，自动预选覆盖率高的信源
+  if (hasSectorPick) {
+    WB_SOURCES.forEach(s => {
+      const overlap = s.sectors.filter(x => userSectors.has(x)).length;
+      if (overlap >= 2 && !wbSources.has(s.id)) wbSources.add(s.id);
+    });
+  }
+
+  el.innerHTML = `
+    <div class="wb-step-title">谁的动作值得你被叫醒？</div>
+    <div class="wb-step-sub">选择你信任的 KOL / 大佬 / 议员 / 大行研报——当他们在你关心的板块有动作时，AI 会推给你</div>
+
+    <div id="wb-src-list"></div>
+
+    <div class="wb-preview-box">
+      <div class="wb-preview-title">
+        <span>如果今天上线 · 你会收到这些提醒</span>
+        <span class="wb-preview-count" id="wb-preview-count"></span>
+      </div>
+      <div id="wb-preview-list"></div>
+    </div>
+
+    <div class="wb-btn-row">
+      <button class="wb-btn wb-btn-dim" onclick="wbGoTo(1)">← 上一步</button>
+      <button class="wb-btn wb-btn-gold" onclick="wbGoTo(3)">下一步：设置通知方式 →</button>
+    </div>
+  `;
+
+  // Build sources grouped by category
+  const list = el.querySelector('#wb-src-list');
+  WB_SRC_CATS.forEach(cat => {
+    const catRow = document.createElement('div');
+    catRow.className = 'wb-src-cat';
+    catRow.innerHTML = `
+      <span class="wb-src-cat-dot" style="background:${cat.color}"></span>
+      ${cat.label}
+      <span class="wb-src-cat-sub">${cat.sub}</span>
+    `;
+    list.appendChild(catRow);
+
+    WB_SOURCES.filter(s => s.cat === cat.key).forEach(s => {
+      const card = document.createElement('div');
+      const isOn = wbSources.has(s.id);
+      card.className = 'wb-src-card' + (isOn ? ' on' : '');
+      const tagHtml = s.sectors.map(sec => {
+        const match = userSectors.has(sec);
+        return `<span class="wb-src-tag${match ? ' match' : ''}">${sec}</span>`;
+      }).join('');
+      card.innerHTML = `
+        <div class="wb-src-card-chk">${isOn ? '✓' : ''}</div>
+        <div class="wb-src-card-body">
+          <div class="wb-src-card-name">
+            ${s.name}${s.verified ? '<span class="wb-src-verified">★</span>' : ''}
+          </div>
+          <div class="wb-src-card-handle">${s.handle}</div>
+          <div class="wb-src-card-tags">${tagHtml}</div>
+          <div class="wb-src-card-action">${s.lastAction}</div>
+        </div>`;
+      card.onclick = () => {
+        if (wbSources.has(s.id)) wbSources.delete(s.id);
+        else wbSources.add(s.id);
+        const on = wbSources.has(s.id);
+        card.classList.toggle('on', on);
+        card.querySelector('.wb-src-card-chk').textContent = on ? '✓' : '';
+        refreshPreview();
+      };
+      list.appendChild(card);
+    });
+  });
+
+  // Preview refresh
+  function refreshPreview() {
+    const previewEl = el.querySelector('#wb-preview-list');
+    const countEl   = el.querySelector('#wb-preview-count');
+    const matched = WB_TODAY_ALERTS.filter(a => {
+      if (!wbSources.has(a.src)) return false;
+      if (hasSectorPick && !userSectors.has(a.sector)) return false;
+      return true;
+    }).slice(0, 4);
+    countEl.textContent = matched.length > 0 ? `${matched.length} 条` : '';
+    if (matched.length === 0) {
+      previewEl.innerHTML = `
+        <div class="wb-preview-empty">
+          ${wbSources.size === 0 ? '选一个信源试试' :
+            hasSectorPick ? '当前板块 + 信源组合今日无匹配<br>去上一步多选几个板块试试' :
+            '今日暂无匹配的动作'}
+        </div>`;
+      return;
+    }
+    previewEl.innerHTML = matched.map(a => {
+      const src = WB_SOURCES.find(s => s.id === a.src);
+      const cat = WB_SRC_CATS.find(c => c.key === src.cat);
+      return `
+        <div class="wb-preview-alert">
+          <div class="wb-preview-alert-dot" style="background:${cat.color}"></div>
+          <div class="wb-preview-alert-body">
+            <div class="wb-preview-alert-head">
+              <span class="wb-preview-src">${src.name}</span>
+              <span class="wb-preview-time">${a.time}</span>
+              <span class="wb-preview-sector-chip">${a.sector}</span>
+              ${a.sample ? '<span class="wb-preview-sample">示例</span>' : ''}
+            </div>
+            <div class="wb-preview-alert-title">${a.title}</div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+  refreshPreview();
+
+  return el;
+}
+
+// ── STEP 4: 通知方式 ──────────────────────────────────────────────────
 function renderStepNotify() {
   const el = document.createElement('div');
   el.className = 'wb-step show';
@@ -1919,8 +2251,8 @@ function renderStepNotify() {
     <div class="wb-demo-note">演示版 · 实际产品接入真实推送服务</div>
 
     <div class="wb-btn-row">
-      <button class="wb-btn wb-btn-dim" onclick="wbGoTo(1)">← 上一步</button>
-      <button class="wb-btn wb-btn-gold" onclick="wbGoTo(3)">启动监控 →</button>
+      <button class="wb-btn wb-btn-dim" onclick="wbGoTo(2)">← 上一步</button>
+      <button class="wb-btn wb-btn-gold" onclick="wbGoTo(4)">启动监控 →</button>
     </div>
   `;
   return el;
@@ -1936,7 +2268,7 @@ function wbSelCh(ch) {
   if (inp) inp.placeholder = ch === 'email' ? '输入你的邮箱地址' : '输入微信号';
 }
 
-// ── STEP 4: 完成确认 ──────────────────────────────────────────────────
+// ── STEP 5: 完成确认 ──────────────────────────────────────────────────
 function renderStepDone() {
   const el = document.createElement('div');
   el.className = 'wb-step show';
@@ -1953,6 +2285,17 @@ function renderStepDone() {
        <div class="wb-ml-status">监控中</div>
      </div>`
   ).join('') || `<div class="wb-ml-row"><div class="wb-ml-text" style="color:#44596a">（未选择条件）</div></div>`;
+
+  const srcRows = [...wbSources].map(id => {
+    const s = WB_SOURCES.find(x => x.id === id);
+    if (!s) return '';
+    const cat = WB_SRC_CATS.find(c => c.key === s.cat);
+    return `<div class="wb-ml-row">
+       <div class="wb-ml-dot" style="background:${cat.color}"></div>
+       <div class="wb-ml-text">${s.name} <span style="color:#44596a;font-size:10px">· ${cat.label}</span></div>
+       <div class="wb-ml-status">已订阅</div>
+     </div>`;
+  }).join('') || `<div class="wb-ml-row"><div class="wb-ml-text" style="color:#44596a">（未选择信源）</div></div>`;
 
   el.innerHTML = `
     <div class="wb-done-hero">
@@ -1975,13 +2318,18 @@ function renderStepDone() {
       </div>
     </div>
 
+    <div class="wb-monitor-list">
+      <div class="wb-ml-title">研报/资讯信源</div>
+      ${srcRows}
+    </div>
+
     <div class="wb-notify-row" style="margin-top:14px">
       通知方式 <span class="wb-notify-val">${channelTxt}</span>
       &nbsp;→&nbsp;<span class="wb-notify-val">${contactTxt}</span>
     </div>
 
     <div class="wb-btn-row">
-      <button class="wb-btn wb-btn-dim" onclick="wbGoTo(2)">修改设置</button>
+      <button class="wb-btn wb-btn-dim" onclick="wbGoTo(3)">修改设置</button>
       <button class="wb-btn wb-btn-gold" onclick="closeWatchBot()">完成，去休息 ☀</button>
     </div>
   `;
