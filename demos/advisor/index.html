@@ -22,516 +22,405 @@
 }
 html { scroll-behavior: smooth; }
 body {
-  background: var(--bg);
-  color: var(--fg);
+  background: var(--bg); color: var(--fg);
   font-family: -apple-system, 'Microsoft YaHei', 'PingFang SC', sans-serif;
-  overflow-x: hidden;
-  min-height: 100vh;
+  overflow-x: hidden; min-height: 100vh;
 }
 
 /* ═══════════════════════════════════════════
    ONBOARDING
 ═══════════════════════════════════════════ */
 #onboard {
-  position: fixed; inset: 0;
-  background: var(--bg);
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+  position: fixed; inset: 0; background: var(--bg);
+  z-index: 1000; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 24px;
 }
 #onboard::before {
-  content: '';
-  position: absolute; inset: 0;
-  background-image:
-    radial-gradient(circle, #ffffff18 1px, transparent 1px),
-    radial-gradient(circle, #ffffff0d 1px, transparent 1px);
-  background-size: 80px 80px, 140px 140px;
-  background-position: 0 0, 40px 60px;
-  pointer-events: none;
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(circle,#ffffff18 1px,transparent 1px),radial-gradient(circle,#ffffff0d 1px,transparent 1px);
+  background-size: 80px 80px,140px 140px; background-position: 0 0,40px 60px; pointer-events: none;
 }
 #onboard::after {
-  content: '';
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -60%);
-  width: 500px; height: 500px;
-  background: radial-gradient(ellipse, #e3b34108 0%, transparent 70%);
-  pointer-events: none;
-  animation: pulse-bg 4s ease-in-out infinite;
+  content: ''; position: absolute; top:50%; left:50%; transform:translate(-50%,-60%);
+  width:500px; height:500px; background:radial-gradient(ellipse,#e3b34108 0%,transparent 70%);
+  pointer-events:none; animation:pulse-bg 4s ease-in-out infinite;
 }
 @keyframes pulse-bg { 0%,100%{opacity:.5} 50%{opacity:1} }
-
 .ob-card {
-  background: #0b1828;
-  border: 1px solid var(--bdr);
-  border-radius: 20px;
-  padding: 40px 44px;
-  width: min(500px, 96vw);
-  position: relative;
-  z-index: 1;
-  box-shadow: 0 32px 80px #000000bb;
+  background:#0b1828; border:1px solid var(--bdr); border-radius:20px;
+  padding:40px 44px; width:min(500px,96vw); position:relative; z-index:1;
+  box-shadow:0 32px 80px #000000bb;
 }
-.ob-step { display: none; }
-.ob-step.active { display: block; animation: fadeUp 0.35s ease-out; }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.ob-logo {
-  font-size: 11px; font-weight: 800;
-  color: var(--gold); letter-spacing: 0.2em;
-  text-transform: uppercase; margin-bottom: 24px;
-}
-.ob-title {
-  font-size: 28px; font-weight: 900;
-  color: var(--fg); line-height: 1.25;
-  margin-bottom: 8px;
-}
-.ob-sub {
-  font-size: 13px; color: var(--dim);
-  line-height: 1.7; margin-bottom: 26px;
-}
-
-/* Progress dots */
-.ob-dots {
-  display: flex; gap: 6px;
-  justify-content: center; margin-bottom: 28px;
-}
-.ob-dot {
-  height: 3px; width: 28px; border-radius: 2px;
-  background: var(--bdr); transition: background 0.3s;
-}
-.ob-dot.active { background: var(--gold); }
-.ob-dot.done   { background: var(--blue); }
-
-/* Name input */
-.ob-name-wrap { position: relative; margin-bottom: 14px; }
+.ob-step { display:none; }
+.ob-step.active { display:block; animation:fadeUp 0.35s ease-out; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.ob-logo { font-size:11px; font-weight:800; color:var(--gold); letter-spacing:.2em; text-transform:uppercase; margin-bottom:24px; }
+.ob-title { font-size:28px; font-weight:900; color:var(--fg); line-height:1.25; margin-bottom:8px; }
+.ob-sub   { font-size:13px; color:var(--dim); line-height:1.7; margin-bottom:26px; }
+.ob-dots  { display:flex; gap:6px; justify-content:center; margin-bottom:28px; }
+.ob-dot   { height:3px; width:28px; border-radius:2px; background:var(--bdr); transition:background .3s; }
+.ob-dot.active { background:var(--gold); }
+.ob-dot.done   { background:var(--blue); }
 .ob-name-input {
-  width: 100%;
-  padding: 15px 18px;
-  background: #060f1c;
-  border: 1.5px solid var(--bdr);
-  border-radius: 12px;
-  color: var(--fg);
-  font-size: 24px; font-weight: 800;
-  font-family: inherit; outline: none;
-  text-align: center; letter-spacing: 0.08em;
-  transition: border-color 0.2s;
+  width:100%; padding:15px 18px; background:#060f1c; border:1.5px solid var(--bdr);
+  border-radius:12px; color:var(--fg); font-size:24px; font-weight:800; font-family:inherit;
+  outline:none; text-align:center; letter-spacing:.08em; transition:border-color .2s; margin-bottom:14px;
 }
-.ob-name-input:focus { border-color: #e3b34166; }
-.ob-name-input::placeholder { color: var(--dim); font-size: 15px; font-weight: 400; }
-
-.ob-suggestions {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  margin-bottom: 26px;
-}
+.ob-name-input:focus { border-color:#e3b34166; }
+.ob-name-input::placeholder { color:var(--dim); font-size:15px; font-weight:400; }
+.ob-suggestions { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
 .ob-sug {
-  font-size: 13px; font-weight: 700;
-  padding: 6px 14px; border-radius: 20px;
-  border: 1.5px solid var(--bdr);
-  color: var(--dim); cursor: pointer; background: transparent;
-  font-family: inherit; transition: all 0.15s;
+  font-size:13px; font-weight:700; padding:6px 14px; border-radius:20px;
+  border:1.5px solid var(--bdr); color:var(--dim); cursor:pointer; background:transparent;
+  font-family:inherit; transition:all .15s;
 }
-.ob-sug:hover { border-color: #e3b34155; color: var(--gold); background: #e3b34110; }
-.ob-sug.sel   { border-color: #e3b34177; color: var(--gold); background: #e3b34118; }
-
-/* Stock list */
-.ob-stock-list { margin-bottom: 12px; }
+.ob-sug:hover { border-color:#e3b34155; color:var(--gold); background:#e3b34110; }
+.ob-sug.sel   { border-color:#e3b34177; color:var(--gold); background:#e3b34118; }
+.ob-stock-list { margin-bottom:12px; }
 .ob-stock-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 11px 14px;
-  background: #060f1c;
-  border: 1.5px solid var(--bdr);
-  border-radius: 10px; margin-bottom: 8px;
-  transition: border-color 0.15s;
+  display:flex; align-items:center; gap:10px; padding:11px 14px;
+  background:#060f1c; border:1.5px solid var(--bdr);
+  border-radius:10px; margin-bottom:8px; transition:border-color .15s;
 }
-.ob-stock-row:hover { border-color: #1e3048; }
-.ob-sr-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.ob-sr-name { font-size: 14px; font-weight: 800; flex: 1; }
-.ob-sr-code { font-size: 11px; color: var(--dim); }
-.ob-sr-pct  { font-size: 13px; font-weight: 700; color: var(--gold); margin-left: auto; }
-.ob-sr-del  { color: var(--dim); cursor: pointer; font-size: 18px; padding: 0 2px; line-height: 1; }
-.ob-sr-del:hover { color: var(--red); }
-
-/* Upload zone */
+.ob-stock-row:hover { border-color:#1e3048; }
+.ob-sr-dot  { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.ob-sr-name { font-size:14px; font-weight:800; flex:1; }
+.ob-sr-code { font-size:11px; color:var(--dim); }
+.ob-sr-pct  { font-size:13px; font-weight:700; color:var(--gold); margin-left:auto; }
+.ob-sr-del  { color:var(--dim); cursor:pointer; font-size:18px; padding:0 2px; line-height:1; }
+.ob-sr-del:hover { color:var(--red); }
 .ob-upload {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 16px;
-  background: #04080e;
-  border: 1.5px dashed #1a3050;
-  border-radius: 10px; cursor: pointer;
-  margin-bottom: 16px;
-  transition: border-color 0.15s, background 0.15s;
+  display:flex; align-items:center; gap:12px; padding:12px 16px;
+  background:#04080e; border:1.5px dashed #1a3050; border-radius:10px; cursor:pointer;
+  margin-bottom:16px; transition:border-color .15s,background .15s;
 }
-.ob-upload:hover { border-color: #e3b34144; background: #060f1c; }
-.ob-upload-icon { font-size: 20px; }
-.ob-upload-main { font-size: 13px; color: var(--fg); }
-.ob-upload-sub  { font-size: 11px; color: var(--dim); margin-top: 2px; }
-#file-input { display: none; }
-
-/* Loading */
-.ob-loading { text-align: center; padding: 10px 0; }
+.ob-upload:hover { border-color:#e3b34144; background:#060f1c; }
+.ob-upload-icon { font-size:20px; }
+.ob-upload-main { font-size:13px; color:var(--fg); }
+.ob-upload-sub  { font-size:11px; color:var(--dim); margin-top:2px; }
+#file-input { display:none; }
+.ob-loading { text-align:center; padding:10px 0; }
 .ob-spinner {
-  width: 56px; height: 56px; border-radius: 50%;
-  border: 3px solid var(--bdr);
-  border-top-color: var(--gold);
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
+  width:56px; height:56px; border-radius:50%; border:3px solid var(--bdr);
+  border-top-color:var(--gold); animation:spin 1s linear infinite; margin:0 auto 20px;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
-.ob-load-title { font-size: 17px; font-weight: 800; margin-bottom: 22px; }
-.ob-ps {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 12.5px; color: var(--dim);
-  margin-bottom: 9px; transition: color 0.3s;
-}
-.ob-ps.done { color: var(--green); }
-.ob-ps-icon { width: 16px; text-align: center; }
-
-/* Buttons */
+@keyframes spin { to{transform:rotate(360deg)} }
+.ob-load-title { font-size:17px; font-weight:800; margin-bottom:22px; }
+.ob-ps { display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--dim); margin-bottom:9px; transition:color .3s; }
+.ob-ps.done { color:var(--green); }
+.ob-ps-icon { width:16px; text-align:center; }
 .ob-btn {
-  width: 100%; padding: 14px; border: none;
-  border-radius: 12px; font-size: 15px; font-weight: 800;
-  cursor: pointer; font-family: inherit;
-  letter-spacing: 0.03em; margin-top: 6px;
-  transition: opacity 0.15s, transform 0.1s;
+  width:100%; padding:14px; border:none; border-radius:12px; font-size:15px; font-weight:800;
+  cursor:pointer; font-family:inherit; letter-spacing:.03em; margin-top:6px;
+  transition:opacity .15s,transform .1s;
 }
-.ob-btn:hover  { opacity: 0.88; }
-.ob-btn:active { transform: scale(0.98); }
-.ob-btn-gold { background: linear-gradient(135deg, #c99a2e, #e3b341); color: #040810; }
-.ob-btn-dim  { background: #09172a; color: var(--dim); border: 1.5px solid var(--bdr); }
+.ob-btn:hover  { opacity:.88; }
+.ob-btn:active { transform:scale(.98); }
+.ob-btn-gold { background:linear-gradient(135deg,#c99a2e,#e3b341); color:#040810; }
+.ob-btn-dim  { background:#09172a; color:var(--dim); border:1.5px solid var(--bdr); }
 
 /* ═══════════════════════════════════════════
    MAIN APP
 ═══════════════════════════════════════════ */
-#app { display: none; min-height: 100vh; }
-
-/* Header */
+#app { display:none; min-height:100vh; }
 .app-hd {
-  position: fixed; top: 0; left: 0; right: 0; height: 52px;
-  background: #030710ee;
-  border-bottom: 1px solid var(--bdr);
-  display: flex; align-items: center;
-  padding: 0 24px; gap: 14px; z-index: 100;
-  backdrop-filter: blur(8px);
+  position:fixed; top:0; left:0; right:0; height:52px;
+  background:#030710ee; border-bottom:1px solid var(--bdr);
+  display:flex; align-items:center; padding:0 24px; gap:14px; z-index:100;
+  backdrop-filter:blur(8px);
 }
-.hd-logo {
-  font-size: 15px; font-weight: 900;
-  color: var(--gold); letter-spacing: 0.08em;
-}
-.hd-ai-pill {
-  font-size: 12px; font-weight: 700;
-  background: #e3b34112; border: 1px solid #e3b34128;
-  color: var(--gold); padding: 3px 10px; border-radius: 20px;
-}
-.hd-ai-lbl { font-size: 9.5px; color: var(--dim); font-weight: 400; }
-.hd-spacer { flex: 1; }
-.hd-port   { display: flex; gap: 16px; align-items: center; }
-.hd-pi     { font-size: 11px; color: var(--dim); }
-.hd-pv     { font-weight: 700; }
-.hd-pv.up  { color: var(--green); }
-.hd-pv.dn  { color: var(--red); }
-.hd-date   { font-size: 11px; color: var(--dim); }
-
-/* Nav */
+.hd-logo    { font-size:15px; font-weight:900; color:var(--gold); letter-spacing:.08em; }
+.hd-ai-pill { font-size:12px; font-weight:700; background:#e3b34112; border:1px solid #e3b34128; color:var(--gold); padding:3px 10px; border-radius:20px; }
+.hd-ai-lbl  { font-size:9.5px; color:var(--dim); font-weight:400; }
+.hd-spacer  { flex:1; }
+.hd-port    { display:flex; gap:16px; align-items:center; }
+.hd-pi      { font-size:11px; color:var(--dim); }
+.hd-pv      { font-weight:700; }
+.hd-pv.up   { color:var(--green); }
+.hd-pv.dn   { color:var(--red); }
+.hd-date    { font-size:11px; color:var(--dim); }
 .app-nav {
-  position: fixed; top: 52px; left: 0; right: 0;
-  background: #030710ee; border-bottom: 1px solid var(--bdr);
-  display: flex; padding: 0 20px; z-index: 99;
-  backdrop-filter: blur(8px);
+  position:fixed; top:52px; left:0; right:0;
+  background:#030710ee; border-bottom:1px solid var(--bdr);
+  display:flex; padding:0 20px; z-index:99; backdrop-filter:blur(8px);
+  overflow-x:auto;
 }
+.app-nav::-webkit-scrollbar { display:none; }
 .nav-tab {
-  font-size: 13px; font-weight: 700; color: var(--dim);
-  padding: 14px 18px; cursor: pointer;
-  border-bottom: 2px solid transparent;
-  letter-spacing: 0.03em; white-space: nowrap;
-  transition: color 0.2s, border-color 0.2s;
+  font-size:13px; font-weight:700; color:var(--dim); padding:14px 18px; cursor:pointer;
+  border-bottom:2px solid transparent; letter-spacing:.03em; white-space:nowrap;
+  transition:color .2s,border-color .2s;
 }
-.nav-tab:hover  { color: var(--fg); }
-.nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
-
-/* Content */
+.nav-tab:hover  { color:var(--fg); }
+.nav-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
 .app-body {
-  margin-top: 96px;
-  padding: 28px 24px 72px;
-  max-width: 1120px;
-  margin-left: auto; margin-right: auto;
+  margin-top:96px; padding:28px 24px 72px;
+  max-width:1120px; margin-left:auto; margin-right:auto;
 }
-.app-section { display: none; animation: fadeUp 0.3s ease-out; }
-.app-section.active { display: block; }
+.app-section { display:none; animation:fadeUp .3s ease-out; }
+.app-section.active { display:block; }
+.sec-h1 { font-size:22px; font-weight:900; margin-bottom:4px; }
+.sec-h2 { font-size:13px; color:var(--dim); margin-bottom:22px; line-height:1.65; }
 
-/* Section headings */
-.sec-h1 { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
-.sec-h2 { font-size: 13px; color: var(--dim); margin-bottom: 22px; line-height: 1.65; }
+/* ─── INLINE AI INTRO (top of each section) ─── */
+.sec-ai-intro {
+  display:flex; gap:12px; align-items:flex-start;
+  background:#060f1c; border:1px solid var(--bdr); border-left:3px solid var(--gold);
+  border-radius:12px; padding:16px 18px; margin-bottom:22px;
+}
+.sai-avatar {
+  width:30px; height:30px; border-radius:8px; flex-shrink:0;
+  background:linear-gradient(135deg,#c99a2e,#e3b341);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:900; color:#040810; margin-top:1px;
+}
+.sai-body  { flex:1; min-width:0; }
+.sai-nm    { font-size:11px; font-weight:800; color:var(--gold); margin-bottom:5px; }
+.sai-text  { font-size:13px; color:#7090a8; line-height:1.9; }
+.sai-text strong { color:var(--fg); font-weight:700; }
+.sai-text em     { color:var(--gold); font-style:normal; }
 
-/* Sub-tabs */
+/* ─── BRIEF PAGE ─── */
+.brief-hero {
+  background:linear-gradient(135deg,#060e1c,#0c1828);
+  border:1px solid var(--bdr); border-radius:16px;
+  padding:26px 28px; margin-bottom:18px; position:relative; overflow:hidden;
+}
+.brief-hero::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse 50% 60% at 90% 10%,#e3b34110,transparent);
+  pointer-events:none;
+}
+.brief-ai-row { display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+.brief-avatar {
+  width:52px; height:52px; border-radius:15px; flex-shrink:0;
+  background:linear-gradient(135deg,#c99a2e,#e3b341);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; font-weight:900; color:#040810;
+}
+.brief-greet-name { font-size:18px; font-weight:900; color:var(--fg); margin-bottom:3px; }
+.brief-greet-date { font-size:11px; color:var(--dim); }
+.brief-intro-text {
+  font-size:14px; color:#7090a8; line-height:1.95;
+  border-left:2px solid #1e3248; padding-left:14px; margin-bottom:22px;
+}
+.brief-intro-text strong { color:var(--fg); }
+.brief-intro-text em     { color:var(--gold); font-style:normal; }
+
+.brief-scores {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+  gap:10px; margin-bottom:22px;
+}
+.bsc {
+  background:#040c18; border:1px solid var(--bdr);
+  border-radius:10px; padding:13px 14px; text-align:center;
+}
+.bsc-lbl { font-size:9.5px; font-weight:700; color:var(--dim); letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px; }
+.bsc-val { font-size:27px; font-weight:900; line-height:1; }
+.bsc-sub { font-size:10px; color:var(--dim); margin-top:4px; }
+
+.brief-section-title {
+  font-size:10px; font-weight:700; color:var(--dim); letter-spacing:.1em; text-transform:uppercase;
+  margin-bottom:10px; display:flex; align-items:center; gap:8px;
+}
+.brief-section-title::after { content:''; flex:1; height:1px; background:var(--bdr); }
+
+.signal-list { display:flex; flex-direction:column; gap:8px; margin-bottom:22px; }
+.signal-item {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:12px 14px; border-radius:10px;
+  background:#040c18; border:1px solid var(--bdr);
+}
+.sig-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+.sig-body { flex:1; min-width:0; }
+.sig-head { font-size:13px; font-weight:700; color:var(--fg); margin-bottom:3px; }
+.sig-sub  { font-size:11.5px; color:var(--dim); line-height:1.55; }
+.sig-chips { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px; }
+.sig-chip {
+  font-size:9.5px; font-weight:700; padding:1.5px 7px; border-radius:8px;
+  background:#e3b34112; color:var(--gold); border:1px solid #e3b34128;
+}
+.sig-chip.warn { background:#f8514912; color:var(--red); border-color:#f8514928; }
+.sig-chip.good { background:#3fb95012; color:var(--green); border-color:#3fb95028; }
+
+.action-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:8px; margin-bottom:22px;
+}
+.action-rec {
+  display:flex; align-items:center; gap:12px; padding:13px 14px;
+  border-radius:10px; background:#040c18; border:1px solid var(--bdr);
+}
+.ar-dot   { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.ar-stock { font-size:14px; font-weight:800; flex:1; }
+.ar-badge {
+  font-size:11px; font-weight:800; padding:4px 10px; border-radius:8px;
+}
+.ar-add  { background:#3fb95018; color:var(--green); border:1px solid #3fb95030; }
+.ar-hold { background:#e3b34116; color:var(--gold);  border:1px solid #e3b34128; }
+.ar-trim { background:#f8514916; color:var(--red);   border:1px solid #f8514928; }
+
+.brief-nav-row {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+}
+.bnb {
+  padding:14px; border-radius:10px; text-align:center;
+  background:#040c18; border:1px solid var(--bdr);
+  cursor:pointer; transition:border-color .15s,background .15s;
+}
+.bnb:hover { border-color:#e3b34144; background:#0a1624; }
+.bnb-label { font-size:13px; font-weight:800; color:var(--fg); margin-bottom:4px; }
+.bnb-sub   { font-size:11px; color:var(--dim); }
+.bnb-arrow { font-size:11px; color:var(--dim); margin-top:6px; }
+
+/* sub-tabs */
 .sub-tabs {
-  display: flex; border-bottom: 1px solid var(--bdr);
-  margin-bottom: 26px; gap: 0;
+  display:flex; border-bottom:1px solid var(--bdr); margin-bottom:26px;
 }
 .sub-tab {
-  font-size: 13px; font-weight: 700; color: var(--dim);
-  padding: 10px 16px; cursor: pointer;
-  border-bottom: 2px solid transparent; margin-bottom: -1px;
-  transition: color 0.2s, border-color 0.2s;
+  font-size:13px; font-weight:700; color:var(--dim); padding:10px 16px; cursor:pointer;
+  border-bottom:2px solid transparent; margin-bottom:-1px; transition:color .2s,border-color .2s;
 }
-.sub-tab:hover  { color: var(--fg); }
-.sub-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
-.sub-pane { display: none; }
-.sub-pane.active { display: block; animation: fadeUp 0.25s ease-out; }
+.sub-tab:hover  { color:var(--fg); }
+.sub-tab.active { color:var(--blue); border-bottom-color:var(--blue); }
+.sub-pane { display:none; }
+.sub-pane.active { display:block; animation:fadeUp .25s ease-out; }
 
-/* ─── NEWS FEED ─── */
-.news-feed { display: flex; flex-direction: column; gap: 10px; }
+/* ─── NEWS ─── */
+.news-feed { display:flex; flex-direction:column; gap:10px; }
 .news-card {
-  display: flex; gap: 14px;
-  padding: 14px 16px;
-  background: var(--card); border: 1px solid var(--bdr);
-  border-radius: 12px; cursor: pointer;
-  transition: border-color 0.15s;
+  display:flex; gap:14px; padding:14px 16px;
+  background:var(--card); border:1px solid var(--bdr);
+  border-radius:12px; cursor:pointer; transition:border-color .15s;
 }
-.news-card:hover { border-color: #1e3048; }
-.news-card.rel   { border-left: 3px solid var(--gold); }
-.nc-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
-.nc-body { flex: 1; min-width: 0; }
-.nc-meta {
-  display: flex; align-items: center;
-  gap: 8px; margin-bottom: 5px; flex-wrap: wrap;
-}
-.nc-src {
-  font-size: 10px; font-weight: 800;
-  padding: 2px 8px; border-radius: 8px;
-  background: #0e1c2e; letter-spacing: 0.03em;
-}
-.nc-time { font-size: 10px; color: var(--dim); }
-.nc-chip {
-  font-size: 9.5px; font-weight: 700;
-  padding: 1.5px 7px; border-radius: 8px;
-  background: #e3b34112; color: var(--gold); border: 1px solid #e3b34128;
-}
-.nc-hl { font-size: 14px; font-weight: 700; line-height: 1.5; margin-bottom: 4px; }
-.nc-sm { font-size: 12px; color: var(--dim); line-height: 1.6; }
+.news-card:hover { border-color:#1e3048; }
+.news-card.rel   { border-left:3px solid var(--gold); }
+.nc-dot  { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+.nc-body { flex:1; min-width:0; }
+.nc-meta { display:flex; align-items:center; gap:8px; margin-bottom:5px; flex-wrap:wrap; }
+.nc-src  { font-size:10px; font-weight:800; padding:2px 8px; border-radius:8px; background:#0e1c2e; letter-spacing:.03em; }
+.nc-time { font-size:10px; color:var(--dim); }
+.nc-chip { font-size:9.5px; font-weight:700; padding:1.5px 7px; border-radius:8px; background:#e3b34112; color:var(--gold); border:1px solid #e3b34128; }
+.nc-hl   { font-size:14px; font-weight:700; line-height:1.5; margin-bottom:4px; }
+.nc-sm   { font-size:12px; color:var(--dim); line-height:1.6; }
 
 /* ─── QUADRANT ─── */
-.quad-wrap {
-  background: var(--card); border: 1px solid var(--bdr);
-  border-radius: 12px; padding: 18px;
-}
-.quad-hd  { font-size: 12px; font-weight: 700; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
-.quad-sub { font-size: 11px; color: var(--dim); margin-bottom: 14px; }
-#quad-svg { width: 100%; display: block; }
-.quad-legend {
-  display: flex; flex-wrap: wrap; gap: 4px 16px;
-  margin-top: 14px;
-}
-.ql { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--dim); }
-.ql-dot { width: 8px; height: 8px; border-radius: 50%; }
+.quad-wrap { background:var(--card); border:1px solid var(--bdr); border-radius:12px; padding:18px; }
+.quad-hd  { font-size:12px; font-weight:700; color:var(--dim); letter-spacing:.08em; text-transform:uppercase; margin-bottom:4px; }
+.quad-sub { font-size:11px; color:var(--dim); margin-bottom:14px; }
+#quad-svg { width:100%; display:block; }
+.quad-legend { display:flex; flex-wrap:wrap; gap:4px 16px; margin-top:14px; }
+.ql { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--dim); }
+.ql-dot { width:8px; height:8px; border-radius:50%; }
 
-/* ─── COMPANY CARDS ─── */
-.co-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 12px;
-}
-.co-card {
-  background: var(--card); border: 1px solid var(--bdr);
-  border-radius: 12px; padding: 16px;
-  transition: border-color 0.15s;
-}
-.co-card:hover { border-color: #1e3048; }
-.co-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.co-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.co-nm  { font-size: 15px; font-weight: 900; }
-.co-cd  { font-size: 11px; color: var(--dim); }
-.co-pnl { margin-left: auto; font-size: 13px; font-weight: 800; }
-.co-pnl.up { color: var(--green); }
-.co-pnl.dn { color: var(--red); }
-.co-tag {
-  font-size: 9.5px; font-weight: 700;
-  padding: 2px 8px; border-radius: 8px;
-  background: #4c9ef012; color: var(--blue); border: 1px solid #4c9ef028;
-  display: inline-block; margin-bottom: 8px;
-}
-.co-title   { font-size: 13px; font-weight: 700; line-height: 1.5; margin-bottom: 6px; }
-.co-summary { font-size: 11.5px; color: var(--dim); line-height: 1.65; }
-.co-date    { font-size: 10px; color: #2a3e52; margin-top: 8px; }
+/* ─── COMPANY ─── */
+.co-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
+.co-card { background:var(--card); border:1px solid var(--bdr); border-radius:12px; padding:16px; transition:border-color .15s; }
+.co-card:hover { border-color:#1e3048; }
+.co-hd  { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.co-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.co-nm  { font-size:15px; font-weight:900; }
+.co-cd  { font-size:11px; color:var(--dim); }
+.co-pnl { margin-left:auto; font-size:13px; font-weight:800; }
+.co-pnl.up { color:var(--green); } .co-pnl.dn { color:var(--red); }
+.co-tag { font-size:9.5px; font-weight:700; padding:2px 8px; border-radius:8px; background:#4c9ef012; color:var(--blue); border:1px solid #4c9ef028; display:inline-block; margin-bottom:8px; }
+.co-title   { font-size:13px; font-weight:700; line-height:1.5; margin-bottom:6px; }
+.co-summary { font-size:11.5px; color:var(--dim); line-height:1.65; }
+.co-date    { font-size:10px; color:#2a3e52; margin-top:8px; }
 
 /* ─── ML PICKS ─── */
-.picks-meta {
-  display: flex; align-items: center; gap: 12px;
-  margin-bottom: 22px; flex-wrap: wrap;
-}
-.picks-badge {
-  font-size: 11px; font-weight: 700;
-  padding: 5px 12px; border-radius: 20px;
-  background: #3fb95012; color: var(--green); border: 1px solid #3fb95028;
-}
-.picks-stats { display: flex; gap: 20px; margin-left: auto; flex-wrap: wrap; }
-.ps-stat { font-size: 11px; color: var(--dim); }
-.ps-stat span { color: var(--fg); font-weight: 700; }
+.picks-meta { display:flex; align-items:center; gap:12px; margin-bottom:22px; flex-wrap:wrap; }
+.picks-badge { font-size:11px; font-weight:700; padding:5px 12px; border-radius:20px; background:#3fb95012; color:var(--green); border:1px solid #3fb95028; }
+.picks-stats { display:flex; gap:20px; margin-left:auto; flex-wrap:wrap; }
+.ps-stat { font-size:11px; color:var(--dim); }
+.ps-stat span { color:var(--fg); font-weight:700; }
+.picks-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:12px; }
+.pick-card { background:var(--card); border:1px solid var(--bdr); border-radius:12px; padding:14px 16px; position:relative; overflow:hidden; transition:border-color .15s; }
+.pick-card:hover { border-color:#1e3048; }
+.pick-card.mine  { border-left:3px solid var(--gold); }
+.pick-rank { position:absolute; top:12px; right:14px; font-size:11px; font-weight:900; color:var(--dim); opacity:.5; }
+.pick-hd  { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.pick-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.pick-nm  { font-size:15px; font-weight:900; }
+.pick-cd  { font-size:11px; color:var(--dim); }
+.pick-mine-badge { font-size:9px; font-weight:800; padding:2px 7px; border-radius:8px; background:#e3b34116; color:var(--gold); border:1px solid #e3b34128; margin-left:auto; }
+.pick-score-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.pick-score-lbl { font-size:11px; color:var(--dim); flex-shrink:0; width:44px; }
+.pick-bar-wrap  { flex:1; height:5px; background:var(--bdr); border-radius:3px; overflow:hidden; }
+.pick-bar-fill  { height:100%; border-radius:3px; background:linear-gradient(90deg,#3fb950,#e3b341); }
+.pick-score-num { font-size:14px; font-weight:900; color:var(--green); flex-shrink:0; width:28px; text-align:right; }
+.pick-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+.ptag      { font-size:10px; font-weight:700; padding:2px 8px; border-radius:8px; }
+.ptag-sec  { background:#1a2a3a; color:var(--dim); }
+.ptag-tr   { background:#3fb95016; color:var(--green); border:1px solid #3fb95028; }
+.ptag-tl   { background:#4c9ef016; color:var(--blue);  border:1px solid #4c9ef028; }
+.ptag-warn { background:#f8514916; color:var(--red);   border:1px solid #f8514928; }
+.pick-thesis { font-size:12px; color:#6a90a8; line-height:1.65; }
 
-.picks-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-  gap: 12px;
-}
-.pick-card {
-  background: var(--card); border: 1px solid var(--bdr);
-  border-radius: 12px; padding: 14px 16px;
-  position: relative; overflow: hidden;
-  transition: border-color 0.15s;
-}
-.pick-card:hover { border-color: #1e3048; }
-.pick-card.mine  { border-left: 3px solid var(--gold); }
-.pick-rank {
-  position: absolute; top: 12px; right: 14px;
-  font-size: 11px; font-weight: 900; color: var(--dim); opacity: 0.5;
-}
-.pick-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.pick-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.pick-nm  { font-size: 15px; font-weight: 900; }
-.pick-cd  { font-size: 11px; color: var(--dim); }
-.pick-mine-badge {
-  font-size: 9px; font-weight: 800;
-  padding: 2px 7px; border-radius: 8px;
-  background: #e3b34116; color: var(--gold); border: 1px solid #e3b34128;
-  margin-left: auto;
-}
-.pick-score-row {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
-}
-.pick-score-lbl { font-size: 11px; color: var(--dim); flex-shrink: 0; width: 44px; }
-.pick-bar-wrap  { flex: 1; height: 5px; background: var(--bdr); border-radius: 3px; overflow: hidden; }
-.pick-bar-fill  { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #3fb950, #e3b341); }
-.pick-score-num { font-size: 14px; font-weight: 900; color: var(--green); flex-shrink: 0; width: 28px; text-align: right; }
-.pick-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-.ptag {
-  font-size: 10px; font-weight: 700;
-  padding: 2px 8px; border-radius: 8px;
-}
-.ptag-sec  { background: #1a2a3a; color: var(--dim); }
-.ptag-tr   { background: #3fb95016; color: var(--green); border: 1px solid #3fb95028; }
-.ptag-tl   { background: #4c9ef016; color: var(--blue);  border: 1px solid #4c9ef028; }
-.ptag-warn { background: #f8514916; color: var(--red);   border: 1px solid #f8514928; }
-.pick-thesis { font-size: 12px; color: #6a90a8; line-height: 1.65; }
-
-/* ─── PORTFOLIO SECTION ─── */
-.port-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 12px; margin-bottom: 24px;
-}
-.port-sum-card {
-  background: var(--card); border: 1px solid var(--bdr);
-  border-radius: 12px; padding: 16px;
-}
-.psc-lbl { font-size: 10px; font-weight: 700; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
-.psc-val { font-size: 30px; font-weight: 900; line-height: 1; }
-.psc-sub { font-size: 11px; color: var(--dim); margin-top: 5px; }
-.clr-green { color: var(--green); }
-.clr-gold  { color: var(--gold); }
-.clr-red   { color: var(--red); }
-.clr-blue  { color: var(--blue); }
-
-.table-wrap { background: var(--card); border: 1px solid var(--bdr); border-radius: 12px; overflow: hidden; overflow-x: auto; margin-bottom: 18px; }
-.port-table { width: 100%; border-collapse: collapse; }
-.port-table th {
-  font-size: 10px; font-weight: 700; color: var(--dim);
-  text-transform: uppercase; letter-spacing: 0.06em;
-  padding: 11px 12px; text-align: left; border-bottom: 1px solid var(--bdr);
-  white-space: nowrap;
-}
-.port-table td {
-  padding: 12px; border-bottom: 1px solid #0a1620;
-  font-size: 13px; vertical-align: middle;
-}
-.port-table tr:last-child td { border-bottom: none; }
-.port-table tr:hover td { background: #06101c; }
-.pt-nm { font-size: 14px; font-weight: 800; display: block; }
-.pt-cd { font-size: 10px; color: var(--dim); }
-.pt-pnl { font-weight: 700; }
-.pt-pnl.up { color: var(--green); }
-.pt-pnl.dn { color: var(--red); }
-
-.ml-cell { display: flex; align-items: center; gap: 7px; }
-.ml-bar  { width: 48px; height: 4px; background: var(--bdr); border-radius: 2px; overflow: hidden; }
-.ml-fill { height: 100%; border-radius: 2px; }
-.ml-num  { font-size: 12px; font-weight: 700; }
-
-.zone-badge {
-  font-size: 9.5px; font-weight: 700;
-  padding: 3px 8px; border-radius: 8px; white-space: nowrap;
-}
-
-.comp-num { font-size: 18px; font-weight: 900; }
-
-.act-badge {
-  font-size: 11px; font-weight: 800;
-  padding: 4px 10px; border-radius: 8px;
-}
-.act-add  { background: #3fb95018; color: var(--green); border: 1px solid #3fb95030; }
-.act-hold { background: #e3b34116; color: var(--gold);  border: 1px solid #e3b34128; }
-.act-trim { background: #f8514916; color: var(--red);   border: 1px solid #f8514928; }
-
-/* AI Summary */
-.ai-block {
-  background: #060f1c; border: 1px solid var(--bdr);
-  border-left: 3px solid var(--gold);
-  border-radius: 12px; padding: 20px 22px;
-}
-.ai-blk-hd {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
-}
-.ai-avatar {
-  width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
-  background: linear-gradient(135deg, #c99a2e, #e3b341);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px; font-weight: 900; color: #040810;
-}
-.ai-blk-nm   { font-size: 13px; font-weight: 800; color: var(--gold); }
-.ai-blk-role { font-size: 10px; color: var(--dim); }
-.ai-text {
-  font-size: 13.5px; color: #7090a8; line-height: 2.0;
-}
-.ai-text strong { color: var(--fg); font-weight: 700; }
-.ai-text em { color: var(--gold); font-style: normal; }
+/* ─── PORTFOLIO ─── */
+.port-summary { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px; margin-bottom:24px; }
+.port-sum-card { background:var(--card); border:1px solid var(--bdr); border-radius:12px; padding:16px; }
+.psc-lbl { font-size:10px; font-weight:700; color:var(--dim); letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px; }
+.psc-val { font-size:30px; font-weight:900; line-height:1; }
+.psc-sub { font-size:11px; color:var(--dim); margin-top:5px; }
+.clr-green { color:var(--green); } .clr-gold { color:var(--gold); } .clr-red { color:var(--red); } .clr-blue { color:var(--blue); }
+.table-wrap { background:var(--card); border:1px solid var(--bdr); border-radius:12px; overflow:hidden; overflow-x:auto; margin-bottom:18px; }
+.port-table { width:100%; border-collapse:collapse; }
+.port-table th { font-size:10px; font-weight:700; color:var(--dim); text-transform:uppercase; letter-spacing:.06em; padding:11px 12px; text-align:left; border-bottom:1px solid var(--bdr); white-space:nowrap; }
+.port-table td { padding:12px; border-bottom:1px solid #0a1620; font-size:13px; vertical-align:middle; }
+.port-table tr:last-child td { border-bottom:none; }
+.port-table tr:hover td { background:#06101c; }
+.pt-nm { font-size:14px; font-weight:800; display:block; }
+.pt-cd { font-size:10px; color:var(--dim); }
+.pt-pnl      { font-weight:700; }
+.pt-pnl.up   { color:var(--green); }
+.pt-pnl.dn   { color:var(--red); }
+.ml-cell { display:flex; align-items:center; gap:7px; }
+.ml-bar  { width:48px; height:4px; background:var(--bdr); border-radius:2px; overflow:hidden; }
+.ml-fill { height:100%; border-radius:2px; }
+.ml-num  { font-size:12px; font-weight:700; }
+.zone-badge { font-size:9.5px; font-weight:700; padding:3px 8px; border-radius:8px; white-space:nowrap; }
+.comp-num { font-size:18px; font-weight:900; }
+.act-badge { font-size:11px; font-weight:800; padding:4px 10px; border-radius:8px; }
+.act-add  { background:#3fb95018; color:var(--green); border:1px solid #3fb95030; }
+.act-hold { background:#e3b34116; color:var(--gold);  border:1px solid #e3b34128; }
+.act-trim { background:#f8514916; color:var(--red);   border:1px solid #f8514928; }
+.ai-block { background:#060f1c; border:1px solid var(--bdr); border-left:3px solid var(--gold); border-radius:12px; padding:20px 22px; }
+.ai-blk-hd { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.ai-avatar { width:34px; height:34px; border-radius:10px; flex-shrink:0; background:linear-gradient(135deg,#c99a2e,#e3b341); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:900; color:#040810; }
+.ai-blk-nm   { font-size:13px; font-weight:800; color:var(--gold); }
+.ai-blk-role { font-size:10px; color:var(--dim); }
+.ai-text { font-size:13.5px; color:#7090a8; line-height:2.0; }
+.ai-text strong { color:var(--fg); font-weight:700; }
+.ai-text em { color:var(--gold); font-style:normal; }
 
 /* Responsive */
-@media (max-width: 620px) {
-  .ob-card { padding: 28px 22px; }
-  .app-body { padding: 20px 14px 60px; }
-  .nav-tab  { padding: 12px 12px; font-size: 12px; }
-  .picks-grid, .co-grid { grid-template-columns: 1fr; }
-  .port-summary { grid-template-columns: repeat(2, 1fr); }
-  .hd-port { display: none; }
+@media (max-width:620px) {
+  .ob-card { padding:28px 22px; }
+  .app-body { padding:20px 14px 60px; }
+  .nav-tab { padding:12px 10px; font-size:12px; }
+  .picks-grid,.co-grid { grid-template-columns:1fr; }
+  .port-summary { grid-template-columns:repeat(2,1fr); }
+  .hd-port { display:none; }
+  .brief-nav-row { grid-template-columns:1fr; }
+  .action-grid { grid-template-columns:1fr; }
 }
-
-/* Util */
-@keyframes fadeIn { from{opacity:0} to{opacity:1} }
-.fade-in { animation: fadeIn 0.4s ease-out; }
-@keyframes slideOut { to{opacity:0; transform:scale(0.96)} }
-.slide-out { animation: slideOut 0.3s ease-in forwards; }
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+.fade-in  { animation:fadeIn .4s ease-out; }
+@keyframes slideOut { to{opacity:0;transform:scale(.96)} }
+.slide-out { animation:slideOut .3s ease-in forwards; }
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════
-     ONBOARDING
-══════════════════════════════════════ -->
+<!-- ONBOARDING -->
 <div id="onboard">
-  <div class="ob-card fade-in" id="ob-card">
-
+  <div class="ob-card fade-in">
     <div class="ob-dots">
       <div class="ob-dot active" id="od0"></div>
       <div class="ob-dot" id="od1"></div>
       <div class="ob-dot" id="od2"></div>
     </div>
-
-    <!-- Step 1: Name your AI -->
     <div class="ob-step active" id="ob1">
       <div class="ob-logo">光策 · GUANGCE</div>
       <div class="ob-title">你的A股<br>策略助手来了</div>
@@ -540,8 +429,6 @@ body {
       <div class="ob-suggestions" id="ob-sugs"></div>
       <button class="ob-btn ob-btn-gold" onclick="goStep2()">下一步 →</button>
     </div>
-
-    <!-- Step 2: Portfolio -->
     <div class="ob-step" id="ob2">
       <div class="ob-logo">光策 · 持仓设置</div>
       <div class="ob-title">告诉<span id="ob-nm-in">它</span><br>你的持仓</div>
@@ -556,15 +443,13 @@ body {
       </div>
       <input type="file" id="file-input" accept="image/*" onchange="handleUpload(this)"/>
       <button class="ob-btn ob-btn-gold" onclick="startLoad()">开始分析</button>
-      <button class="ob-btn ob-btn-dim" onclick="goStep1()">← 返回</button>
+      <button class="ob-btn ob-btn-dim"  onclick="goStep1()">← 返回</button>
     </div>
-
-    <!-- Step 3: Loading -->
     <div class="ob-step" id="ob3">
       <div class="ob-loading">
         <div class="ob-spinner"></div>
         <div class="ob-load-title"><span id="load-nm">丁仪</span>正在准备今日简报...</div>
-        <div id="ob-ps-wrap">
+        <div>
           <div class="ob-ps" id="ps0"><span class="ob-ps-icon">○</span> 获取市场实时数据...</div>
           <div class="ob-ps" id="ps1"><span class="ob-ps-icon">○</span> 分析持仓板块配置...</div>
           <div class="ob-ps" id="ps2"><span class="ob-ps-icon">○</span> 运行 ML 截面评分引擎...</div>
@@ -572,73 +457,68 @@ body {
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     MAIN APP
-══════════════════════════════════════ -->
+<!-- MAIN APP -->
 <div id="app">
-
-  <!-- Header -->
   <header class="app-hd">
     <div class="hd-logo">光策</div>
-    <div class="hd-ai-pill">
-      <span class="hd-ai-lbl">AI助手 · </span><span id="hd-ai-nm">丁仪</span>
-    </div>
+    <div class="hd-ai-pill"><span class="hd-ai-lbl">AI助手 · </span><span id="hd-ai-nm">丁仪</span></div>
     <div class="hd-spacer"></div>
     <div class="hd-port" id="hd-port"></div>
     <div class="hd-date" id="hd-date"></div>
   </header>
 
-  <!-- Nav tabs -->
   <nav class="app-nav">
-    <div class="nav-tab active" id="nt-news"      onclick="showSec('news')">发生了什么</div>
-    <div class="nav-tab"        id="nt-money"     onclick="showSec('money')">什么能赚钱</div>
-    <div class="nav-tab"        id="nt-portfolio" onclick="showSec('portfolio')">我的仓位</div>
+    <div class="nav-tab active" id="nt-brief"     onclick="showSec('brief')">今日简报</div>
+    <div class="nav-tab"        id="nt-news"       onclick="showSec('news')">发生了什么</div>
+    <div class="nav-tab"        id="nt-money"      onclick="showSec('money')">什么能赚钱</div>
+    <div class="nav-tab"        id="nt-portfolio"  onclick="showSec('portfolio')">我的仓位</div>
   </nav>
 
-  <!-- Body -->
   <div class="app-body">
 
-    <!-- ─── SECTION 1: 发生了什么 ─── -->
-    <div class="app-section active" id="sec-news">
-      <div class="sec-h1">发生了什么</div>
-      <div class="sec-h2" id="news-sub"></div>
+    <!-- ─── 今日简报 ─── -->
+    <div class="app-section active" id="sec-brief">
+      <div id="brief-content"></div>
+    </div>
 
+    <!-- ─── 发生了什么 ─── -->
+    <div class="app-section" id="sec-news">
+      <div class="sec-h1">发生了什么</div>
+      <div id="news-ai-intro"></div>
       <div class="sub-tabs">
         <div class="sub-tab active" id="st-events"  onclick="showSub('events')">市场快讯</div>
         <div class="sub-tab"        id="st-quad"    onclick="showSub('quad')">四象限</div>
         <div class="sub-tab"        id="st-company" onclick="showSub('company')">公司动态</div>
       </div>
-
       <div class="sub-pane active" id="sp-events">
         <div class="news-feed" id="news-feed"></div>
       </div>
-
       <div class="sub-pane" id="sp-quad">
         <div class="quad-wrap">
           <div class="quad-hd">机构 vs 散户 · 板块定位</div>
-          <div class="quad-sub">气泡大小 = 成交量 &nbsp;·&nbsp; 箭头 = 5日方向 &nbsp;·&nbsp; <span style="color:var(--gold)">金框 = 你的持仓板块</span></div>
+          <div class="quad-sub">气泡 = 成交量 &nbsp;·&nbsp; 箭头 = 5日方向 &nbsp;·&nbsp; <span style="color:var(--gold)">金框 = 你的持仓板块</span></div>
+          <div id="quad-ai-intro" style="margin-bottom:14px"></div>
           <svg id="quad-svg" viewBox="0 0 620 500" xmlns="http://www.w3.org/2000/svg"></svg>
           <div class="quad-legend" id="quad-legend"></div>
         </div>
       </div>
-
       <div class="sub-pane" id="sp-company">
+        <div id="company-ai-intro" style="margin-bottom:18px"></div>
         <div class="co-grid" id="co-grid"></div>
       </div>
     </div>
 
-    <!-- ─── SECTION 2: 什么能赚钱 ─── -->
+    <!-- ─── 什么能赚钱 ─── -->
     <div class="app-section" id="sec-money">
       <div class="sec-h1">什么能赚钱</div>
-      <div class="sec-h2">ML 引擎今日截面评分 — 取前 10 名（板块均衡）</div>
+      <div id="money-ai-intro"></div>
       <div class="picks-meta">
         <div class="picks-badge">tech_regime_v2 · ML Engine v2</div>
         <div class="picks-stats">
-          <div class="ps-stat">IC 均值 <span>0.062</span></div>
+          <div class="ps-stat">IC均值 <span>0.062</span></div>
           <div class="ps-stat">日胜率 <span>58.3%</span></div>
           <div class="ps-stat">更新 <span>09:35</span></div>
         </div>
@@ -646,22 +526,17 @@ body {
       <div class="picks-grid" id="picks-grid"></div>
     </div>
 
-    <!-- ─── SECTION 3: 我的仓位 ─── -->
+    <!-- ─── 我的仓位 ─── -->
     <div class="app-section" id="sec-portfolio">
       <div class="sec-h1">我的仓位</div>
-      <div class="sec-h2" id="port-sub"></div>
+      <div id="portfolio-ai-intro"></div>
       <div class="port-summary" id="port-summary"></div>
       <div class="table-wrap">
         <table class="port-table">
           <thead>
             <tr>
-              <th>股票</th>
-              <th>持仓占比</th>
-              <th>盈亏</th>
-              <th>ML 评分</th>
-              <th>四象限</th>
-              <th>综合分</th>
-              <th>建议</th>
+              <th>股票</th><th>持仓占比</th><th>盈亏</th>
+              <th>ML 评分</th><th>四象限</th><th>综合分</th><th>建议</th>
             </tr>
           </thead>
           <tbody id="port-tbody"></tbody>
@@ -670,30 +545,23 @@ body {
       <div class="ai-block" id="ai-block"></div>
     </div>
 
-  </div><!-- /app-body -->
-</div><!-- /app -->
+  </div>
+</div>
 
 <script>
-// ═══════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════
-const S = {
-  aiName: '丁仪',
-  portfolio: [],
-};
+/* ═══ STATE ═══ */
+const S = { aiName:'丁仪', portfolio:[] };
 
-// ═══════════════════════════════════════════
-// STATIC DATA
-// ═══════════════════════════════════════════
+/* ═══ DATA ═══ */
 const NAME_SUGS = ['丁仪','东方不败','令狐冲','小策','择天','明见'];
 
 const DEMO_PORTFOLIO = [
-  { name:'宁德时代', code:'300750', sector:'新能源车', color:'#3fb950', wt:.20, cost:158,  cur:203,   zone:'buy-tr' },
-  { name:'中际旭创', code:'300308', sector:'AI算力',   color:'#f0883e', wt:.25, cost:85,   cur:108,   zone:'buy-tl' },
-  { name:'比亚迪',   code:'002594', sector:'新能源车', color:'#3fb950', wt:.18, cost:280,  cur:295,   zone:'buy-tr' },
-  { name:'招商银行', code:'600036', sector:'大金融',   color:'#4c9ef0', wt:.15, cost:30,   cur:34.2,  zone:'buy-tr' },
-  { name:'贵州茅台', code:'600519', sector:'消费白酒', color:'#e3b341', wt:.12, cost:1800, cur:1950,  zone:'buy-tl' },
-  { name:'中芯国际', code:'688981', sector:'半导体',   color:'#58a6ff', wt:.10, cost:68,   cur:65,    zone:'warn'   },
+  { name:'宁德时代', code:'300750', sector:'新能源车', color:'#3fb950', wt:.20, cost:158,  cur:203,  zone:'buy-tr' },
+  { name:'中际旭创', code:'300308', sector:'AI算力',   color:'#f0883e', wt:.25, cost:85,   cur:108,  zone:'buy-tl' },
+  { name:'比亚迪',   code:'002594', sector:'新能源车', color:'#3fb950', wt:.18, cost:280,  cur:295,  zone:'buy-tr' },
+  { name:'招商银行', code:'600036', sector:'大金融',   color:'#4c9ef0', wt:.15, cost:30,   cur:34.2, zone:'buy-tr' },
+  { name:'贵州茅台', code:'600519', sector:'消费白酒', color:'#e3b341', wt:.12, cost:1800, cur:1950, zone:'buy-tl' },
+  { name:'中芯国际', code:'688981', sector:'半导体',   color:'#58a6ff', wt:.10, cost:68,   cur:65,   zone:'warn'   },
 ];
 
 const SECTORS = [
@@ -717,7 +585,7 @@ const ML_PICKS = [
   { rank:6,  name:'贵州茅台', code:'600519', sector:'消费白酒', color:'#e3b341', score:76, zone:'buy-tl', thesis:'批价稳定回升至2680元，机构席位连续低吸，渠道库存健康，端午旺季催化' },
   { rank:7,  name:'招商银行', code:'600036', sector:'大金融',   color:'#4c9ef0', score:72, zone:'buy-tr', thesis:'北向连买5日，ROE 14.2%居银行首位，股息率4.1%，资产质量行业最优' },
   { rank:8,  name:'恒瑞医药', code:'600276', sector:'创新药',   color:'#bc8cff', score:70, zone:'buy-tl', thesis:'创新管线最丰富，2026年5+品种获批，海外BD授权首付款+里程碑超20亿美元' },
-  { rank:9,  name:'比亚迪',   code:'002594', sector:'新能源车', color:'#3fb950', score:68, zone:'buy-tr', thesis:'6月销量43.2万创新高，匈牙利工厂Q3投产，海外出口8.2万辆同月新高' },
+  { rank:9,  name:'比亚迪',   code:'002594', sector:'新能源车', color:'#3fb950', score:68, zone:'buy-tr', thesis:'6月销量43.2万创新高，匈牙利工厂Q3投产，海外出口8.2万辆单月新高' },
   { rank:10, name:'五粮液',   code:'000858', sector:'消费白酒', color:'#e3b341', score:65, zone:'buy-tl', thesis:'PE 18x历史低位，端午旺季动销回暖，全国化推进加速，估值安全边际充足' },
 ];
 
@@ -727,27 +595,27 @@ const ML_SCORE = {
 };
 
 const NEWS = [
-  { src:'Serenity Research',    color:'#bc8cff', type:'KOL',      time:'09:42',
+  { src:'Serenity Research',    color:'#bc8cff', type:'KOL',        time:'09:42',
     hl:'AI基建拐点已至：光模块订单能见度超预期12个月',
     sm:'800G产品渗透率15%→40%，数据中心资本开支同比+60%，中际旭创/腾晖为首选标的',
     rel:['中际旭创'] },
-  { src:'Goldman Sachs',        color:'#e3b341', type:'大行研报', time:'08:15',
+  { src:'Goldman Sachs',        color:'#e3b341', type:'大行研报',   time:'08:15',
     hl:'A股大金融重申超配：无风险利率下行 + 股息率6%+ 构成明确价值',
     sm:'政策边际宽松叠加国有大行资本补充，招商银行/工商银行配置价值凸显',
     rel:['招商银行'] },
-  { src:'Berkshire 13F',        color:'#3fb950', type:'大佬持仓', time:'前日',
+  { src:'Berkshire 13F',        color:'#3fb950', type:'大佬持仓',   time:'前日',
     hl:'比亚迪持仓维持不变：外资长线资金持续看好新能源产业链',
     sm:'Q1 13F显示港股新能源车配置维持，巴菲特未减仓，海外机构对中国EV出口持续乐观',
     rel:['比亚迪','宁德时代'] },
-  { src:'Situational Awareness', color:'#4c9ef0', type:'KOL',     time:'08:55',
+  { src:'Situational Awareness', color:'#4c9ef0', type:'KOL',       time:'08:55',
     hl:'大模型算力军备赛提速：Meta/微软 Q2 资本开支指引上调15%',
     sm:'头部科技公司Q2财报资本开支普超预期，带动光模块/AI服务器/液冷散热产业链',
     rel:['中际旭创'] },
-  { src:'JPMorgan',             color:'#f0883e', type:'大行研报', time:'07:30',
+  { src:'JPMorgan',             color:'#f0883e', type:'大行研报',   time:'07:30',
     hl:'茅台批价反弹确认：飞天2680元渠道调研，白酒行业触底信号成立',
     sm:'端午节前渠道补库启动，批价企稳回升，五粮液/汾酒动销同步改善',
     rel:['贵州茅台'] },
-  { src:'Morgan Stanley',       color:'#58a6ff', type:'大行研报', time:'06:45',
+  { src:'Morgan Stanley',       color:'#58a6ff', type:'大行研报',   time:'06:45',
     hl:'半导体估值警示：中芯RSI 82.9 进入超买区，换手率3倍于均值',
     sm:'龙虎榜出现多家机构卖出席位，建议降低短线仓位等待充分回调',
     rel:['中芯国际'] },
@@ -755,7 +623,7 @@ const NEWS = [
     hl:'Pelosi夫妇Q1继续加码英伟达期权：AI政策支持预期进一步强化',
     sm:'国会AI基础设施法案推进，美国科技股算力产业链政策催化窗口打开',
     rel:[] },
-  { src:'Barclays',             color:'#56d364', type:'大行研报', time:'前日',
+  { src:'Barclays',             color:'#56d364', type:'大行研报',   time:'前日',
     hl:'创新药BD出海加速：恒瑞/百济2026年为关键兑现年',
     sm:'海外授权交易首付款频率明显提速，国内政策不确定性已充分定价，估值修复空间大',
     rel:[] },
@@ -763,35 +631,68 @@ const NEWS = [
 
 const CO_DATA = {
   '300750':{ tag:'业绩快报', title:'Q2动力电池出货+35%，储能+60%，欧洲工厂Q3确认投产', date:'2026-07-03',
-    sm:'2026 Q2动力电池出货量同比增35%，储能增60%创历史最高。匈牙利工厂建设进度超计划3周，Q3正式投产高确定性。固态电池研发进展预计Q4召开技术开放日。' },
+    sm:'2026 Q2动力电池出货量同比增35%，储能增60%创历史最高。匈牙利工厂建设进度超计划3周，Q3正式投产高确定性。' },
   '300308':{ tag:'行业动态', title:'800G规模出货，1.6T客户测试完成，Q4量产确定', date:'2026-07-04',
-    sm:'大客户(NVIDIA+微软+Meta)800G订单全面落地，Q2出货量超市场预期。1.6T模块客户侧测试完成，量产时间锁定2026 Q4，较竞争对手领先半年以上。' },
+    sm:'大客户(NVIDIA+微软+Meta)800G订单全面落地，Q2出货量超市场预期。1.6T模块客户测试完成，量产时间锁定2026 Q4，较竞争对手领先半年以上。' },
   '002594':{ tag:'月度销量', title:'6月总销量43.2万辆创新高，海外8.2万辆单月纪录', date:'2026-07-01',
-    sm:'6月总销量43.2万辆，环比增3%，同比增41%。海外出口8.2万辆创历史单月纪录，匈牙利工厂Q3投产后欧洲本地化交付能力将显著提升，关税影响大幅降低。' },
+    sm:'6月总销量43.2万辆，环比增3%，同比增41%。海外出口8.2万辆创历史单月纪录，匈牙利工厂Q3投产后欧洲本地化交付能力将显著提升。' },
   '600036':{ tag:'半年报预告', title:'H1 营收增8.2%、净利增7.1%，均超市场预期', date:'2026-07-02',
-    sm:'H1营收同比增8.2%，净利润增7.1%，ROE 14.2%居股份行首位。不良率0.95%持续改善，拨备覆盖率455%安全垫充足。北向资金连续5日净买入，累计3.2亿元。' },
+    sm:'H1营收同比增8.2%，净利润增7.1%，ROE 14.2%居股份行首位。不良率0.95%持续改善，拨备覆盖率455%，北向资金连续5日净买入。' },
   '600519':{ tag:'渠道调研', title:'批价回升至2680元，渠道主动补库，端午动销明显改善', date:'2026-07-03',
-    sm:'飞天茅台非标批价回升至2680元/瓶，较低点回升160元。端午节旺季动销显著改善，渠道商开始主动补库，全国主要经销商库存回落至合理区间。' },
+    sm:'飞天茅台非标批价回升至2680元/瓶，较低点回升160元。端午节旺季动销显著改善，渠道商开始主动补库存，全国主要经销商库存回落至合理区间。' },
   '688981':{ tag:'风险提示', title:'RSI 82.9 超买警告，换手率3.2倍于均值，机构席位减仓', date:'2026-07-04',
     sm:'本周换手率较均值高出3.2倍，龙虎榜出现多家机构卖方席位。短期RSI处于历史超买区间，上方压力较大，建议等待充分回调后再评估加仓机会。' },
 };
 
-// ═══════════════════════════════════════════
-// ONBOARDING
-// ═══════════════════════════════════════════
-let editPf = DEMO_PORTFOLIO.map(s => ({...s}));
+/* ═══ SHARED HELPERS ═══ */
+const ZONE_SC  = { 'buy-tr':85, 'buy-tl':75, 'warn':35, 'comfort':20 };
+const ZONE_LBL = { 'buy-tr':'站在光里', 'buy-tl':'踏进光里', 'warn':'超买警戒', 'comfort':'无光区' };
+const ZONE_STYLE = {
+  'buy-tr':'background:#3fb95016;color:#3fb950;border:1px solid #3fb95028',
+  'buy-tl':'background:#4c9ef016;color:#4c9ef0;border:1px solid #4c9ef028',
+  'warn':  'background:#f8514916;color:#f85149;border:1px solid #f8514928',
+  'comfort':'background:#44596a16;color:#44596a;border:1px solid #44596a28',
+};
+
+function calcMetrics() {
+  const totalPnl = S.portfolio.reduce((a,s) => a + (s.cur-s.cost)/s.cost*s.wt, 0);
+  const avgML    = S.portfolio.reduce((a,s) => a + (ML_SCORE[s.code]||50)*s.wt, 0);
+  const avgZone  = S.portfolio.reduce((a,s) => a + ZONE_SC[s.zone]*s.wt, 0);
+  const comp     = Math.round(avgML*0.6 + avgZone*0.4);
+  const grade    = comp>=74?'B+':comp>=62?'B':'C+';
+  const warns    = S.portfolio.filter(s => s.zone==='warn').map(s => s.name);
+  const best     = [...S.portfolio].sort((a,b)=>(ML_SCORE[b.code]||50)-(ML_SCORE[a.code]||50))[0];
+  const mineInPicks = ML_PICKS.filter(p => S.portfolio.some(s=>s.code===p.code));
+  return { totalPnl, avgML, comp, grade, warns, best, mineInPicks };
+}
+
+function aiIntroHTML(text) {
+  const char = S.aiName.charAt(0);
+  return `<div class="sec-ai-intro">
+    <div class="sai-avatar">${char}</div>
+    <div class="sai-body">
+      <div class="sai-nm">${S.aiName} 说</div>
+      <div class="sai-text">${text}</div>
+    </div>
+  </div>`;
+}
+
+function pad(n) { return String(n).padStart(2,'0'); }
+
+/* ═══ ONBOARDING ═══ */
+let editPf = DEMO_PORTFOLIO.map(s=>({...s}));
 
 function initOnboard() {
-  const sugWrap = document.getElementById('ob-sugs');
+  const w = document.getElementById('ob-sugs');
   NAME_SUGS.forEach(n => {
     const b = document.createElement('button');
-    b.className = 'ob-sug'; b.textContent = n;
+    b.className='ob-sug'; b.textContent=n;
     b.onclick = () => {
       document.getElementById('ai-name-input').value = n;
-      sugWrap.querySelectorAll('.ob-sug').forEach(x => x.classList.remove('sel'));
+      w.querySelectorAll('.ob-sug').forEach(x=>x.classList.remove('sel'));
       b.classList.add('sel');
     };
-    sugWrap.appendChild(b);
+    w.appendChild(b);
   });
   renderStockList();
 }
@@ -799,149 +700,272 @@ function initOnboard() {
 function renderStockList() {
   const el = document.getElementById('ob-stock-list');
   el.innerHTML = '';
-  editPf.forEach((s, i) => {
-    const pnlPct = ((s.cur - s.cost) / s.cost * 100).toFixed(1);
-    const pnlStr = pnlPct >= 0 ? `+${pnlPct}%` : `${pnlPct}%`;
+  editPf.forEach((s,i) => {
+    const pnl = ((s.cur-s.cost)/s.cost*100).toFixed(1);
     const row = document.createElement('div');
     row.className = 'ob-stock-row';
-    row.innerHTML = `
-      <div class="ob-sr-dot" style="background:${s.color}"></div>
+    row.innerHTML = `<div class="ob-sr-dot" style="background:${s.color}"></div>
       <div class="ob-sr-name">${s.name}</div>
       <div class="ob-sr-code">${s.code}</div>
       <div class="ob-sr-pct">${Math.round(s.wt*100)}%</div>
-      <div class="ob-sr-del" onclick="delStock(${i})" title="移除">×</div>`;
+      <div class="ob-sr-del" onclick="delStock(${i})">×</div>`;
     el.appendChild(row);
   });
 }
-
-function delStock(i) {
-  editPf.splice(i, 1);
-  renderStockList();
-}
-
+function delStock(i) { editPf.splice(i,1); renderStockList(); }
 function handleUpload(inp) {
-  if (inp.files && inp.files[0]) {
-    document.getElementById('upload-label').textContent = `已上传：${inp.files[0].name}`;
-  }
+  if (inp.files && inp.files[0]) document.getElementById('upload-label').textContent = `已上传：${inp.files[0].name}`;
 }
-
 function setStep(n) {
-  [document.getElementById('ob1'), document.getElementById('ob2'), document.getElementById('ob3')]
-    .forEach((el, i) => el.classList.toggle('active', i === n-1));
-  ['od0','od1','od2'].forEach((id, i) => {
-    const el = document.getElementById(id);
-    el.classList.remove('active','done');
-    if (i < n-1) el.classList.add('done');
-    if (i === n-1) el.classList.add('active');
+  ['ob1','ob2','ob3'].forEach((id,i) => document.getElementById(id).classList.toggle('active',i===n-1));
+  ['od0','od1','od2'].forEach((id,i) => {
+    const el=document.getElementById(id); el.classList.remove('active','done');
+    if(i<n-1)el.classList.add('done'); if(i===n-1)el.classList.add('active');
   });
 }
-
 function goStep1() { setStep(1); }
-
 function goStep2() {
-  const nm = document.getElementById('ai-name-input').value.trim() || '丁仪';
+  const nm = document.getElementById('ai-name-input').value.trim()||'丁仪';
   S.aiName = nm;
   document.getElementById('ob-nm-in').textContent = nm;
   setStep(2);
 }
-
 function startLoad() {
-  S.portfolio = editPf.map(s => ({...s}));
+  S.portfolio = editPf.map(s=>({...s}));
   document.getElementById('load-nm').textContent = S.aiName;
   setStep(3);
-
-  const steps = ['ps0','ps1','ps2','ps3'];
-  steps.forEach((id, i) => {
+  ['ps0','ps1','ps2','ps3'].forEach((id,i) => {
     setTimeout(() => {
-      const el = document.getElementById(id);
+      const el=document.getElementById(id);
       el.classList.add('done');
-      el.querySelector('.ob-ps-icon').textContent = '✓';
-      if (i === steps.length - 1) setTimeout(launchApp, 700);
-    }, 650 * (i+1));
+      el.querySelector('.ob-ps-icon').textContent='✓';
+      if(i===3) setTimeout(launchApp,700);
+    }, 650*(i+1));
   });
 }
-
 function launchApp() {
-  const ob = document.getElementById('onboard');
+  const ob=document.getElementById('onboard');
   ob.classList.add('slide-out');
-  setTimeout(() => {
-    ob.style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    initApp();
-  }, 320);
+  setTimeout(()=>{ ob.style.display='none'; document.getElementById('app').style.display='block'; initApp(); },320);
 }
 
-// ═══════════════════════════════════════════
-// APP INIT
-// ═══════════════════════════════════════════
+/* ═══ APP INIT ═══ */
 function initApp() {
-  // Header
   document.getElementById('hd-ai-nm').textContent = S.aiName;
-  const now = new Date();
-  const days = ['日','一','二','三','四','五','六'];
-  document.getElementById('hd-date').textContent =
+  const now=new Date(), days=['日','一','二','三','四','五','六'];
+  document.getElementById('hd-date').textContent=
     `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} 周${days[now.getDay()]}`;
 
-  const totalPnl = S.portfolio.reduce((acc, s) => acc + (s.cur - s.cost) / s.cost * s.wt, 0);
+  const totalPnl = S.portfolio.reduce((a,s)=>a+(s.cur-s.cost)/s.cost*s.wt,0);
   const pStr = (totalPnl*100).toFixed(2);
-  document.getElementById('hd-port').innerHTML = `
+  document.getElementById('hd-port').innerHTML=`
     <div class="hd-pi">持仓 <span class="hd-pv">${S.portfolio.length}支</span></div>
     <div class="hd-pi">综合盈亏 <span class="hd-pv ${totalPnl>=0?'up':'dn'}">${totalPnl>=0?'+':''}${pStr}%</span></div>`;
 
-  const nms = S.portfolio.map(s => s.name).join('、');
-  document.getElementById('news-sub').textContent =
-    `根据你的持仓（${nms}）整合今日最重要的市场信号，来源已按相关度排序`;
-  document.getElementById('port-sub').textContent =
-    `${S.aiName}为你的${S.portfolio.length}支持仓做综合体检，结合 ML 引擎截面分 + 四象限定位`;
-
+  renderBrief();
+  renderNewsIntro();
   renderNews();
+  renderQuadIntro();
   renderQuad();
+  renderCompanyIntro();
   renderCompany();
+  renderMoneyIntro();
   renderPicks();
+  renderPortfolioIntro();
   renderPortfolio();
 }
 
-function pad(n) { return String(n).padStart(2,'0'); }
-
-// ═══════════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════════
+/* ═══ NAVIGATION ═══ */
 function showSec(id) {
-  document.querySelectorAll('.app-section').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.app-section').forEach(e=>e.classList.remove('active'));
   document.getElementById('sec-'+id).classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(e=>e.classList.remove('active'));
   document.getElementById('nt-'+id).classList.add('active');
+  window.scrollTo(0,0);
 }
-
 function showSub(id) {
-  document.querySelectorAll('.sub-tab').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(e=>e.classList.remove('active'));
   document.getElementById('st-'+id).classList.add('active');
-  document.querySelectorAll('.sub-pane').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.sub-pane').forEach(e=>e.classList.remove('active'));
   document.getElementById('sp-'+id).classList.add('active');
 }
 
-// ═══════════════════════════════════════════
-// RENDER: NEWS
-// ═══════════════════════════════════════════
-function renderNews() {
-  const feed = document.getElementById('news-feed');
-  const userNms = new Set(S.portfolio.map(s => s.name));
+/* ═══ RENDER: BRIEF PAGE ═══ */
+function renderBrief() {
+  const m = calcMetrics();
+  const pnlStr = (m.totalPnl>=0?'+':'')+(m.totalPnl*100).toFixed(1)+'%';
+  const pnlColor = m.totalPnl>=0?'clr-green':'clr-red';
+  const gradeColor = m.comp>=74?'clr-gold':'clr-red';
+  const userNms = new Set(S.portfolio.map(s=>s.name));
 
-  const sorted = [...NEWS].sort((a, b) => {
-    const ar = a.rel.some(n => userNms.has(n)) ? 1 : 0;
-    const br = b.rel.some(n => userNms.has(n)) ? 1 : 0;
-    return br - ar;
+  // Greeting text
+  const lightCount = S.portfolio.filter(s=>s.zone==='buy-tr'||s.zone==='buy-tl').length;
+  const greetText = `今日共整合 <strong>${NEWS.filter(n=>n.rel.some(r=>userNms.has(r))).length} 条</strong>与你持仓直接相关的市场信号。你持有的 <strong>${S.portfolio.length} 支标的</strong>中，<strong>${lightCount} 支</strong>处于光亮区间（踏进光里 / 站在光里），整体方向正确。ML 引擎今日 Top 10 中你已持有 <em>${m.mineInPicks.length} 支</em>，与模型推荐高度重合。`;
+
+  // Signals: relevant news + zone warnings
+  const signals = [];
+  NEWS.filter(n=>n.rel.some(r=>userNms.has(r))).slice(0,3).forEach(n => {
+    const relNms = n.rel.filter(r=>userNms.has(r));
+    signals.push({
+      color: n.color,
+      head: n.hl,
+      sub:  n.sm.substring(0,60) + '...',
+      chips: relNms.map(r=>`<span class="sig-chip good">${r}</span>`).join(''),
+      type: 'news'
+    });
+  });
+  m.warns.forEach(nm => {
+    const s = S.portfolio.find(x=>x.name===nm);
+    signals.push({
+      color: '#f85149',
+      head: `⚠ ${nm} — 超买警戒区，机构减仓信号`,
+      sub: `RSI 偏高，换手率异常放大，建议降仓位至 5% 以下等待回调`,
+      chips: `<span class="sig-chip warn">减仓</span>`,
+      type: 'warn'
+    });
   });
 
-  const typeColor = { 'KOL':'#bc8cff', '大行研报':'#e3b341', '大佬持仓':'#3fb950', '参议员持仓':'#f85149' };
+  // Action recs
+  const actions = S.portfolio.map(s => {
+    const ml = ML_SCORE[s.code]||50;
+    const comp = Math.round(ml*0.6 + ZONE_SC[s.zone]*0.4);
+    const pnl = (s.cur-s.cost)/s.cost*100;
+    let act, cls;
+    if(comp>=70&&pnl<35) { act='可加仓'; cls='ar-add'; }
+    else if(comp>=55)    { act='持有';   cls='ar-hold'; }
+    else                 { act='减仓';   cls='ar-trim'; }
+    return { name:s.name, color:s.color, act, cls };
+  });
 
+  const signalHTML = signals.map(sg=>`
+    <div class="signal-item">
+      <div class="sig-dot" style="background:${sg.color}"></div>
+      <div class="sig-body">
+        <div class="sig-head">${sg.head}</div>
+        <div class="sig-sub">${sg.sub}</div>
+        <div class="sig-chips">${sg.chips}</div>
+      </div>
+    </div>`).join('');
+
+  const actionHTML = actions.map(a=>`
+    <div class="action-rec">
+      <div class="ar-dot" style="background:${a.color}"></div>
+      <div class="ar-stock">${a.name}</div>
+      <div class="ar-badge ${a.cls}">${a.act}</div>
+    </div>`).join('');
+
+  document.getElementById('brief-content').innerHTML = `
+    <div class="brief-hero">
+      <div class="brief-ai-row">
+        <div class="brief-avatar">${S.aiName.charAt(0)}</div>
+        <div>
+          <div class="brief-greet-name">${S.aiName} · 今日简报</div>
+          <div class="brief-greet-date">${new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric'})} · 持仓 ${S.portfolio.length} 支</div>
+        </div>
+      </div>
+      <div class="brief-intro-text">${greetText}</div>
+
+      <div class="brief-scores">
+        <div class="bsc">
+          <div class="bsc-lbl">持仓综合分</div>
+          <div class="bsc-val ${gradeColor}">${m.comp}</div>
+          <div class="bsc-sub">满分 100</div>
+        </div>
+        <div class="bsc">
+          <div class="bsc-lbl">仓位评级</div>
+          <div class="bsc-val ${gradeColor}">${m.grade}</div>
+          <div class="bsc-sub">ML + 四象限</div>
+        </div>
+        <div class="bsc">
+          <div class="bsc-lbl">综合盈亏</div>
+          <div class="bsc-val ${pnlColor}">${pnlStr}</div>
+          <div class="bsc-sub">加权均值</div>
+        </div>
+        <div class="bsc">
+          <div class="bsc-lbl">ML 均分</div>
+          <div class="bsc-val clr-blue">${Math.round(m.avgML)}</div>
+          <div class="bsc-sub">截面加权</div>
+        </div>
+      </div>
+
+      <div class="brief-section-title">今日核心信号</div>
+      <div class="signal-list">${signalHTML}</div>
+
+      <div class="brief-section-title">操作建议</div>
+      <div class="action-grid">${actionHTML}</div>
+    </div>
+
+    <div class="brief-nav-row">
+      <div class="bnb" onclick="showSec('news')">
+        <div class="bnb-label">发生了什么</div>
+        <div class="bnb-sub">${NEWS.filter(n=>n.rel.some(r=>new Set(S.portfolio.map(s=>s.name)).has(r))).length} 条持仓相关新闻</div>
+        <div class="bnb-arrow">查看详情 →</div>
+      </div>
+      <div class="bnb" onclick="showSec('money')">
+        <div class="bnb-label">什么能赚钱</div>
+        <div class="bnb-sub">ML Top10 · 你已持有 ${m.mineInPicks.length} 支</div>
+        <div class="bnb-arrow">查看详情 →</div>
+      </div>
+      <div class="bnb" onclick="showSec('portfolio')">
+        <div class="bnb-label">我的仓位</div>
+        <div class="bnb-sub">综合评级 ${m.grade} · ${m.warns.length>0?m.warns.join('需关注'):'整体健康'}</div>
+        <div class="bnb-arrow">查看详情 →</div>
+      </div>
+    </div>`;
+}
+
+/* ═══ SECTION INTROS ═══ */
+function renderNewsIntro() {
+  const m = calcMetrics();
+  const userNms = new Set(S.portfolio.map(s=>s.name));
+  const relCount = NEWS.filter(n=>n.rel.some(r=>userNms.has(r))).length;
+  const warnNews = NEWS.find(n=>n.rel.includes('中芯国际'));
+  const text = `今日共有 <strong>${relCount} 条新闻</strong>与你的持仓直接相关，已置顶显示。亮点：高盛重申招商银行超配，Berkshire 13F 维持比亚迪不减仓，Serenity 看多中际旭创 AI 算力链。${m.warns.length>0?`<strong style="color:var(--red)">需注意：${m.warns.join('、')}出现机构减仓/超买警报</strong>，详见下方快讯。`:''}`;
+  document.getElementById('news-ai-intro').innerHTML = aiIntroHTML(text);
+}
+
+function renderQuadIntro() {
+  const lightStocks = S.portfolio.filter(s=>s.zone==='buy-tr'||s.zone==='buy-tl');
+  const warnStocks  = S.portfolio.filter(s=>s.zone==='warn');
+  const text = `你持有的 <strong>${S.portfolio.length} 支标的</strong>分布在四象限：<strong>${lightStocks.map(s=>s.name).join('、')}</strong>处于光亮区（踏进光里/站在光里），方向正确，可持有或加仓。${warnStocks.length>0?`<strong style="color:var(--red)">${warnStocks.map(s=>s.name).join('、')}</strong>位于"别光站在那里"超买警戒区，机构布局过热，散热压力大，建议减仓。`:'所有持仓均在光亮区，四象限定位整体健康。'}`;
+  document.getElementById('quad-ai-intro').innerHTML = aiIntroHTML(text);
+}
+
+function renderCompanyIntro() {
+  const best = CO_DATA['300308'];
+  const warn = CO_DATA['688981'];
+  const text = `今日持仓公司中，<strong>中际旭创</strong>最值得关注：1.6T 模块客户测试完成，Q4 量产确定，技术领先优势进一步巩固。<strong>比亚迪</strong>6月销量 43.2 万辆创历史新高，海外出口单月破纪录。<strong style="color:var(--red)">中芯国际</strong>出现风险提示：换手率异常放大，机构减仓信号明确，建议关注。`;
+  document.getElementById('company-ai-intro').innerHTML = aiIntroHTML(text);
+}
+
+function renderMoneyIntro() {
+  const m = calcMetrics();
+  const notMine = ML_PICKS.filter(p=>!S.portfolio.some(s=>s.code===p.code)).slice(0,2);
+  const text = `ML 引擎今日 Top 10 中，你已持有 <em>${m.mineInPicks.length} 支</em>（${m.mineInPicks.map(p=>p.name).join('、')}），与模型推荐高度重合，持仓方向正确。值得关注你<strong>尚未持有</strong>的高分标的：<strong>${notMine.map(p=>`${p.name}（#${p.rank}，${p.score}分）`).join('、')}</strong>，与你现有 AI 算力/新能源赛道有较强协同性，可作为备选仓位研究。`;
+  document.getElementById('money-ai-intro').innerHTML = aiIntroHTML(text);
+}
+
+function renderPortfolioIntro() {
+  const m = calcMetrics();
+  const pnlStr = (m.totalPnl>=0?'+':'')+(m.totalPnl*100).toFixed(1)+'%';
+  const text = `综合评级 <em>${m.grade}</em>（${m.comp}/100），整体盈亏 <strong>${pnlStr}</strong>。最强持仓 <strong>${m.best.name}</strong>（ML ${ML_SCORE[m.best.code]} 分），建议保持高配。${m.warns.length>0?`<strong style="color:var(--red)">${m.warns.join('、')}需要行动</strong>：RSI 超买 + 机构减仓，建议将仓位降至 5% 以下等回调 10%+ 再评估。`:'所有持仓综合评分均在合格线以上，整体健康。'}`;
+  document.getElementById('portfolio-ai-intro').innerHTML = aiIntroHTML(text);
+}
+
+/* ═══ RENDER: NEWS ═══ */
+function renderNews() {
+  const feed = document.getElementById('news-feed');
+  const userNms = new Set(S.portfolio.map(s=>s.name));
+  const sorted = [...NEWS].sort((a,b)=>{
+    const ar=a.rel.some(n=>userNms.has(n))?1:0, br=b.rel.some(n=>userNms.has(n))?1:0;
+    return br-ar;
+  });
+  const typeColor = {'KOL':'#bc8cff','大行研报':'#e3b341','大佬持仓':'#3fb950','参议员持仓':'#f85149'};
   sorted.forEach(item => {
-    const isRel = item.rel.some(n => userNms.has(n));
-    const chips = item.rel.filter(n => userNms.has(n))
-      .map(n => `<span class="nc-chip">你持有·${n}</span>`).join('');
-
+    const isRel = item.rel.some(n=>userNms.has(n));
+    const chips = item.rel.filter(n=>userNms.has(n)).map(n=>`<span class="nc-chip">你持有·${n}</span>`).join('');
     const card = document.createElement('div');
-    card.className = `news-card ${isRel ? 'rel' : ''}`;
+    card.className = `news-card ${isRel?'rel':''}`;
     card.innerHTML = `
       <div class="nc-dot" style="background:${typeColor[item.type]||'#44596a'}"></div>
       <div class="nc-body">
@@ -956,108 +980,66 @@ function renderNews() {
   });
 }
 
-// ═══════════════════════════════════════════
-// RENDER: QUADRANT CHART
-// ═══════════════════════════════════════════
+/* ═══ RENDER: QUADRANT ═══ */
 function renderQuad() {
   const svg = document.getElementById('quad-svg');
-  const W = 620, H = 500, cx = W/2, cy = H/2;
-  const sx = 200, sy = 160;
+  const W=620,H=500,cx=W/2,cy=H/2,sx=200,sy=160;
+  const userSectors = new Set(S.portfolio.map(s=>s.sector));
+  let h='';
+  h+=`<rect x="0" y="0" width="${cx}" height="${cy}" fill="#e3b3410a"/>`;
+  h+=`<rect x="${cx}" y="0" width="${cx}" height="${cy}" fill="#3fb9500a"/>`;
+  h+=`<rect x="${cx}" y="${cy}" width="${cx}" height="${cy}" fill="#f814980a"/>`;
+  h+=`<rect x="0" y="${cy}" width="${cx}" height="${cy}" fill="#44596a08"/>`;
+  h+=`<line x1="0" y1="${cy}" x2="${W}" y2="${cy}" stroke="#162030" stroke-width="1.5"/>`;
+  h+=`<line x1="${cx}" y1="0" x2="${cx}" y2="${H}" stroke="#162030" stroke-width="1.5"/>`;
+  [{tx:W*.75,ty:22,txt:'站在光里',col:'#3fb95066'},{tx:W*.25,ty:22,txt:'踏进光里',col:'#e3b34166'},
+   {tx:W*.75,ty:H-14,txt:'别光站在那里',col:'#f8514966'},{tx:W*.25,ty:H-14,txt:'光着站在那里',col:'#44596a66'}]
+  .forEach(z=>h+=`<text x="${z.tx}" y="${z.ty}" text-anchor="middle" fill="${z.col}" font-size="11" font-weight="700" font-family="Microsoft YaHei,sans-serif">${z.txt}</text>`);
+  h+=`<text x="${W-6}" y="${cy-8}" text-anchor="end" fill="#44596a" font-size="10" font-family="sans-serif">机构布局→</text>`;
+  h+=`<text x="${cx+6}" y="14" fill="#44596a" font-size="10" font-family="sans-serif">↑ 散户热度</text>`;
 
-  const userSectors = new Set(S.portfolio.map(s => s.sector));
-  let h = '';
-
-  // Background quadrants (subtle)
-  h += `<rect x="0" y="0" width="${cx}" height="${cy}" fill="#e3b3410a" rx="0"/>`;      // TL
-  h += `<rect x="${cx}" y="0" width="${cx}" height="${cy}" fill="#3fb9500a" rx="0"/>`;  // TR
-  h += `<rect x="${cx}" y="${cy}" width="${cx}" height="${cy}" fill="#f814980a" rx="0"/>`; // BR
-  h += `<rect x="0" y="${cy}" width="${cx}" height="${cy}" fill="#44596a08" rx="0"/>`;  // BL
-
-  // Axes
-  h += `<line x1="0" y1="${cy}" x2="${W}" y2="${cy}" stroke="#162030" stroke-width="1.5"/>`;
-  h += `<line x1="${cx}" y1="0" x2="${cx}" y2="${H}" stroke="#162030" stroke-width="1.5"/>`;
-
-  // Zone labels
-  const zones = [
-    {tx:W*.75, ty:22,   txt:'站在光里',   col:'#3fb95066'},
-    {tx:W*.25, ty:22,   txt:'踏进光里',   col:'#e3b34166'},
-    {tx:W*.75, ty:H-14, txt:'别光站在那里', col:'#f8514966'},
-    {tx:W*.25, ty:H-14, txt:'光着站在那里', col:'#44596a66'},
-  ];
-  zones.forEach(z =>
-    h += `<text x="${z.tx}" y="${z.ty}" text-anchor="middle" fill="${z.col}" font-size="11" font-weight="700" font-family="Microsoft YaHei,sans-serif">${z.txt}</text>`
-  );
-
-  // Axis labels
-  h += `<text x="${W-6}" y="${cy-8}" text-anchor="end" fill="#44596a" font-size="10" font-family="sans-serif">机构布局→</text>`;
-  h += `<text x="${cx+6}" y="14" fill="#44596a" font-size="10" font-family="sans-serif">↑ 散户热度</text>`;
-
-  // Sectors
   SECTORS.forEach(s => {
-    const bx = cx + s.x * sx, by = cy - s.y * sy;
-    const ex = cx + (s.x+s.dx)*sx, ey = cy - (s.y+s.dy)*sy;
-    const r = 8 + s.vol * 10;
-    const isUser = userSectors.has(s.name);
-
-    // Arrow
-    const ddx = ex-bx, ddy = ey-by, len = Math.sqrt(ddx*ddx+ddy*ddy);
-    if (len > 3) {
-      const ux=ddx/len, uy=ddy/len;
-      h += `<line x1="${bx.toFixed(1)}" y1="${by.toFixed(1)}" x2="${(ex-ux*3).toFixed(1)}" y2="${(ey-uy*3).toFixed(1)}" stroke="${s.color}88" stroke-width="1.5" stroke-dasharray="4,2"/>`;
-      const ax = ex-ux*6-uy*3, ay = ey-uy*6+ux*3;
-      const ax2 = ex-ux*6+uy*3, ay2 = ey-uy*6-ux*3;
-      h += `<polygon points="${ex.toFixed(1)},${ey.toFixed(1)} ${ax.toFixed(1)},${ay.toFixed(1)} ${ax2.toFixed(1)},${ay2.toFixed(1)}" fill="${s.color}88"/>`;
+    const bx=cx+s.x*sx, by=cy-s.y*sy;
+    const ex=cx+(s.x+s.dx)*sx, ey=cy-(s.y+s.dy)*sy;
+    const r=8+s.vol*10, isUser=userSectors.has(s.name);
+    const ddx=ex-bx,ddy=ey-by,len=Math.sqrt(ddx*ddx+ddy*ddy);
+    if(len>3){
+      const ux=ddx/len,uy=ddy/len;
+      h+=`<line x1="${bx.toFixed(1)}" y1="${by.toFixed(1)}" x2="${(ex-ux*3).toFixed(1)}" y2="${(ey-uy*3).toFixed(1)}" stroke="${s.color}88" stroke-width="1.5" stroke-dasharray="4,2"/>`;
+      const ax=ex-ux*6-uy*3,ay=ey-uy*6+ux*3,ax2=ex-ux*6+uy*3,ay2=ey-uy*6-ux*3;
+      h+=`<polygon points="${ex.toFixed(1)},${ey.toFixed(1)} ${ax.toFixed(1)},${ay.toFixed(1)} ${ax2.toFixed(1)},${ay2.toFixed(1)}" fill="${s.color}88"/>`;
     }
-
-    // Glow ring for user sectors
-    if (isUser) h += `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${r+7}" fill="none" stroke="#e3b34166" stroke-width="1.5" stroke-dasharray="4,3"/>`;
-
-    // Bubble
-    h += `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${r}" fill="${s.color}${isUser?'28':'14'}" stroke="${s.color}" stroke-width="${isUser?2:1.2}" opacity="${isUser?1:.65}"/>`;
-
-    // Label
-    h += `<text x="${bx.toFixed(1)}" y="${(by+r+13).toFixed(1)}" text-anchor="middle" fill="${s.color}" font-size="11" font-weight="700" font-family="Microsoft YaHei,sans-serif">${s.name}</text>`;
-
-    // Star badge
-    if (isUser) h += `<text x="${(bx+r+1).toFixed(1)}" y="${(by-r+1).toFixed(1)}" font-size="11" fill="#e3b341">★</text>`;
+    if(isUser) h+=`<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${r+7}" fill="none" stroke="#e3b34166" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+    h+=`<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${r}" fill="${s.color}${isUser?'28':'14'}" stroke="${s.color}" stroke-width="${isUser?2:1.2}" opacity="${isUser?1:.65}"/>`;
+    h+=`<text x="${bx.toFixed(1)}" y="${(by+r+13).toFixed(1)}" text-anchor="middle" fill="${s.color}" font-size="11" font-weight="700" font-family="Microsoft YaHei,sans-serif">${s.name}</text>`;
+    if(isUser) h+=`<text x="${(bx+r+1).toFixed(1)}" y="${(by-r+1).toFixed(1)}" font-size="11" fill="#e3b341">★</text>`;
   });
-
   svg.innerHTML = h;
 
-  // Legend
   const leg = document.getElementById('quad-legend');
   leg.innerHTML = '';
   SECTORS.forEach(s => {
-    const isUser = userSectors.has(s.name);
-    const item = document.createElement('div');
-    item.className = 'ql';
-    const dotStyle = isUser
-      ? `background:${s.color};box-shadow:0 0 0 2px #e3b34166`
-      : `background:${s.color}99`;
-    item.innerHTML = `<div class="ql-dot" style="${dotStyle}"></div>${s.name}${isUser?' ★':''}`;
+    const isUser=userSectors.has(s.name);
+    const item=document.createElement('div');
+    item.className='ql';
+    item.innerHTML=`<div class="ql-dot" style="background:${s.color}${isUser?'':99};${isUser?'box-shadow:0 0 0 2px #e3b34166':''}"></div>${s.name}${isUser?' ★':''}`;
     leg.appendChild(item);
   });
 }
 
-// ═══════════════════════════════════════════
-// RENDER: COMPANY UPDATES
-// ═══════════════════════════════════════════
+/* ═══ RENDER: COMPANY ═══ */
 function renderCompany() {
   const grid = document.getElementById('co-grid');
   S.portfolio.forEach(s => {
-    const d = CO_DATA[s.code];
-    if (!d) return;
-    const pnl = (s.cur - s.cost) / s.cost * 100;
-    const pnlStr = (pnl>=0?'+':'') + pnl.toFixed(1) + '%';
-    const card = document.createElement('div');
-    card.className = 'co-card';
-    card.innerHTML = `
+    const d=CO_DATA[s.code]; if(!d)return;
+    const pnl=(s.cur-s.cost)/s.cost*100;
+    const pnlStr=(pnl>=0?'+':'')+pnl.toFixed(1)+'%';
+    const card=document.createElement('div');
+    card.className='co-card';
+    card.innerHTML=`
       <div class="co-hd">
         <div class="co-dot" style="background:${s.color}"></div>
-        <div>
-          <div class="co-nm">${s.name}</div>
-          <div class="co-cd">${s.code} · ${s.sector}</div>
-        </div>
+        <div><div class="co-nm">${s.name}</div><div class="co-cd">${s.code} · ${s.sector}</div></div>
         <div class="co-pnl ${pnl>=0?'up':'dn'}">${pnlStr}</div>
       </div>
       <div class="co-tag">${d.tag}</div>
@@ -1068,28 +1050,22 @@ function renderCompany() {
   });
 }
 
-// ═══════════════════════════════════════════
-// RENDER: ML PICKS
-// ═══════════════════════════════════════════
+/* ═══ RENDER: ML PICKS ═══ */
 function renderPicks() {
-  const grid = document.getElementById('picks-grid');
-  const mineCodes = new Set(S.portfolio.map(s => s.code));
-  const zoneLabel = { 'buy-tr':'站在光里', 'buy-tl':'踏进光里', 'warn':'超买警戒' };
-  const zoneClass = { 'buy-tr':'ptag-tr',  'buy-tl':'ptag-tl',  'warn':'ptag-warn' };
-
-  ML_PICKS.forEach(p => {
-    const mine = mineCodes.has(p.code);
-    const card = document.createElement('div');
-    card.className = `pick-card ${mine ? 'mine' : ''}`;
-    card.innerHTML = `
+  const grid=document.getElementById('picks-grid');
+  const mineCodes=new Set(S.portfolio.map(s=>s.code));
+  const zoneLabel={'buy-tr':'站在光里','buy-tl':'踏进光里','warn':'超买警戒'};
+  const zoneClass={'buy-tr':'ptag-tr','buy-tl':'ptag-tl','warn':'ptag-warn'};
+  ML_PICKS.forEach(p=>{
+    const mine=mineCodes.has(p.code);
+    const card=document.createElement('div');
+    card.className=`pick-card ${mine?'mine':''}`;
+    card.innerHTML=`
       <div class="pick-rank">#${p.rank}</div>
       <div class="pick-hd">
         <div class="pick-dot" style="background:${p.color}"></div>
-        <div>
-          <div class="pick-nm">${p.name}</div>
-          <div class="pick-cd">${p.code}</div>
-        </div>
-        ${mine ? '<div class="pick-mine-badge">你持有</div>' : ''}
+        <div><div class="pick-nm">${p.name}</div><div class="pick-cd">${p.code}</div></div>
+        ${mine?'<div class="pick-mine-badge">你持有</div>':''}
       </div>
       <div class="pick-score-row">
         <div class="pick-score-lbl">ML 评分</div>
@@ -1105,109 +1081,68 @@ function renderPicks() {
   });
 }
 
-// ═══════════════════════════════════════════
-// RENDER: MY PORTFOLIO
-// ═══════════════════════════════════════════
+/* ═══ RENDER: PORTFOLIO ═══ */
 function renderPortfolio() {
-  const ZONE_SC = { 'buy-tr':85, 'buy-tl':75, 'warn':35, 'comfort':20 };
-  const ZONE_LBL = { 'buy-tr':'站在光里', 'buy-tl':'踏进光里', 'warn':'超买警戒', 'comfort':'无光区' };
-  const ZONE_STYLE = {
-    'buy-tr':'background:#3fb95016;color:#3fb950;border:1px solid #3fb95028',
-    'buy-tl':'background:#4c9ef016;color:#4c9ef0;border:1px solid #4c9ef028',
-    'warn':  'background:#f8514916;color:#f85149;border:1px solid #f8514928',
-    'comfort':'background:#44596a16;color:#44596a;border:1px solid #44596a28',
-  };
+  const m = calcMetrics();
+  const pnlStr=(m.totalPnl>=0?'+':'')+(m.totalPnl*100).toFixed(1)+'%';
+  const gradeColor=m.comp>=74?'clr-gold':'clr-red';
 
-  const totalPnl = S.portfolio.reduce((a,s) => a + (s.cur-s.cost)/s.cost*s.wt, 0);
-  const avgML    = S.portfolio.reduce((a,s) => a + (ML_SCORE[s.code]||50)*s.wt, 0);
-  const avgZone  = S.portfolio.reduce((a,s) => a + ZONE_SC[s.zone]*s.wt, 0);
-  const composite = Math.round(avgML*0.6 + avgZone*0.4);
-  const grade = composite >= 72 ? 'B+' : composite >= 60 ? 'B' : 'C+';
-  const gColor = composite >= 72 ? 'clr-gold' : 'clr-red';
-
-  // Summary cards
-  const summaryEl = document.getElementById('port-summary');
   [
-    { lbl:'综合评分',  val:composite,     sub:'满分 100 · ML + 四象限', cls:composite>=70?'clr-gold':'clr-red' },
-    { lbl:'仓位评级',  val:grade,         sub:'结合 ML + 四象限',       cls:gColor },
-    { lbl:'综合盈亏',  val:(totalPnl>=0?'+':'')+(totalPnl*100).toFixed(1)+'%', sub:'加权均值',        cls:totalPnl>=0?'clr-green':'clr-red' },
-    { lbl:'ML 均分',   val:Math.round(avgML), sub:'加权截面平均分',         cls:'clr-blue' },
-  ].forEach(c => {
-    const div = document.createElement('div');
-    div.className = 'port-sum-card';
-    div.innerHTML = `<div class="psc-lbl">${c.lbl}</div><div class="psc-val ${c.cls}">${c.val}</div><div class="psc-sub">${c.sub}</div>`;
-    summaryEl.appendChild(div);
+    {lbl:'综合评分',val:m.comp,        sub:'满分 100 · ML+四象限', cls:gradeColor},
+    {lbl:'仓位评级',val:m.grade,       sub:'综合评级',             cls:gradeColor},
+    {lbl:'综合盈亏',val:pnlStr,        sub:'加权均值',             cls:m.totalPnl>=0?'clr-green':'clr-red'},
+    {lbl:'ML 均分', val:Math.round(m.avgML), sub:'截面加权均分',   cls:'clr-blue'},
+  ].forEach(c=>{
+    const div=document.createElement('div');
+    div.className='port-sum-card';
+    div.innerHTML=`<div class="psc-lbl">${c.lbl}</div><div class="psc-val ${c.cls}">${c.val}</div><div class="psc-sub">${c.sub}</div>`;
+    document.getElementById('port-summary').appendChild(div);
   });
 
-  // Table rows
-  const tbody = document.getElementById('port-tbody');
-  S.portfolio.forEach(s => {
-    const pnl = (s.cur - s.cost) / s.cost * 100;
-    const pnlStr = (pnl>=0?'+':'') + pnl.toFixed(1) + '%';
-    const ml = ML_SCORE[s.code] || 50;
-    const mlColor = ml>=70?'#3fb950':ml>=50?'#e3b341':'#f85149';
-    const comp = Math.round(ml*0.6 + ZONE_SC[s.zone]*0.4);
-    const compColor = comp>=70?'#3fb950':comp>=55?'#e3b341':'#f85149';
-
-    let act, actCls;
-    if (comp >= 70 && pnl < 35)    { act = '可加仓'; actCls = 'act-add'; }
-    else if (comp >= 55)            { act = '持有';   actCls = 'act-hold'; }
-    else if (s.zone === 'warn')     { act = '减仓';   actCls = 'act-trim'; }
-    else                            { act = '关注';   actCls = 'act-hold'; }
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>
-        <span class="pt-nm" style="color:${s.color}">${s.name}</span>
-        <span class="pt-cd">${s.code} · ${s.sector}</span>
-      </td>
+  const tbody=document.getElementById('port-tbody');
+  S.portfolio.forEach(s=>{
+    const pnl=(s.cur-s.cost)/s.cost*100;
+    const pnlStr=(pnl>=0?'+':'')+pnl.toFixed(1)+'%';
+    const ml=ML_SCORE[s.code]||50;
+    const mlColor=ml>=70?'#3fb950':ml>=50?'#e3b341':'#f85149';
+    const comp=Math.round(ml*0.6+ZONE_SC[s.zone]*0.4);
+    const compColor=comp>=70?'#3fb950':comp>=55?'#e3b341':'#f85149';
+    let act,actCls;
+    if(comp>=70&&pnl<35){act='可加仓';actCls='act-add';}
+    else if(comp>=55)   {act='持有';  actCls='act-hold';}
+    else                {act='减仓';  actCls='act-trim';}
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><span class="pt-nm" style="color:${s.color}">${s.name}</span><span class="pt-cd">${s.code} · ${s.sector}</span></td>
       <td>${Math.round(s.wt*100)}%</td>
       <td class="pt-pnl ${pnl>=0?'up':'dn'}">${pnlStr}</td>
-      <td>
-        <div class="ml-cell">
-          <div class="ml-bar"><div class="ml-fill" style="width:${ml}%;background:${mlColor}"></div></div>
-          <span class="ml-num" style="color:${mlColor}">${ml}</span>
-        </div>
-      </td>
+      <td><div class="ml-cell"><div class="ml-bar"><div class="ml-fill" style="width:${ml}%;background:${mlColor}"></div></div><span class="ml-num" style="color:${mlColor}">${ml}</span></div></td>
       <td><span class="zone-badge" style="${ZONE_STYLE[s.zone]}">${ZONE_LBL[s.zone]}</span></td>
       <td><span class="comp-num" style="color:${compColor}">${comp}</span></td>
       <td><span class="act-badge ${actCls}">${act}</span></td>`;
     tbody.appendChild(tr);
   });
 
-  // AI Summary
-  const warns = S.portfolio.filter(s => s.zone === 'warn').map(s => s.name);
-  const best  = [...S.portfolio].sort((a,b) => (ML_SCORE[b.code]||50) - (ML_SCORE[a.code]||50))[0];
-  const bestML = ML_SCORE[best.code] || 50;
-
-  const aiEl = document.getElementById('ai-block');
-  aiEl.innerHTML = `
+  const warns=m.warns;
+  const best=m.best;
+  document.getElementById('ai-block').innerHTML=`
     <div class="ai-blk-hd">
       <div class="ai-avatar">${S.aiName.charAt(0)}</div>
-      <div>
-        <div class="ai-blk-nm">${S.aiName}</div>
-        <div class="ai-blk-role">AI策略助手 · 持仓综合体检报告</div>
-      </div>
+      <div><div class="ai-blk-nm">${S.aiName}</div><div class="ai-blk-role">AI策略助手 · 持仓综合体检报告</div></div>
     </div>
     <div class="ai-text">
-      当前仓位整体评级 <strong>${grade}</strong>，综合得分 <em>${composite}/100</em>。
-      ML 引擎加权均分 <strong>${Math.round(avgML)} 分</strong>，四象限定位以"踏进光里"和"站在光里"为主，方向整体正确。<br><br>
-      最强持仓是 <strong>${best.name}</strong>（ML ${bestML} 分），处于 ${best.sector} 核心赛道，
-      建议维持高配${bestML >= 80 ? '，逢5%以内回调可考虑加仓' : '，当前位置持有观察'}。
-      ${warns.length > 0
-        ? `<br><br><strong style="color:#f85149">⚠ 需要注意：</strong><strong>${warns.join('、')}</strong>目前处于"超买警戒区"，RSI 偏高、换手放大，机构减仓信号出现。建议将仓位降至 5% 以下，等待充分回调（10%+）再评估。`
-        : ''}
+      当前仓位整体评级 <strong>${m.grade}</strong>，综合得分 <em>${m.comp}/100</em>。
+      ML 引擎加权均分 <strong>${Math.round(m.avgML)} 分</strong>，四象限定位以"踏进光里"和"站在光里"为主，方向整体正确。<br><br>
+      最强持仓是 <strong>${best.name}</strong>（ML ${ML_SCORE[best.code]} 分），建议维持高配${ML_SCORE[best.code]>=80?'，逢5%以内回调可考虑加仓':'，当前位置持有观察'}。
+      ${warns.length>0?`<br><br><strong style="color:#f85149">⚠ 需要行动：</strong><strong>${warns.join('、')}</strong> — RSI 偏高、换手放大，机构减仓信号明确。建议将仓位降至 5% 以下，等待充分回调（10%+）后再评估。`:''}
       <br><br>
-      整体建议：<strong>AI算力 + 新能源车</strong>保持高配（合计不低于40%），
+      整体建议：<strong>AI算力 + 新能源车</strong>保持高配（合计不低于 40%），
       <strong>大金融 + 白酒</strong>作为底仓防御（合计约 20-25%），
-      ${warns.length > 0 ? `<strong>${warns.join('、')}</strong>短线减仓，` : ''}
-      等待 2026 年 7 月中旬季报催化窗口，再做方向性调整。
+      ${warns.length>0?`<strong>${warns.join('、')}</strong>短线减仓，`:''}
+      等待 7 月中旬季报催化窗口再做方向性调整。
     </div>`;
 }
 
-// ═══════════════════════════════════════════
-// BOOT
-// ═══════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', initOnboard);
 </script>
 </body>
