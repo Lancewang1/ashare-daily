@@ -446,6 +446,113 @@ body {
 .fade-in  { animation:fadeIn .4s ease-out; }
 @keyframes slideOut { to{opacity:0;transform:scale(.96)} }
 .slide-out { animation:slideOut .3s ease-in forwards; }
+
+/* ─── FLOATING CHAT ─── */
+#chat-btn {
+  position:fixed; bottom:28px; right:28px; z-index:600;
+  width:56px; height:56px; border-radius:50%;
+  background:linear-gradient(135deg,#c99a2e,#e3b341);
+  border:none; cursor:pointer; box-shadow:0 4px 24px #e3b34155;
+  display:none; align-items:center; justify-content:center;
+  font-size:18px; font-weight:900; color:#040810; letter-spacing:.02em;
+  transition:transform .2s,box-shadow .2s,background .2s;
+}
+#chat-btn:hover { transform:scale(1.08); box-shadow:0 6px 32px #e3b34177; }
+#chat-btn.is-open { background:#0c1a2c; color:var(--dim); box-shadow:0 2px 12px #00000066; border:1px solid var(--bdr); }
+
+#chat-panel {
+  position:fixed; bottom:96px; right:28px; z-index:600;
+  width:344px; height:490px;
+  background:#060f1c; border:1px solid var(--bdr);
+  border-radius:18px; box-shadow:0 20px 70px #000000cc;
+  display:none; flex-direction:column; overflow:hidden;
+}
+#chat-panel.open { display:flex; animation:chatSlideUp .25s ease-out; }
+@keyframes chatSlideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+.chat-hd {
+  display:flex; align-items:center; gap:10px;
+  padding:13px 16px; border-bottom:1px solid var(--bdr); background:#040c18; flex-shrink:0;
+}
+.chat-avatar {
+  width:32px; height:32px; border-radius:9px; flex-shrink:0;
+  background:linear-gradient(135deg,#c99a2e,#e3b341);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:900; color:#040810;
+}
+.chat-hd-name   { font-size:13px; font-weight:800; color:var(--fg); }
+.chat-hd-status { font-size:10px; color:var(--green); margin-top:2px; }
+.chat-close { margin-left:auto; color:var(--dim); font-size:18px; cursor:pointer; line-height:1; padding:2px 4px; }
+.chat-close:hover { color:var(--fg); }
+
+.chat-msgs {
+  flex:1; overflow-y:auto; padding:14px 12px 6px;
+  display:flex; flex-direction:column; gap:10px;
+}
+.chat-msgs::-webkit-scrollbar { width:3px; }
+.chat-msgs::-webkit-scrollbar-thumb { background:var(--bdr); border-radius:2px; }
+
+.msg-row { display:flex; gap:8px; align-items:flex-end; }
+.msg-row.user { flex-direction:row-reverse; }
+.msg-av {
+  width:26px; height:26px; border-radius:7px; flex-shrink:0;
+  background:linear-gradient(135deg,#c99a2e,#e3b341);
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:900; color:#040810;
+}
+.msg-bubble { max-width:78%; padding:9px 12px; border-radius:12px; font-size:13px; line-height:1.7; }
+.msg-row.ai   .msg-bubble { background:#0c1e30; color:var(--fg); border-radius:12px 12px 12px 3px; }
+.msg-row.user .msg-bubble { background:#e3b34120; color:var(--fg); border:1px solid #e3b34133; border-radius:12px 12px 3px 12px; }
+.msg-bubble strong { color:var(--gold); font-weight:700; }
+.msg-bubble em     { color:var(--green); font-style:normal; }
+
+.chat-typing {
+  display:flex; gap:4px; align-items:center; padding:9px 12px;
+  background:#0c1e30; border-radius:12px 12px 12px 3px;
+}
+.typing-dot {
+  width:6px; height:6px; border-radius:50%; background:var(--dim);
+  animation:typingBounce 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay:.22s; }
+.typing-dot:nth-child(3) { animation-delay:.44s; }
+@keyframes typingBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+.chat-sugs {
+  display:flex; flex-wrap:wrap; gap:6px; padding:8px 12px 4px; flex-shrink:0;
+}
+.chat-sug {
+  font-size:11px; font-weight:700; padding:5px 10px; border-radius:20px;
+  background:#060f1c; border:1px solid var(--bdr); color:var(--dim);
+  cursor:pointer; font-family:inherit; transition:all .15s;
+}
+.chat-sug:hover { border-color:#e3b34155; color:var(--gold); background:#e3b34110; }
+
+.chat-input-row {
+  display:flex; gap:8px; padding:10px 12px;
+  border-top:1px solid var(--bdr); background:#040c18; flex-shrink:0;
+}
+#chat-input {
+  flex:1; background:#060f1c; border:1px solid var(--bdr);
+  border-radius:10px; padding:9px 12px; font-size:13px;
+  color:var(--fg); font-family:inherit; outline:none; resize:none; height:38px;
+  transition:border-color .2s;
+}
+#chat-input:focus { border-color:#e3b34155; }
+#chat-input::placeholder { color:var(--dim); }
+#chat-send {
+  width:36px; height:36px; border-radius:9px; flex-shrink:0;
+  background:linear-gradient(135deg,#c99a2e,#e3b341);
+  border:none; cursor:pointer; color:#040810;
+  font-size:16px; font-weight:900; line-height:1;
+  transition:opacity .15s,transform .1s;
+}
+#chat-send:hover  { opacity:.88; }
+#chat-send:active { transform:scale(.93); }
+
+@media (max-width:400px) {
+  #chat-panel { right:8px; left:8px; width:auto; }
+}
 </style>
 </head>
 <body>
@@ -582,6 +689,25 @@ body {
       <div class="ai-block" id="ai-block"></div>
     </div>
 
+  </div>
+</div>
+
+<!-- FLOATING CHAT -->
+<button id="chat-btn" onclick="toggleChat()">AI</button>
+<div id="chat-panel">
+  <div class="chat-hd">
+    <div class="chat-avatar" id="chat-av">AI</div>
+    <div>
+      <div class="chat-hd-name" id="chat-hd-nm">AI助手</div>
+      <div class="chat-hd-status">&#9679; 在线</div>
+    </div>
+    <div class="chat-close" onclick="toggleChat()">&#10005;</div>
+  </div>
+  <div class="chat-msgs" id="chat-msgs"></div>
+  <div class="chat-sugs" id="chat-sugs"></div>
+  <div class="chat-input-row">
+    <input id="chat-input" placeholder="问我任何持仓问题..." onkeydown="if(event.key==='Enter'){event.preventDefault();sendChat();}">
+    <button id="chat-send" onclick="sendChat()">&#10148;</button>
   </div>
 </div>
 
@@ -783,7 +909,14 @@ function startLoad() {
 function launchApp() {
   const ob=document.getElementById('onboard');
   ob.classList.add('slide-out');
-  setTimeout(()=>{ ob.style.display='none'; document.getElementById('app').style.display='block'; initApp(); },320);
+  setTimeout(()=>{
+    ob.style.display='none';
+    document.getElementById('app').style.display='block';
+    const btn=document.getElementById('chat-btn');
+    btn.style.display='flex';
+    btn.textContent=S.aiName.charAt(0)||'AI';
+    initApp();
+  },320);
 }
 
 /* ═══ APP INIT ═══ */
@@ -1311,6 +1444,160 @@ function renderPortfolio() {
       ${warns.length>0?`<strong>${warns.join('、')}</strong>短线减仓，`:''}
       等待 7 月中旬季报催化窗口再做方向性调整。
     </div>`;
+}
+
+/* ═══ CHAT ENGINE ═══ */
+const CHAT_QUICK = ['持仓整体怎么样？','今天该买什么？','有什么要减仓吗？','ML评分怎么算的？','今日市场情绪'];
+
+function toggleChat() {
+  const btn=document.getElementById('chat-btn');
+  const panel=document.getElementById('chat-panel');
+  const opening=!panel.classList.contains('open');
+  panel.classList.toggle('open', opening);
+  btn.classList.toggle('is-open', opening);
+  btn.textContent = opening ? '×' : (S.aiName.charAt(0)||'AI');
+  if(opening && document.getElementById('chat-msgs').childElementCount===0) initChatPanel();
+}
+
+function initChatPanel() {
+  document.getElementById('chat-av').textContent   = S.aiName.charAt(0)||'AI';
+  document.getElementById('chat-hd-nm').textContent = S.aiName;
+  const m=calcMetrics();
+  const relCount=NEWS.filter(n=>n.rel.some(r=>new Set(S.portfolio.map(s=>s.name)).has(r))).length;
+  addAIBubble(`你好！我是 <strong>${S.aiName}</strong>，你的 A股策略助手。\n\n你的持仓综合评级 <strong>${m.grade}</strong>（${m.comp}/100），今日有 <strong>${relCount} 条</strong>相关市场信号。有什么想问的？`);
+  renderChatQuick();
+}
+
+function renderChatQuick() {
+  const el=document.getElementById('chat-sugs');
+  el.innerHTML='';
+  CHAT_QUICK.forEach(q=>{
+    const b=document.createElement('button');
+    b.className='chat-sug'; b.textContent=q;
+    b.onclick=()=>submitChat(q);
+    el.appendChild(b);
+  });
+}
+
+function addAIBubble(html) {
+  const msgs=document.getElementById('chat-msgs');
+  const row=document.createElement('div');
+  row.className='msg-row ai';
+  row.innerHTML=`<div class="msg-av">${S.aiName.charAt(0)||'AI'}</div><div class="msg-bubble">${html.replace(/\n/g,'<br>')}</div>`;
+  msgs.appendChild(row);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function addUserBubble(text) {
+  const msgs=document.getElementById('chat-msgs');
+  const row=document.createElement('div');
+  row.className='msg-row user';
+  row.innerHTML=`<div class="msg-bubble">${text}</div>`;
+  msgs.appendChild(row);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function showTypingDots() {
+  const msgs=document.getElementById('chat-msgs');
+  const row=document.createElement('div');
+  row.className='msg-row ai'; row.id='chat-typing';
+  row.innerHTML=`<div class="msg-av">${S.aiName.charAt(0)||'AI'}</div><div class="chat-typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  msgs.appendChild(row);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function hideTypingDots() {
+  const t=document.getElementById('chat-typing'); if(t) t.remove();
+}
+
+function sendChat() {
+  const inp=document.getElementById('chat-input');
+  const text=inp.value.trim(); if(!text) return;
+  inp.value=''; submitChat(text);
+}
+
+function submitChat(text) {
+  document.getElementById('chat-sugs').innerHTML='';
+  addUserBubble(text);
+  showTypingDots();
+  setTimeout(()=>{ hideTypingDots(); addAIBubble(getChatReply(text)); }, 900+Math.random()*700);
+}
+
+function getChatReply(msg) {
+  const m=calcMetrics();
+  const userNms=new Set(S.portfolio.map(s=>s.name));
+
+  // greeting
+  if(/你好|hi|hello|嗨|在吗/i.test(msg))
+    return `你好！有什么关于持仓的问题，直接问我就行。可以问某支股票、加减仓建议，或者今日市场整体判断。`;
+
+  // thanks
+  if(/谢|好的|明白|收到|知道了/.test(msg))
+    return `随时都在！祝你今日操作顺利。`;
+
+  // portfolio overview
+  if(/持仓|仓位|整体|概况|怎么样|情况|体检/.test(msg)) {
+    const pnlStr=(m.totalPnl>=0?'+':'')+(m.totalPnl*100).toFixed(1)+'%';
+    return `持仓综合评分 <strong>${m.comp}/100</strong>，评级 <strong>${m.grade}</strong>，整体盈亏 <strong>${pnlStr}</strong>。\n\nML 加权均分 <strong>${Math.round(m.avgML)}</strong>，${S.portfolio.length} 支标的中 ${S.portfolio.filter(s=>s.zone==='buy-tr'||s.zone==='buy-tl').length} 支在光亮区间。${m.warns.length>0?`\n\n<strong>⚠ 需要关注：${m.warns.join('、')}</strong> 处于超买警戒区，机构有减仓信号，建议降低仓位。`:'整体健康，无明确风险信号。'}`;
+  }
+
+  // buy / add
+  if(/买|加仓|买入|机会|推荐|候选/.test(msg)) {
+    const addable=S.portfolio.filter(s=>Math.round((ML_SCORE[s.code]||50)*0.6+ZONE_SC[s.zone]*0.4)>=70&&(s.cur-s.cost)/s.cost*100<30);
+    const newPicks=ML_PICKS.filter(p=>!S.portfolio.some(s=>s.code===p.code)).slice(0,2);
+    return `今日加仓方向两类：\n\n持仓内可加仓：${addable.length>0?addable.map(s=>`<strong>${s.name}</strong>`).join('、'):'当前持仓盈利较高，无明确加仓点'}\n\n新候选标的：<strong>${newPicks[0]?.name}（ML ${newPicks[0]?.score}分）</strong>和 <strong>${newPicks[1]?.name}（ML ${newPicks[1]?.score}分）</strong>，均在光亮区，与你现有赛道有协同性。`;
+  }
+
+  // sell / trim
+  if(/减仓|卖|出|止损|风险|危险|警戒/.test(msg)) {
+    if(m.warns.length>0)
+      return m.warns.map(nm=>{
+        const s=S.portfolio.find(x=>x.name===nm);
+        return `建议减仓：<strong>${nm}</strong>（${s?.sector}）\n\nRSI 超买 + 换手率 3x 均值 + 机构卖出席位。建议将仓位降至 <strong>5% 以下</strong>，等 10%+ 回调后再评估。`;
+      }).join('\n\n');
+    return `目前持仓<em>没有明确减仓信号</em>，所有标的均在光亮区。\n\n如果要做防守，可小幅降低盈利已超过 30% 的标的，把资金保留在灵活仓位。`;
+  }
+
+  // specific stock in portfolio
+  for(const s of S.portfolio) {
+    if(msg.includes(s.name)||msg.includes(s.code)) {
+      const ml=ML_SCORE[s.code]||50;
+      const comp=Math.round(ml*0.6+ZONE_SC[s.zone]*0.4);
+      const pnl=(s.cur-s.cost)/s.cost*100;
+      const co=CO_DATA[s.code];
+      const act=comp>=70&&pnl<30?'可加仓':s.zone==='warn'?'建议减仓，超买警戒':'持有观察';
+      return `<strong>${s.name}（${s.code}）</strong> · ${s.sector}\n\n持仓盈亏 <strong>${(pnl>=0?'+':'')+pnl.toFixed(1)}%</strong> · ML评分 <strong>${ml}</strong> · 四象限 <strong>${ZONE_LBL[s.zone]}</strong> · 综合分 <strong>${comp}</strong>\n\n建议：<em>${act}</em>${co?`\n\n最新：${co.title}`:''}`;
+    }
+  }
+
+  // specific stock in ML picks (not in portfolio)
+  for(const p of ML_PICKS) {
+    if(msg.includes(p.name)||msg.includes(p.code)) {
+      const mine=S.portfolio.some(s=>s.code===p.code);
+      return `<strong>${p.name}（${p.code}）</strong> · ML #${p.rank} · <strong>${p.score}分</strong>\n\n${p.sector} · ${ZONE_LBL[p.zone]}\n\n${p.thesis}\n\n${mine?'你已持有这支标的。':'你尚未持有，可作为加仓候选研究。'}`;
+    }
+  }
+
+  // ML / model
+  if(/ml|模型|评分|算法|怎么算|ic|因子/.test(msg.toLowerCase()))
+    return `ML 引擎使用 <strong>tech_regime_v2</strong>，基于价格动量、成交量、板块轮动、资金流向等多因子，每日截面打分 0–100。\n\n综合评分公式：<strong>ML × 0.6 + 四象限 × 0.4</strong>\n\nIC 均值 0.062，日胜率 58.3%，每日 09:35 更新。`;
+
+  // market / fear greed
+  if(/恐|贪|温度|情绪|市场|大盘/.test(msg))
+    return `今日恐贪温度计读数 <strong>71 · 贪婪</strong>。RSI 偏高、融资余额上升、北向净流入，市场情绪偏热。\n\n历史规律：读数 >75 后持一个月平均 <strong>-4.1%</strong>，当前需警惕短期回调，控制整体仓位不要过激进。`;
+
+  // today / what to do
+  if(/今天|今日|怎么做|操作|方向/.test(msg)) {
+    return `今日要点：\n\n① 持仓综合评级 <strong>${m.grade}</strong>，方向正确\n② ML Top10 你已持有 <strong>${m.mineInPicks.length}</strong> 支，重合度高\n③ ${m.warns.length>0?`<strong>${m.warns.join('、')}</strong> 超买警戒，需关注`:'所有持仓均在光亮区'}\n④ 市场情绪偏贪婪（71），不建议追高\n\n<em>整体建议：持仓结构合理，不需大动，关注超买标的减仓时机。</em>`;
+  }
+
+  // default fallback
+  const fallbacks=[
+    `根据你的持仓，重点关注 <strong>${[...S.portfolio].sort((a,b)=>(ML_SCORE[b.code]||50)-(ML_SCORE[a.code]||50))[0]?.name}</strong>，今日 ML 评分最高，是你仓位里的核心标的。有更具体的问题可以直接告诉我。`,
+    `你的持仓综合评级 <strong>${m.grade}</strong>，ML 均分 <strong>${Math.round(m.avgML)}</strong>。可以问我某支具体标的、加减仓建议，或者今日新闻分析。`,
+    `这个问题我需要更多信息。你是想了解<strong>某支具体标的</strong>，还是对<strong>整体仓位策略</strong>有疑问？`,
+  ];
+  return fallbacks[Math.floor(Math.random()*fallbacks.length)];
 }
 
 document.addEventListener('DOMContentLoaded', initOnboard);
