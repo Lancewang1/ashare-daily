@@ -394,6 +394,43 @@ body {
 .ai-text strong { color:var(--fg); font-weight:700; }
 .ai-text em { color:var(--gold); font-style:normal; }
 
+/* ─── INTENT PICKER ─── */
+.intent-picker { max-width:540px; margin:48px auto; text-align:center; padding:0 8px; }
+.intent-q { font-size:26px; font-weight:900; margin-bottom:8px; color:var(--fg); }
+.intent-sub-text { font-size:14px; color:var(--dim); margin-bottom:28px; line-height:1.75; }
+.intent-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.intent-choice {
+  background:var(--card); border:1.5px solid var(--bdr); border-radius:16px;
+  padding:24px 16px; cursor:pointer;
+  transition:border-color .15s,background .15s,transform .1s;
+}
+.intent-choice:hover { transform:translateY(-2px); background:#0e1c2e; }
+.ic-add:hover  { border-color:#3fb95066; }
+.ic-trim:hover { border-color:#f8514966; }
+.ic-watch:hover{ border-color:#4c9ef066; }
+.ic-ask:hover  { border-color:#e3b34166; }
+.ic-icon  { font-size:28px; font-weight:900; line-height:1; margin-bottom:10px; }
+.ic-label { font-size:15px; font-weight:900; color:var(--fg); margin-bottom:6px; }
+.ic-desc  { font-size:12px; color:var(--dim); line-height:1.65; }
+
+.intent-mode-tag {
+  display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700;
+  padding:4px 12px; border-radius:20px; margin-bottom:16px; cursor:pointer;
+  transition:opacity .15s;
+}
+.intent-mode-tag:hover { opacity:.8; }
+.imt-add  { background:#3fb95018; color:var(--green); border:1px solid #3fb95030; }
+.imt-trim { background:#f8514918; color:var(--red);   border:1px solid #f8514930; }
+.imt-watch{ background:#4c9ef018; color:var(--blue);  border:1px solid #4c9ef030; }
+.imt-ask  { background:#e3b34118; color:var(--gold);  border:1px solid #e3b34130; }
+
+.add-pick-row {
+  display:flex; align-items:flex-start; gap:12px; padding:13px 14px;
+  background:#040c18; border:1px solid var(--bdr); border-radius:10px; margin-bottom:8px;
+}
+.apr-rank  { font-size:11px; font-weight:900; color:var(--dim); min-width:22px; padding-top:2px; }
+.apr-badge { font-size:11px; font-weight:800; padding:4px 10px; border-radius:8px; flex-shrink:0; margin-top:2px; }
+
 /* Responsive */
 @media (max-width:620px) {
   .ob-card { padding:28px 22px; }
@@ -550,7 +587,7 @@ body {
 
 <script>
 /* ═══ STATE ═══ */
-const S = { aiName:'丁仪', portfolio:[] };
+const S = { aiName:'丁仪', portfolio:[], intent:null };
 
 /* ═══ DATA ═══ */
 const NAME_SUGS = ['丁仪','东方不败','令狐冲','小策','择天','明见'];
@@ -762,7 +799,7 @@ function initApp() {
     <div class="hd-pi">持仓 <span class="hd-pv">${S.portfolio.length}支</span></div>
     <div class="hd-pi">综合盈亏 <span class="hd-pv ${totalPnl>=0?'up':'dn'}">${totalPnl>=0?'+':''}${pStr}%</span></div>`;
 
-  renderBrief();
+  showIntentPicker();
   renderNewsIntro();
   renderNews();
   renderQuadIntro();
@@ -790,6 +827,47 @@ function showSub(id) {
   document.getElementById('sp-'+id).classList.add('active');
 }
 
+/* ═══ INTENT PICKER ═══ */
+function showIntentPicker() {
+  const m = calcMetrics();
+  document.getElementById('brief-content').innerHTML = `
+    <div class="intent-picker fade-in">
+      <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin-bottom:18px">${S.aiName} · 今日意图</div>
+      <div class="intent-q">你今天想怎么操作？</div>
+      <div class="intent-sub-text">
+        ${S.aiName} 将根据你的意图，调整今日简报的侧重点和操作建议<br>
+        <span style="color:var(--gold)">持仓 ${S.portfolio.length} 支</span> &nbsp;·&nbsp; ML 均分 ${Math.round(m.avgML)} &nbsp;·&nbsp; 综合评级 ${m.grade}
+      </div>
+      <div class="intent-grid">
+        <div class="intent-choice ic-add" onclick="selectIntent('add')">
+          <div class="ic-icon" style="color:var(--green)">+</div>
+          <div class="ic-label">加仓</div>
+          <div class="ic-desc">找今日最佳加仓机会<br>ML 高分 + 光亮区域优先</div>
+        </div>
+        <div class="intent-choice ic-trim" onclick="selectIntent('trim')">
+          <div class="ic-icon" style="color:var(--red)">−</div>
+          <div class="ic-label">减仓</div>
+          <div class="ic-desc">梳理应该减仓的标的<br>释放弹药给更好机会</div>
+        </div>
+        <div class="intent-choice ic-watch" onclick="selectIntent('watch')">
+          <div class="ic-icon" style="color:var(--blue);font-size:22px">◎</div>
+          <div class="ic-label">帮我盯着</div>
+          <div class="ic-desc">今日不动仓<br>所有重要信号告诉我</div>
+        </div>
+        <div class="intent-choice ic-ask" onclick="selectIntent('ask')">
+          <div class="ic-icon" style="color:var(--gold);font-size:18px;letter-spacing:.04em">AI</div>
+          <div class="ic-label">你告诉我应该做什么</div>
+          <div class="ic-desc">交给 ${S.aiName}<br>给我一个明确的综合建议</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function selectIntent(intent) {
+  S.intent = intent;
+  renderBrief();
+}
+
 /* ═══ RENDER: BRIEF PAGE ═══ */
 function renderBrief() {
   const m = calcMetrics();
@@ -797,45 +875,150 @@ function renderBrief() {
   const pnlColor = m.totalPnl>=0?'clr-green':'clr-red';
   const gradeColor = m.comp>=74?'clr-gold':'clr-red';
   const userNms = new Set(S.portfolio.map(s=>s.name));
+  const intent = S.intent || 'ask';
 
-  // Greeting text
+  /* ── Mode badge (clickable to re-pick) ── */
+  const intentMeta = {
+    add:   { label:'+ 加仓模式',      cls:'imt-add'   },
+    trim:  { label:'− 减仓模式',      cls:'imt-trim'  },
+    watch: { label:'◎ 盯盘模式',      cls:'imt-watch' },
+    ask:   { label:'AI 综合建议',     cls:'imt-ask'   },
+  };
+  const im = intentMeta[intent];
+  const modeBadgeHTML = `<div class="intent-mode-tag ${im.cls}" onclick="showIntentPicker()" title="重新选择">${im.label} &nbsp;·&nbsp; 重新选择</div>`;
+
+  /* ── Greeting text ── */
   const lightCount = S.portfolio.filter(s=>s.zone==='buy-tr'||s.zone==='buy-tl').length;
-  const greetText = `今日共整合 <strong>${NEWS.filter(n=>n.rel.some(r=>userNms.has(r))).length} 条</strong>与你持仓直接相关的市场信号。你持有的 <strong>${S.portfolio.length} 支标的</strong>中，<strong>${lightCount} 支</strong>处于光亮区间（踏进光里 / 站在光里），整体方向正确。ML 引擎今日 Top 10 中你已持有 <em>${m.mineInPicks.length} 支</em>，与模型推荐高度重合。`;
+  let greetText;
+  if (intent === 'add') {
+    const addable = S.portfolio.filter(s => Math.round((ML_SCORE[s.code]||50)*0.6+ZONE_SC[s.zone]*0.4) >= 70);
+    const newCands = ML_PICKS.filter(p=>!S.portfolio.some(s=>s.code===p.code)&&p.score>=75);
+    greetText = `今日模式：<em>寻找加仓机会</em>。你持仓 <strong>${S.portfolio.length} 支</strong>中，<strong>${addable.length} 支</strong>综合评分达到加仓标准（70分+）。ML Top 10 另有 <strong>${newCands.length} 支</strong>你尚未持有的高分候选，已列在下方供参考。`;
+  } else if (intent === 'trim') {
+    const trimList = S.portfolio.filter(s=>Math.round((ML_SCORE[s.code]||50)*0.6+ZONE_SC[s.zone]*0.4)<55);
+    greetText = `今日模式：<em>梳理减仓清单</em>。根据 ML 评分和四象限位置，${trimList.length>0?`<strong style="color:var(--red)">${trimList.map(s=>s.name).join('、')}</strong> 建议减仓或降低仓位`:'<strong>当前持仓整体健康，无明确减仓信号</strong>'}。减仓后腾出的资金，我为你准备了备选加仓方向。`;
+  } else if (intent === 'watch') {
+    greetText = `今日模式：<em>盯盘守候</em>。今日你无需操作，我帮你盯着。持有的 <strong>${S.portfolio.length} 支标的</strong>中 <strong>${lightCount} 支</strong>在光亮区，整体稳健。共有 <strong>${NEWS.filter(n=>n.rel.some(r=>userNms.has(r))).length} 条</strong>持仓相关信号，以下是最需关注的动态。`;
+  } else {
+    greetText = `今日共整合 <strong>${NEWS.filter(n=>n.rel.some(r=>userNms.has(r))).length} 条</strong>与你持仓直接相关的市场信号。你持有的 <strong>${S.portfolio.length} 支标的</strong>中，<strong>${lightCount} 支</strong>处于光亮区间（踏进光里 / 站在光里），整体方向正确。ML 引擎今日 Top 10 中你已持有 <em>${m.mineInPicks.length} 支</em>，与模型推荐高度重合。`;
+  }
 
-  // Signals: relevant news + zone warnings
+  /* ── Signals ── */
   const signals = [];
-  NEWS.filter(n=>n.rel.some(r=>userNms.has(r))).slice(0,3).forEach(n => {
-    const relNms = n.rel.filter(r=>userNms.has(r));
-    signals.push({
-      color: n.color,
-      head: n.hl,
-      sub:  n.sm.substring(0,60) + '...',
-      chips: relNms.map(r=>`<span class="sig-chip good">${r}</span>`).join(''),
-      type: 'news'
+  if (intent === 'add') {
+    // positive news only, no warn items
+    NEWS.filter(n=>n.rel.some(r=>userNms.has(r))&&!n.rel.some(r=>m.warns.includes(r))).slice(0,3).forEach(n=>{
+      const relNms=n.rel.filter(r=>userNms.has(r));
+      signals.push({ color:n.color, head:n.hl, sub:n.sm.substring(0,68)+'...', chips:relNms.map(r=>`<span class="sig-chip good">${r}</span>`).join('') });
     });
-  });
-  m.warns.forEach(nm => {
-    const s = S.portfolio.find(x=>x.name===nm);
-    signals.push({
-      color: '#f85149',
-      head: `⚠ ${nm} — 超买警戒区，机构减仓信号`,
-      sub: `RSI 偏高，换手率异常放大，建议降仓位至 5% 以下等待回调`,
-      chips: `<span class="sig-chip warn">减仓</span>`,
-      type: 'warn'
+    const topNew = ML_PICKS.find(p=>!S.portfolio.some(s=>s.code===p.code)&&p.score>=80);
+    if(topNew) signals.push({ color:'#3fb950', head:`ML #${topNew.rank} ${topNew.name}（${topNew.score}分）— 今日最强加仓候选`, sub:topNew.thesis.substring(0,80)+'...', chips:`<span class="sig-chip good">ML高分</span><span class="sig-chip good">${topNew.sector}</span>` });
+  } else if (intent === 'trim') {
+    // warn signals first, prominently
+    m.warns.forEach(nm=>{
+      signals.push({ color:'#f85149', head:`⚠ ${nm} — 超买警戒，建议立即减仓`, sub:`RSI 偏高，换手率异常放大，机构减仓信号明确，建议降至 5% 以下等候回调`, chips:`<span class="sig-chip warn">立即减仓</span>` });
     });
-  });
+    NEWS.filter(n=>n.rel.some(r=>m.warns.includes(r))).forEach(n=>{
+      const relNms=n.rel.filter(r=>userNms.has(r));
+      signals.push({ color:'#f85149', head:n.hl, sub:n.sm.substring(0,68)+'...', chips:relNms.map(r=>`<span class="sig-chip warn">${r}</span>`).join('') });
+    });
+    NEWS.filter(n=>n.rel.some(r=>userNms.has(r))&&!n.rel.some(r=>m.warns.includes(r))).slice(0,1).forEach(n=>{
+      const relNms=n.rel.filter(r=>userNms.has(r));
+      signals.push({ color:n.color, head:n.hl, sub:n.sm.substring(0,68)+'...', chips:relNms.map(r=>`<span class="sig-chip good">${r} 保留</span>`).join('') });
+    });
+  } else {
+    NEWS.filter(n=>n.rel.some(r=>userNms.has(r))).slice(0,3).forEach(n=>{
+      const relNms=n.rel.filter(r=>userNms.has(r));
+      signals.push({ color:n.color, head:n.hl, sub:n.sm.substring(0,60)+'...', chips:relNms.map(r=>`<span class="sig-chip good">${r}</span>`).join('') });
+    });
+    m.warns.forEach(nm=>{
+      signals.push({ color:'#f85149', head:`⚠ ${nm} — 超买警戒区，机构减仓信号`, sub:`RSI 偏高，换手率异常放大，建议降仓位至 5% 以下等待回调`, chips:`<span class="sig-chip warn">减仓</span>` });
+    });
+  }
 
-  // Action recs
-  const actions = S.portfolio.map(s => {
-    const ml = ML_SCORE[s.code]||50;
-    const comp = Math.round(ml*0.6 + ZONE_SC[s.zone]*0.4);
-    const pnl = (s.cur-s.cost)/s.cost*100;
-    let act, cls;
-    if(comp>=70&&pnl<35) { act='可加仓'; cls='ar-add'; }
-    else if(comp>=55)    { act='持有';   cls='ar-hold'; }
-    else                 { act='减仓';   cls='ar-trim'; }
-    return { name:s.name, color:s.color, act, cls };
-  });
+  /* ── Actions ── */
+  let actions;
+  if (intent === 'add') {
+    actions = S.portfolio.map(s=>{
+      const ml=ML_SCORE[s.code]||50, comp=Math.round(ml*0.6+ZONE_SC[s.zone]*0.4), pnl=(s.cur-s.cost)/s.cost*100;
+      let act,cls;
+      if(comp>=70&&pnl<30){act='今日加仓';cls='ar-add';}
+      else if(comp>=70)   {act='已获利·观察';cls='ar-hold';}
+      else if(comp>=55)   {act='持有';cls='ar-hold';}
+      else                {act='不建议加';cls='ar-trim';}
+      return { name:s.name, color:s.color, act, cls };
+    });
+  } else if (intent === 'trim') {
+    actions = S.portfolio.map(s=>{
+      const ml=ML_SCORE[s.code]||50, comp=Math.round(ml*0.6+ZONE_SC[s.zone]*0.4);
+      let act,cls;
+      if(s.zone==='warn')  {act='立即减仓';cls='ar-trim';}
+      else if(comp<60)     {act='考虑减仓';cls='ar-trim';}
+      else if(comp>=70)    {act='保留';    cls='ar-add';}
+      else                 {act='观察';    cls='ar-hold';}
+      return { name:s.name, color:s.color, act, cls };
+    });
+  } else if (intent === 'watch') {
+    actions = S.portfolio.map(s=>{
+      const ml=ML_SCORE[s.code]||50, comp=Math.round(ml*0.6+ZONE_SC[s.zone]*0.4);
+      let act,cls;
+      if(s.zone==='warn') {act='重点关注';cls='ar-trim';}
+      else if(comp>=70)   {act='稳健持有';cls='ar-add';}
+      else                {act='保持观察';cls='ar-hold';}
+      return { name:s.name, color:s.color, act, cls };
+    });
+  } else {
+    actions = S.portfolio.map(s=>{
+      const ml=ML_SCORE[s.code]||50, comp=Math.round(ml*0.6+ZONE_SC[s.zone]*0.4), pnl=(s.cur-s.cost)/s.cost*100;
+      let act,cls;
+      if(comp>=70&&pnl<35){act='可加仓';cls='ar-add';}
+      else if(comp>=55)   {act='持有';  cls='ar-hold';}
+      else                {act='减仓';  cls='ar-trim';}
+      return { name:s.name, color:s.color, act, cls };
+    });
+  }
+
+  /* ── Extra section ── */
+  let extraHTML = '';
+  if (intent === 'add') {
+    const cands = ML_PICKS.filter(p=>!S.portfolio.some(s=>s.code===p.code)&&p.score>=75);
+    if(cands.length>0){
+      extraHTML = `<div class="brief-section-title">今日加仓候选（未持有 · ML 75分+）</div>
+        ${cands.slice(0,3).map(p=>`
+        <div class="add-pick-row">
+          <div class="apr-rank">#${p.rank}</div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <span style="font-size:14px;font-weight:900;color:${p.color}">${p.name}</span>
+              <span style="font-size:11px;color:var(--dim)">${p.sector}</span>
+              <span style="margin-left:auto;font-size:16px;font-weight:900;color:var(--green)">${p.score}</span>
+            </div>
+            <div style="font-size:12px;color:#6a90a8;line-height:1.6">${p.thesis.substring(0,85)}...</div>
+          </div>
+          <div class="apr-badge" style="background:#3fb95018;color:var(--green);border:1px solid #3fb95030;margin-left:10px">研究</div>
+        </div>`).join('')}`;
+    }
+  } else if (intent === 'trim') {
+    const redeploy = ML_PICKS.filter(p=>!S.portfolio.some(s=>s.code===p.code)).slice(0,3);
+    extraHTML = `<div class="brief-section-title">减仓后 · 资金备选方向</div>
+      ${redeploy.map(p=>`
+      <div class="add-pick-row">
+        <div class="apr-rank">#${p.rank}</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:14px;font-weight:900;color:${p.color}">${p.name}</span>
+            <span style="font-size:11px;color:var(--dim)">${p.sector}</span>
+            <span style="margin-left:auto;font-size:16px;font-weight:900;color:var(--green)">${p.score}</span>
+          </div>
+          <div style="font-size:12px;color:#6a90a8;line-height:1.6">${p.thesis.substring(0,85)}...</div>
+        </div>
+        <div class="apr-badge" style="background:#4c9ef018;color:var(--blue);border:1px solid #4c9ef030;margin-left:10px">备选</div>
+      </div>`).join('')}`;
+  }
+
+  /* ── Assemble ── */
+  const signalTitle = intent==='trim'?'风险信号（优先处理）':'今日核心信号';
+  const actionTitle = intent==='add'?'加仓视角 · 操作建议':intent==='trim'?'减仓清单':intent==='watch'?'持仓状态一览':'操作建议';
 
   const signalHTML = signals.map(sg=>`
     <div class="signal-item">
@@ -856,6 +1039,7 @@ function renderBrief() {
 
   document.getElementById('brief-content').innerHTML = `
     <div class="brief-hero">
+      ${modeBadgeHTML}
       <div class="brief-ai-row">
         <div class="brief-avatar">${S.aiName.charAt(0)}</div>
         <div>
@@ -866,39 +1050,25 @@ function renderBrief() {
       <div class="brief-intro-text">${greetText}</div>
 
       <div class="brief-scores">
-        <div class="bsc">
-          <div class="bsc-lbl">持仓综合分</div>
-          <div class="bsc-val ${gradeColor}">${m.comp}</div>
-          <div class="bsc-sub">满分 100</div>
-        </div>
-        <div class="bsc">
-          <div class="bsc-lbl">仓位评级</div>
-          <div class="bsc-val ${gradeColor}">${m.grade}</div>
-          <div class="bsc-sub">ML + 四象限</div>
-        </div>
-        <div class="bsc">
-          <div class="bsc-lbl">综合盈亏</div>
-          <div class="bsc-val ${pnlColor}">${pnlStr}</div>
-          <div class="bsc-sub">加权均值</div>
-        </div>
-        <div class="bsc">
-          <div class="bsc-lbl">ML 均分</div>
-          <div class="bsc-val clr-blue">${Math.round(m.avgML)}</div>
-          <div class="bsc-sub">截面加权</div>
-        </div>
+        <div class="bsc"><div class="bsc-lbl">持仓综合分</div><div class="bsc-val ${gradeColor}">${m.comp}</div><div class="bsc-sub">满分 100</div></div>
+        <div class="bsc"><div class="bsc-lbl">仓位评级</div><div class="bsc-val ${gradeColor}">${m.grade}</div><div class="bsc-sub">ML + 四象限</div></div>
+        <div class="bsc"><div class="bsc-val ${pnlColor}" style="font-size:20px;margin-top:6px">${pnlStr}</div><div class="bsc-lbl" style="margin-top:4px">综合盈亏</div></div>
+        <div class="bsc"><div class="bsc-lbl">ML 均分</div><div class="bsc-val clr-blue">${Math.round(m.avgML)}</div><div class="bsc-sub">截面加权</div></div>
       </div>
 
-      <div class="brief-section-title">今日核心信号</div>
+      <div class="brief-section-title">${signalTitle}</div>
       <div class="signal-list">${signalHTML}</div>
 
-      <div class="brief-section-title">操作建议</div>
+      <div class="brief-section-title">${actionTitle}</div>
       <div class="action-grid">${actionHTML}</div>
+
+      ${extraHTML}
     </div>
 
     <div class="brief-nav-row">
       <div class="bnb" onclick="showSec('news')">
         <div class="bnb-label">发生了什么</div>
-        <div class="bnb-sub">${NEWS.filter(n=>n.rel.some(r=>new Set(S.portfolio.map(s=>s.name)).has(r))).length} 条持仓相关新闻</div>
+        <div class="bnb-sub">${NEWS.filter(n=>n.rel.some(r=>userNms.has(r))).length} 条持仓相关新闻</div>
         <div class="bnb-arrow">查看详情 →</div>
       </div>
       <div class="bnb" onclick="showSec('money')">
@@ -908,7 +1078,7 @@ function renderBrief() {
       </div>
       <div class="bnb" onclick="showSec('portfolio')">
         <div class="bnb-label">我的仓位</div>
-        <div class="bnb-sub">综合评级 ${m.grade} · ${m.warns.length>0?m.warns.join('需关注'):'整体健康'}</div>
+        <div class="bnb-sub">综合评级 ${m.grade} · ${m.warns.length>0?m.warns.join('、')+'需关注':'整体健康'}</div>
         <div class="bnb-arrow">查看详情 →</div>
       </div>
     </div>`;
